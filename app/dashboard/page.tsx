@@ -4,15 +4,15 @@ import { paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { SiteFooter } from "@/components/site-footer";
 import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileText, CheckCircle, Copy, Laptop, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function DashboardPage() {
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
   const [sector, setSector] = useState("");
-  const [sourceUrl, setSourceUrl] = useState("");
+  const [quoteFiles, setQuoteFiles] = useState<File[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
-  const [budgetNote, setBudgetNote] = useState("Il budget verrà calcolato dall'AI sulla base del documento linkato.");
+  const [budgetNote, setBudgetNote] = useState("Il budget verrà calcolato dall'AI sulla base del preventivo caricato.");
   const [palette, setPalette] = useState<string[]>(["#0D9488", "#8B5CF6", "#F59E0B"]);
   const [brandMessage, setBrandMessage] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -24,16 +24,8 @@ export default function DashboardPage() {
   const [workspaceCount, setWorkspaceCount] = useState(0);
   const [planName, setPlanName] = useState("starter");
 
-  const linkCount = useMemo(() => (sourceUrl.trim() ? 1 : 0), [sourceUrl]);
-  const isValidSourceUrl = useMemo(() => {
-    if (!sourceUrl.trim()) return false;
-    try {
-      const url = new URL(sourceUrl.trim());
-      return url.protocol === "http:" || url.protocol === "https:";
-    } catch {
-      return false;
-    }
-  }, [sourceUrl]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
 
   useEffect(() => {
     void refreshWorkspace();
@@ -62,16 +54,13 @@ export default function DashboardPage() {
     setIsAnalyzing(true);
     setBrandMessage("");
     try {
-      const response = await fetch("/api/analyze-site", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          website: website.trim(),
-          sourceUrl: sourceUrl.trim(),
-          company: company.trim() || "Cliente",
-          sector: sector.trim() || "Business"
-        })
-      });
+      const form = new FormData();
+      form.append("website", website.trim());
+      form.append("company", company.trim() || "Cliente");
+      form.append("sector", sector.trim() || "Business");
+      for (const file of quoteFiles) form.append("files", file);
+
+      const response = await fetch("/api/analyze-site", { method: "POST", body: form });
       const payload = (await response.json()) as {
         palette?: string[];
         message?: string;
@@ -98,8 +87,8 @@ export default function DashboardPage() {
   }
 
   async function generateProposal() {
-    if (!company.trim() || !sourceUrl.trim() || !isValidSourceUrl) {
-      setApiMessage("Compila i campi obbligatori: azienda e link del preventivo (URL valido).");
+    if (!company.trim() || quoteFiles.length === 0) {
+      setApiMessage("Compila i campi obbligatori: azienda e carica almeno un file di preventivo.");
       return;
     }
     setIsGenerating(true);
@@ -109,17 +98,14 @@ export default function DashboardPage() {
         await analyzeBrand();
       }
 
-      const proposalResponse = await fetch("/api/proposals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          company: company.trim(),
-          website: website.trim(),
-          sector: sector.trim() || "Business",
-          sourceUrl: sourceUrl.trim(),
-          palette: palette.map((color) => color.toUpperCase())
-        })
-      });
+      const form = new FormData();
+      form.append("company", company.trim());
+      form.append("website", website.trim());
+      form.append("sector", sector.trim() || "Business");
+      form.append("palette", JSON.stringify(palette.map((color) => color.toUpperCase())));
+      for (const file of quoteFiles) form.append("files", file);
+
+      const proposalResponse = await fetch("/api/proposals", { method: "POST", body: form });
       const proposalPayload = (await proposalResponse.json()) as {
         link?: string;
         deployMessage?: string;
@@ -176,7 +162,8 @@ export default function DashboardPage() {
               setCompany("");
               setWebsite("");
               setSector("");
-              setSourceUrl("");
+              setQuoteFiles([]);
+              if (fileInputRef.current) fileInputRef.current.value = "";
               setBudget(null);
               setShareLink("");
               setApiMessage("");
@@ -265,20 +252,43 @@ export default function DashboardPage() {
             </label>
 
             <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
-              Link Preventivo / Documento *
-              <textarea
-                className="input min-h-36 resize-y"
-                required
-                placeholder="Incolla qui un link al preventivo (Google Docs, PDF, pagina web). Esempi:
-https://docs.google.com/document/d/.../edit
-https://example.com/preventivo.pdf"
-                value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
+              Preventivo Grezzo (File) *
+              <div
+                className="input min-h-36 resize-y whitespace-pre-line cursor-pointer"
+                role="button"
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") fileInputRef.current?.click();
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const files = Array.from(e.dataTransfer.files || []);
+                  if (files.length) setQuoteFiles(files);
+                }}
+              >
+                {quoteFiles.length
+                  ? `File selezionati:\n${quoteFiles.map((f) => f.name).join("\n")}`
+                  : "Clicca per caricare o trascina qui i file del preventivo (PDF, DOCX, TXT)."}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                multiple
+                accept=".pdf,.docx,.txt,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  setQuoteFiles(files);
+                }}
               />
             </label>
             <div className="flex justify-between items-center text-xs text-[var(--muted)]">
-              <span>Inserisci un link accessibile per generare un preventivo di qualità.</span>
-              <span className="font-mono">{linkCount} link</span>
+              <span>Clicca o trascina i file per generare un preventivo di qualità.</span>
+              <span className="font-mono">{fileCount} file</span>
             </div>
           </div>
 

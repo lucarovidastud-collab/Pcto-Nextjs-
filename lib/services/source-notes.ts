@@ -1,69 +1,32 @@
 import { formatReadableText } from "@/lib/utils/text";
 
-export async function resolveNotesFromSourceUrl(inputUrl: string) {
-  const url = normalizeHttpUrl(inputUrl);
-  const response = await fetch(url, { redirect: "follow" });
-  if (!response.ok) {
-    throw new Error(`Impossibile scaricare il documento (${response.status})`);
+export async function resolveNotesFromUploadedFile(file: File) {
+  if (!file) throw new Error("File mancante");
+  if (file.size > 8 * 1024 * 1024) throw new Error("File troppo grande");
+
+  const name = (file.name || "").toLowerCase();
+  const type = (file.type || "").toLowerCase();
+  const data = new Uint8Array(await file.arrayBuffer());
+
+  if (type.includes("application/pdf") || name.endsWith(".pdf")) {
+    const text = await extractPdfText(data);
+    return truncateForPrompt(formatReadableText(text));
   }
 
-  const contentType = (response.headers.get("content-type") || "").toLowerCase();
-  const data = await readResponseWithLimit(response, 8 * 1024 * 1024);
-
-  if (contentType.includes("application/pdf") || url.toLowerCase().endsWith(".pdf")) {
-    const text = await extractPdfText(data);
-    const cleaned = formatReadableText(text);
-    return truncateForPrompt(cleaned);
+  if (
+    type.includes("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+    name.endsWith(".docx")
+  ) {
+    const text = await extractDocxText(data);
+    return truncateForPrompt(formatReadableText(text));
   }
 
   const decoded = new TextDecoder("utf-8").decode(data);
-
-  if (contentType.includes("text/html") || /<\/(html|body)>/i.test(decoded)) {
-    const stripped = stripHtmlToText(decoded);
-    const cleaned = formatReadableText(stripped);
-    return truncateForPrompt(cleaned);
+  if (type.includes("text/html") || /<\/(html|body)>/i.test(decoded)) {
+    return truncateForPrompt(formatReadableText(stripHtmlToText(decoded)));
   }
 
   return truncateForPrompt(formatReadableText(decoded));
-}
-
-function normalizeHttpUrl(input: string) {
-  let url: URL;
-  try {
-    url = new URL(input.trim());
-  } catch {
-    throw new Error("Link non valido");
-  }
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("Link non valido");
-  }
-  return url.toString();
-}
-
-async function readResponseWithLimit(response: Response, limitBytes: number) {
-  if (!response.body) {
-    return new Uint8Array();
-  }
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let received = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (!value) continue;
-    received += value.length;
-    if (received > limitBytes) {
-      throw new Error("Documento troppo grande");
-    }
-    chunks.push(value);
-  }
-  const out = new Uint8Array(received);
-  let offset = 0;
-  for (const chunk of chunks) {
-    out.set(chunk, offset);
-    offset += chunk.length;
-  }
-  return out;
 }
 
 async function extractPdfText(data: Uint8Array) {
@@ -79,6 +42,19 @@ async function extractPdfText(data: Uint8Array) {
     pages.push(parts.join(" "));
   }
   return pages.join("\n");
+}
+
+async function extractDocxText(data: Uint8Array) {
+  const mammoth = await import("mammoth");
+  let arrayBuffer: ArrayBuffer;
+  if (data.buffer instanceof ArrayBuffer) {
+    arrayBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+  } else {
+    arrayBuffer = new ArrayBuffer(data.byteLength);
+    new Uint8Array(arrayBuffer).set(data);
+  }
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return result.value || "";
 }
 
 function stripHtmlToText(html: string) {
