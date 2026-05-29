@@ -33,22 +33,10 @@ async function extractPdfText(data: Uint8Array) {
   const mod = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const pdfjs: any = (mod as any).default || mod;
   try {
-    const nodeModule = await import("node:module");
-    const require = nodeModule.createRequire(import.meta.url);
-    const candidates = [
-      "pdfjs-dist/legacy/build/pdf.worker.mjs",
-      "pdfjs-dist/legacy/build/pdf.worker.js",
-      "pdfjs-dist/build/pdf.worker.mjs",
-      "pdfjs-dist/build/pdf.worker.js"
-    ];
-    for (const candidate of candidates) {
-      try {
-        pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(candidate);
-        break;
-      } catch {
-        // ignore
-      }
-    }
+    const path = await import("node:path");
+    const url = await import("node:url");
+    const workerPath = path.join(process.cwd(), "node_modules", "pdfjs-dist", "legacy", "build", "pdf.worker.mjs");
+    pdfjs.GlobalWorkerOptions.workerSrc = url.pathToFileURL(workerPath).toString();
   } catch {
     // ignore
   }
