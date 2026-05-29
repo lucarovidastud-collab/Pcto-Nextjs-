@@ -1,7 +1,12 @@
 import { formatReadableText } from "@/lib/utils/text";
 
 export function sanitizeProposalHtml(html: string) {
-  const cleanedButtons = html.replace(/<button\b[\s\S]*?<\/button>/gi, "");
+  const cleanedButtons = html
+    .replace(/<button\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/button>/gi, "")
+    .replace(/<a\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/a>/gi, "")
+    .replace(/<input\b[^>]*\bvalue\s*=\s*["']\s*accetta\s+preventivo\s*["'][^>]*>/gi, "")
+    .replace(/<button\b[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/button>/gi, "")
+    .replace(/<a\b[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi, "");
 
   const cleanedStyles = cleanedButtons.replace(/style="([^"]*)"/gi, (_, styleText: string) => {
     const sanitized = sanitizeInlineStyle(styleText);
@@ -69,7 +74,12 @@ function sanitizeInlineStyle(styleText: string) {
       if (dropBackground && (e.prop === "background-color" || e.prop === "background")) return false;
       return true;
     })
-    .map((e) => `${e.prop}: ${e.value}`)
+    .map((e) => {
+      if (e.prop === "text-align" && /^(right|end)$/i.test(e.value)) {
+        return "text-align: center";
+      }
+      return `${e.prop}: ${e.value}`;
+    })
     .join("; ");
 
   return rebuilt.trim();

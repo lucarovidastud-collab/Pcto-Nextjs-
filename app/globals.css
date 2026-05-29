@@ -335,6 +335,10 @@
   border: 1px solid var(--line);
 }
 
+.proposal-document .signature-box {
+  text-align: center;
+}
+
 .proposal-document th,
 .proposal-document td {
   padding: 0.85rem 1rem;

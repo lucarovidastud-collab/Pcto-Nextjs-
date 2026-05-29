@@ -38,13 +38,15 @@ function resolveHtml(proposal: ProposalView) {
   const palette = proposal.palette?.length ? proposal.palette : ["#0D9488", "#8B5CF6", "#F59E0B"];
   const html = proposal.generatedHtml?.trim();
   if (html && /<[a-z][\s\S]*>/i.test(html)) return sanitizeProposalHtml(html);
-  return buildFallbackProposalHtml({
-    company: proposal.company,
-    sector: formatReadableText(proposal.sector),
-    notes: proposal.notes || "",
-    budget: Number(proposal.budget) || 0,
-    palette
-  });
+  return sanitizeProposalHtml(
+    buildFallbackProposalHtml({
+      company: proposal.company,
+      sector: formatReadableText(proposal.sector),
+      notes: proposal.notes || "",
+      budget: Number(proposal.budget) || 0,
+      palette
+    })
+  );
 }
 
 export default function PublicProposalPage() {
