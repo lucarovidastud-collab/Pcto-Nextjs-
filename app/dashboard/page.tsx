@@ -293,17 +293,17 @@ export default function DashboardPage() {
           </div>
 
           {/* Step 3: Generazione AI & Risultato */}
-          <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
+          <div className="glass w-full rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">3</span>
               <h2 className="text-lg font-black tracking-tight">Genera & Pubblica</h2>
             </div>
 
             {/* Budget AI Card */}
-            <div className="rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-4 flex items-center justify-between gap-4 shadow-sm">
+            <div className="w-full min-w-0 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-4 flex items-center justify-between gap-4 shadow-sm">
               <div className="min-w-0">
                 <span className="text-[10px] font-extrabold text-[var(--muted)] uppercase tracking-wider block">Budget Stimato AI</span>
-                <p className="text-3xl font-black text-[var(--accent)] mt-0.5">
+                <p className="text-2xl sm:text-3xl font-black text-[var(--accent)] mt-0.5 break-words leading-tight">
                   {budget ? `€ ${budget.toLocaleString("it-IT")}` : "In attesa dell'AI..."}
                 </p>
                 <p className="text-[11px] text-[var(--muted)] mt-1 truncate max-w-md" title={budgetNote}>
@@ -320,17 +320,17 @@ export default function DashboardPage() {
               <button
                 onClick={generateProposal}
                 disabled={isGenerating || isAnalyzing}
-                className="btn-primary w-full flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem]"
+                className="btn-primary w-full min-w-0 flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem]"
               >
                 {isGenerating ? (
                   <>
                     <Laptop className="animate-bounce" size={18} />
-                    <span>L&apos;AI sta compilando il preventivo...</span>
+                    <span className="text-center leading-tight break-words">L&apos;AI sta compilando il preventivo...</span>
                   </>
                 ) : (
                   <>
                     <Send size={16} />
-                    <span>Compila & Genera Proposta Brandizzata</span>
+                    <span className="text-center leading-tight break-words">Compila & Genera Proposta Brandizzata</span>
                   </>
                 )}
               </button>
