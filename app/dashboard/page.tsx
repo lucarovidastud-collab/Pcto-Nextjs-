@@ -401,13 +401,13 @@ export default function DashboardPage() {
             <p className="text-xs text-[var(--muted)] mb-4">
               Ispirata al sito web del cliente. Clicca su un cerchio per copiare il codice HEX.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {palette.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => copyColor(color)}
-                  className="group relative flex h-11 w-11 sm:h-12 sm:w-12 flex-col items-center justify-center rounded-xl border border-[var(--line)] shadow-sm transition-transform active:scale-95 shrink-0"
+                  className="group relative aspect-square w-full flex-col items-center justify-center rounded-xl border border-[var(--line)] shadow-sm transition-transform active:scale-95"
                   style={{ background: color }}
                   title={`Copia ${color}`}
                 >
@@ -432,12 +432,12 @@ export default function DashboardPage() {
             </h3>
             
             <div className="grid gap-3 text-xs">
-              <div className="flex items-center justify-between py-1 border-b border-[var(--line)]/50">
+              <div className="flex flex-col gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[var(--muted)]">Proposte create</span>
                 <strong className="text-[var(--foreground)]">{workspaceCount}</strong>
               </div>
               
-              <div className="flex items-center justify-between py-1 border-b border-[var(--line)]/50">
+              <div className="flex flex-col gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[var(--muted)]">Piano Abbonamento</span>
                 <span className="rounded-full bg-[var(--accent-glow)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)]">
                   {planName}
