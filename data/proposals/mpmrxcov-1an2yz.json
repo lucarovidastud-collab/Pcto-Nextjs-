@@ -1,0 +1,16 @@
+{
+  "id": "mpmrxcov-1an2yz",
+  "createdAt": "2026-05-26T15:12:10.111Z",
+  "company": "DMA Digital Atelier",
+  "website": "https://example.com",
+  "sector": "Software house, automazione commerciale, preventivi digitali",
+  "notes": "Landing page premium, integrazione CRM, area clienti. Budget indicativo 4200 euro. Urgente entro 45 giorni.",
+  "preset": "Aurora",
+  "budget": 4200,
+  "palette": [
+    "#0f766e",
+    "#d946ef",
+    "#f59e0b"
+  ],
+  "paletteMessage": "Palette non trovata nel sito"
+}

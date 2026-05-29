@@ -1,0 +1,16 @@
+{
+  "id": "mpp7tker-zpfl2t",
+  "createdAt": "2026-05-28T08:12:39.699Z",
+  "company": "DMA Digital Atelier",
+  "website": "https://www.kfc.it/",
+  "sector": "Software house, automazione commerciale, preventivi digitali",
+  "notes": "Landing page premium, integrazione CRM, area clienti. Budget indicativo 4200 euro. Urgente entro 45 giorni.",
+  "preset": "Aurora",
+  "budget": 4200,
+  "palette": [
+    "#D81E05",
+    "#FFC72C",
+    "#FFFFFF"
+  ],
+  "paletteMessage": "Palette estratta da HTML/CSS del sito cliente"
+}

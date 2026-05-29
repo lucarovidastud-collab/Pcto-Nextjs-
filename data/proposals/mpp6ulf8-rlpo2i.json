@@ -1,0 +1,16 @@
+{
+  "id": "mpp6ulf8-rlpo2i",
+  "createdAt": "2026-05-28T07:45:28.052Z",
+  "company": "Kfc Corporation",
+  "website": "https://www.kfc.it/",
+  "sector": "Software house, automazione commerciale, preventivi digitali",
+  "notes": "Landing page premium, integrazione CRM, area clienti. Budget indicativo 4200 euro. Urgente entro 45 giorni.",
+  "preset": "Aurora",
+  "budget": 4200,
+  "palette": [
+    "#D81E05",
+    "#FFC72C",
+    "#FFFFFF"
+  ],
+  "paletteMessage": "Palette estratta da HTML/CSS del sito cliente"
+}

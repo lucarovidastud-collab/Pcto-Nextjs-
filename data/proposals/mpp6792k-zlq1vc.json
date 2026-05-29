@@ -1,0 +1,16 @@
+{
+  "id": "mpp6792k-zlq1vc",
+  "createdAt": "2026-05-28T07:27:18.956Z",
+  "company": "DMA Digital Atelier",
+  "website": "https://example.com",
+  "sector": "Software house, automazione commerciale, preventivi digitali",
+  "notes": "Landing page premium, integrazione CRM, area clienti. Budget indicativo 4200 euro. Urgente entro 45 giorni.",
+  "preset": "Executive",
+  "budget": 4200,
+  "palette": [
+    "#D81E05",
+    "#29ABE2",
+    "#FFFFFF"
+  ],
+  "paletteMessage": "Palette identificata con AI da screenshot multipli del sito cliente Stile rilevato: Moderno e professionale, con un focus sull'accessibilità e la chiarezza visiva.."
+}

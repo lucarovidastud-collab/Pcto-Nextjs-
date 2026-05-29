@@ -1,0 +1,15 @@
+.env
+.vercel
+node_modules
+.next
+coverage
+playwright-report
+test-results
+data/app.db
+data/proposals/*.json
+data/backups/
+.npm-cache
+tsconfig.tsbuildinfo
+
+# Sentry Config File
+.env.sentry-build-plugin
