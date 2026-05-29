@@ -130,15 +130,33 @@ export async function ensureBillingPortalConfiguration() {
 }
 
 export async function getBillingDiagnostics() {
+  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET || "").trim();
+  const publishableKey = (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "").trim();
+  const allowSandbox = process.env.NODE_ENV !== "production" || process.env.BILLING_ALLOW_SANDBOX === "1";
+
   if (!stripe) {
     return {
       configured: false,
       mode: "missing" as const,
+      webhookConfigured: webhookSecret.startsWith("whsec_"),
+      publishableConfigured: publishableKey.startsWith("pk_"),
+      allowSandbox,
       message: "STRIPE_SECRET_KEY non impostata"
     };
   }
 
   try {
+    let chargesEnabled: boolean | undefined;
+    let accountId: string | undefined;
+    try {
+      const account = await (stripe as any).accounts.retrieve();
+      accountId = account.id;
+      chargesEnabled = Boolean((account as any).charges_enabled);
+    } catch {
+      chargesEnabled = undefined;
+      accountId = undefined;
+    }
+
     const portal = await stripe.billingPortal.configurations.list({ limit: 1 });
     const resolved: Record<string, string> = {};
 
@@ -159,7 +177,12 @@ export async function getBillingDiagnostics() {
     return {
       configured: true,
       mode: stripeMode(),
+      accountId: accountId || null,
+      chargesEnabled,
       portalConfigured: portal.data.length > 0,
+      webhookConfigured: webhookSecret.startsWith("whsec_"),
+      publishableConfigured: publishableKey.startsWith("pk_"),
+      allowSandbox,
       configuredRefs: {
         starter: configuredRefForPlan("starter") || null,
         growth: configuredRefForPlan("growth") || null,
@@ -172,6 +195,9 @@ export async function getBillingDiagnostics() {
     return {
       configured: true,
       mode: stripeMode(),
+      webhookConfigured: webhookSecret.startsWith("whsec_"),
+      publishableConfigured: publishableKey.startsWith("pk_"),
+      allowSandbox,
       message: error instanceof Error ? error.message : "Errore diagnostica Stripe"
     };
   }

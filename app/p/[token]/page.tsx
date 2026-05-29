@@ -56,6 +56,16 @@ export default function PublicProposalPage() {
   const [loadingSign, setLoadingSign] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      document.documentElement.dataset.theme = mq.matches ? "dark" : "light";
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  useEffect(() => {
     void (async () => {
       const response = await fetch(`/api/public/proposals/${token}`);
       if (!response.ok) {
@@ -163,7 +173,7 @@ export default function PublicProposalPage() {
           </header>
 
           {/* Proposal HTML Document Content */}
-          <div className="proposal-document px-6 py-10 sm:px-12 prose dark:prose-invert max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)]">
+          <div className="proposal-document px-6 py-10 sm:px-12 prose max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)]">
             <div dangerouslySetInnerHTML={{ __html: documentHtml }} />
           </div>
 
