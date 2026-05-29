@@ -432,14 +432,14 @@ export default function DashboardPage() {
             </h3>
             
             <div className="grid gap-3 text-xs">
-              <div className="flex flex-col gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[var(--muted)]">Proposte create</span>
-                <strong className="text-[var(--foreground)]">{workspaceCount}</strong>
+                <strong className="text-[var(--foreground)] w-fit">{workspaceCount}</strong>
               </div>
               
-              <div className="flex flex-col gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[var(--muted)]">Piano Abbonamento</span>
-                <span className="rounded-full bg-[var(--accent-glow)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)]">
+                <span className="rounded-full bg-[var(--accent-glow)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)] w-fit">
                   {planName}
                 </span>
               </div>
