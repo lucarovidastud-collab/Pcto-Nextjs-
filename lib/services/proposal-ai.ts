@@ -24,6 +24,8 @@ Regole:
 - applica colori brand inline dove utile: primary ${primary}, secondary ${secondary}, tertiary ${tertiary}
 - titoli h3 con style="color:${primary}"
 - bordi card con style="border-left:4px solid ${primary}"
+- accessibilità: garantisci sempre testo leggibile (no testo bianco su sfondo chiaro, no testo nero su sfondo scuro)
+- non impostare colori testo/sfondo inline su paragrafi e righe tabella; lascia colore di default e usa i colori brand solo per accenti (titoli, bordi, highlight leggeri)
 - includi tabella prezzi e sezione firma con button "Accetta Preventivo"
 - tono professionale B2B, frasi brevi, spazi dopo i punti`;
 
