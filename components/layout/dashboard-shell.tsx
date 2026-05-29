@@ -13,12 +13,17 @@ const links = [
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+    const stored = window.localStorage.getItem("quotegen_theme");
+    return stored === "dark" ? "dark" : "light";
+  });
   const [email, setEmail] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("quotegen_theme", theme);
   }, [theme]);
 
   useEffect(() => {

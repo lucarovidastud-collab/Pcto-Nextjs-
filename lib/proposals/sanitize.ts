@@ -1,7 +1,9 @@
 import { formatReadableText } from "@/lib/utils/text";
 
 export function sanitizeProposalHtml(html: string) {
-  const cleanedStyles = html.replace(/style="([^"]*)"/gi, (_, styleText: string) => {
+  const cleanedButtons = html.replace(/<button\b[\s\S]*?<\/button>/gi, "");
+
+  const cleanedStyles = cleanedButtons.replace(/style="([^"]*)"/gi, (_, styleText: string) => {
     const sanitized = sanitizeInlineStyle(styleText);
     if (!sanitized) return "";
     return `style="${sanitized}"`;

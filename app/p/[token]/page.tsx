@@ -156,19 +156,6 @@ export default function PublicProposalPage() {
                 <Calendar size={14} />
                 <span>Scadenza: {formatDate(proposal.expiresAt)}</span>
               </span>
-              
-              {/* Client brand palette preview */}
-              <div className="flex items-center gap-1.5 ml-auto">
-                <span className="text-[10px] font-bold text-[var(--muted)] mr-1">Brand Colors</span>
-                {palette.map((color) => (
-                  <span
-                    key={color}
-                    className="h-6 w-6 rounded-full border border-[var(--line)] shadow-sm shrink-0"
-                    style={{ background: color }}
-                    title={color}
-                  />
-                ))}
-              </div>
             </div>
           </header>
 

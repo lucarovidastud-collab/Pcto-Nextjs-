@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   if (auth.error || !auth.session) return auth.error!;
 
   try {
-    const session = await createCustomerPortalSession(auth.session.tenantId, auth.session.email);
+    const session = await createCustomerPortalSession(auth.session.tenantId, auth.session.email, request.nextUrl.origin);
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Portale clienti non disponibile";

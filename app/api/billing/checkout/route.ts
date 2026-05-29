@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
   }
 
   const allowSandbox = process.env.NODE_ENV !== "production" || process.env.BILLING_ALLOW_SANDBOX === "1";
+  const baseUrl = request.nextUrl.origin;
 
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
       stripeSubscriptionId: "sub_sandbox_" + auth.session.tenantId
     });
     return NextResponse.json({
-      url: `${process.env.APP_URL || "http://localhost:3000"}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
+      url: `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
     });
   }
 
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       stripeSubscriptionId: "sub_sandbox_" + auth.session.tenantId
     });
     return NextResponse.json({
-      url: `${process.env.APP_URL || "http://localhost:3000"}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
+      url: `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
     });
   }
 
@@ -70,7 +71,8 @@ export async function POST(request: NextRequest) {
     const session = await createCheckoutSession({
       tenantId: auth.session.tenantId,
       email: auth.session.email,
-      plan: parsed.data.plan as PlanName
+      plan: parsed.data.plan as PlanName,
+      baseUrl
     });
     return NextResponse.json({ url: session.url });
   } catch (error) {
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest) {
       stripeSubscriptionId: "sub_fallback_" + auth.session.tenantId
     });
     return NextResponse.json({
-      url: `${process.env.APP_URL || "http://localhost:3000"}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
+      url: `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
     });
   }
 }

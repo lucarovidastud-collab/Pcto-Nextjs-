@@ -16,8 +16,20 @@ export function getPlanLimits(plan: string) {
   return planCatalog[(plan as PlanName) || "starter"] || planCatalog.starter;
 }
 
-function appUrl() {
-  return process.env.APP_URL || "http://localhost:3000";
+function normalizeBaseUrl(value: string) {
+  let raw = value.trim();
+  if (
+    (raw.startsWith("`") && raw.endsWith("`")) ||
+    (raw.startsWith('"') && raw.endsWith('"')) ||
+    (raw.startsWith("'") && raw.endsWith("'"))
+  ) {
+    raw = raw.slice(1, -1).trim();
+  }
+  return raw || "http://localhost:3000";
+}
+
+function appUrl(fallback?: string) {
+  return normalizeBaseUrl(process.env.APP_URL || fallback || "http://localhost:3000");
 }
 
 function stripeMode() {
@@ -230,19 +242,21 @@ export async function createCheckoutSession(input: {
   tenantId: string;
   email: string;
   plan: PlanName;
+  baseUrl?: string;
 }) {
   if (!stripe) throw new Error("Stripe non configurato");
 
   const customerId = await getOrCreateStripeCustomer(input.tenantId, input.email);
   const priceId = await resolvePlanPriceId(input.plan);
+  const baseUrl = appUrl(input.baseUrl);
 
   try {
     return await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl()}/dashboard/billing?checkout=success&plan=${input.plan}`,
-      cancel_url: `${appUrl()}/dashboard/billing?checkout=cancel`,
+      success_url: `${baseUrl}/dashboard/billing?checkout=success&plan=${input.plan}`,
+      cancel_url: `${baseUrl}/dashboard/billing?checkout=cancel`,
       metadata: { tenantId: input.tenantId, plan: input.plan },
       subscription_data: { metadata: { tenantId: input.tenantId, plan: input.plan } },
       allow_promotion_codes: true,
@@ -254,16 +268,17 @@ export async function createCheckoutSession(input: {
   }
 }
 
-export async function createCustomerPortalSession(tenantId: string, email: string) {
+export async function createCustomerPortalSession(tenantId: string, email: string, baseUrl?: string) {
   if (!stripe) throw new Error("Stripe non configurato");
 
   await ensureBillingPortalConfiguration();
   const customerId = await getOrCreateStripeCustomer(tenantId, email);
+  const resolvedBase = appUrl(baseUrl);
 
   try {
     return await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${appUrl()}/dashboard/billing`
+      return_url: `${resolvedBase}/dashboard/billing`
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Errore portale Stripe";
