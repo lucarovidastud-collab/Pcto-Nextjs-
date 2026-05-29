@@ -27,11 +27,6 @@ export default function DashboardPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
 
-  useEffect(() => {
-    void refreshWorkspace();
-    void refreshBilling();
-  }, []);
-
   async function refreshWorkspace() {
     const response = await fetch("/api/workspaces");
     if (!response.ok) return;
@@ -45,6 +40,14 @@ export default function DashboardPage() {
     const payload = (await response.json()) as { current: { plan: string } };
     setPlanName(payload.current.plan);
   }
+
+  useEffect(() => {
+    const init = async () => {
+      await refreshWorkspace();
+      await refreshBilling();
+    };
+    void init();
+  }, []);
 
   async function analyzeBrand() {
     if (!website.trim()) {

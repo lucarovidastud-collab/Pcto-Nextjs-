@@ -34,15 +34,19 @@ async function extractPdfText(data: Uint8Array) {
     import("pdfjs-dist/legacy/build/pdf.mjs"),
     import("pdfjs-dist/legacy/build/pdf.worker.mjs")
   ]);
-  const pdfjs: any = (mod as any).default || mod;
-  (globalThis as any).pdfjsWorker = worker as any;
+  const pdfjs = ((mod as unknown as { default: unknown }).default || mod) as unknown as {
+    getDocument: (args: { data: Uint8Array; disableWorker: boolean }) => {
+      promise: Promise<{ numPages: number; getPage: (n: number) => Promise<{ getTextContent: () => Promise<{ items: Array<{ str?: string }> }> }> }>;
+    };
+  };
+  (globalThis as unknown as { pdfjsWorker: unknown }).pdfjsWorker = worker;
   const loadingTask = pdfjs.getDocument({ data, disableWorker: true });
   const doc = await loadingTask.promise;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber += 1) {
     const page = await doc.getPage(pageNumber);
     const content = await page.getTextContent();
-    const parts = (content.items || []).map((item: any) => (typeof item?.str === "string" ? item.str : ""));
+    const parts = (content.items || []).map((item) => (typeof item?.str === "string" ? item.str : ""));
     pages.push(parts.join(" "));
   }
   return pages.join("\n");

@@ -161,9 +161,9 @@ export async function getBillingDiagnostics() {
     let chargesEnabled: boolean | undefined;
     let accountId: string | undefined;
     try {
-      const account = await (stripe as any).accounts.retrieve();
+      const account = await (stripe.accounts as any).retrieve();
       accountId = account.id;
-      chargesEnabled = Boolean((account as any).charges_enabled);
+      chargesEnabled = account.charges_enabled;
     } catch {
       chargesEnabled = undefined;
       accountId = undefined;
