@@ -63,7 +63,7 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
         setLoading(null);
         return;
       }
-      window.location.href = payload.url;
+      window.location.assign(payload.url);
     } catch {
       setMessage("Errore di connessione. Riprova più tardi.");
       setLoading(null);
@@ -81,7 +81,7 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
         setLoading(null);
         return;
       }
-      window.location.href = payload.url;
+      window.location.assign(payload.url);
     } catch {
       setMessage("Errore di connessione al portale Stripe.");
       setLoading(null);

@@ -40,16 +40,17 @@ export async function upsertUserFromFirebase(input: {
   const db = getFirestoreDb();
   const userRef = db.collection("users").doc(input.uid);
   const now = new Date().toISOString();
-  await userRef.set(
-    {
-      email: input.email,
-      displayName: input.displayName || "",
-      photoURL: input.photoURL || "",
-      updatedAt: now,
-      createdAt: now
-    },
-    { merge: true }
-  );
+  const userDoc = await userRef.get();
+  const userData: Record<string, string> = {
+    email: input.email,
+    displayName: input.displayName || "",
+    photoURL: input.photoURL || "",
+    updatedAt: now
+  };
+  if (!userDoc.exists) {
+    userData.createdAt = now;
+  }
+  await userRef.set(userData, { merge: true });
 
   const memberships = await db.collection("memberships").where("userId", "==", input.uid).limit(1).get();
   if (!memberships.empty) {

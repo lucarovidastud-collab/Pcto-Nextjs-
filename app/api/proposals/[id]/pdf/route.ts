@@ -20,8 +20,17 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
   doc.text(`Budget: EUR ${String(proposal.budget)}`, 14, 38);
   doc.text(`Stato: ${String(proposal.status)}`, 14, 46);
   doc.text(`Scadenza link: ${String(proposal.expiresAt)}`, 14, 54);
-  const notes = String(proposal.notes || "").slice(0, 1200);
-  doc.text(doc.splitTextToSize(notes, 180), 14, 66);
+  const notes = String(proposal.notes || "").slice(0, 4000);
+  const splitNotes = doc.splitTextToSize(notes, 180);
+  let y = 66;
+  for (const line of splitNotes) {
+    if (y > 280) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.text(line, 14, y);
+    y += 7;
+  }
 
   const buffer = Buffer.from(doc.output("arraybuffer"));
   return new NextResponse(buffer, {

@@ -4,15 +4,11 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 
 function normalizeHex(color: string) {
-  const clean = color.replace("#", "").trim();
+  const clean = color.replace("#", "").trim().toUpperCase();
   if (clean.length === 3) {
-    return `#${clean
-      .split("")
-      .map((char) => char + char)
-      .join("")
-      .toUpperCase()}`;
+    return `#${clean[0]}${clean[0]}${clean[1]}${clean[1]}${clean[2]}${clean[2]}`;
   }
-  return `#${clean.slice(0, 6).toUpperCase()}`;
+  return `#${clean.slice(0, 6).padEnd(6, "0")}`;
 }
 
 function isPublicHttpUrl(value: string) {
@@ -38,7 +34,7 @@ function extractPalette(html: string) {
     if (!/^#[0-9A-F]{6}$/.test(normalized)) return;
     candidates.set(normalized, (candidates.get(normalized) || 0) + weight);
   };
-  for (const match of html.matchAll(/#[0-9a-fA-F]{3,6}\b/g)) add(match[0], 1);
+  for (const match of html.matchAll(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g)) add(match[0], 1);
   for (const match of html.matchAll(/rgba?\(\s*(\d{1,3})[\s,]+(\d{1,3})[\s,]+(\d{1,3})/gi)) {
     const hex = [match[1], match[2], match[3]]
       .map((v) => Number(v).toString(16).padStart(2, "0"))

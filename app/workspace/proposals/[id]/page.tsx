@@ -18,7 +18,7 @@ export default function WorkspaceProposalPage() {
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [message, setMessage] = useState("");
 
-  async function load() {
+  const load = async () => {
     const response = await fetch(`/api/proposals/${id}`);
     if (!response.ok) {
       setMessage("Proposta non trovata o sessione scaduta.");
@@ -26,7 +26,7 @@ export default function WorkspaceProposalPage() {
     }
     const payload = (await response.json()) as { proposal: Proposal };
     setProposal(payload.proposal);
-  }
+  };
 
   useEffect(() => {
     void load();

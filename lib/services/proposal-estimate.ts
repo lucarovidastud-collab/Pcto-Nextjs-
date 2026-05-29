@@ -9,7 +9,10 @@ function extractBudgetFromNotes(notes: string) {
   }
   const plain = notes.match(/\b([\d]{3,6})\b/g);
   if (plain?.length) {
-    const candidates = plain.map((v) => Number(v)).filter((v) => v >= 800 && v <= 250_000);
+    const currentYear = new Date().getFullYear();
+    const candidates = plain
+      .map((v) => Number(v))
+      .filter((v) => v >= 800 && v <= 250_000 && v !== currentYear && v !== currentYear + 1);
     if (candidates.length) return Math.round(candidates.sort((a, b) => b - a)[0]);
   }
   return null;
