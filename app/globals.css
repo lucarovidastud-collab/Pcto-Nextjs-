@@ -42,7 +42,30 @@
 
   * {
     box-sizing: border-box;
-    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  body,
+  .glass,
+  .glass-premium,
+  .nav-link,
+  .input,
+  .btn-primary,
+  .btn-secondary,
+  .proposal-branded .btn-brand {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body,
+    .glass,
+    .glass-premium,
+    .nav-link,
+    .input,
+    .btn-primary,
+    .btn-secondary,
+    .proposal-branded .btn-brand {
+      transition: none;
+    }
   }
 
   html {
@@ -327,10 +350,15 @@
 
 .proposal-document table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 1.5rem 0;
   border-radius: 0.75rem;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: block;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
 }
@@ -357,6 +385,13 @@
 .proposal-document td {
   background: var(--panel-strong);
   border-top: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .proposal-document th,
+  .proposal-document td {
+    white-space: nowrap;
+  }
 }
 
 /* Custom Scrollbars */

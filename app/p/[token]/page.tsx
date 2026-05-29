@@ -127,14 +127,14 @@ export default function PublicProposalPage() {
   const sectorLabel = truncateText(formatReadableText(proposal.sector), 160);
 
   return (
-    <main className="proposal-branded min-h-screen px-4 py-12 text-[var(--foreground)] sm:px-6 transition-all" style={{ ...themeVars, ...pageBg }}>
+    <main className="proposal-branded min-h-screen px-4 py-8 text-[var(--foreground)] sm:px-6 sm:py-12 transition-all" style={{ ...themeVars, ...pageBg }}>
       <div className="mx-auto max-w-4xl grid gap-8">
         
         {/* Main Proposal Card Container */}
         <article className="glass overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--brand-primary)_25%,var(--line))] shadow-2xl bg-[color-mix(in_srgb,var(--panel-strong)_95%,transparent)]">
           
           {/* Custom Branded Header Banner */}
-          <header className="brand-header border-b border-[var(--line)] px-6 py-10 sm:px-12 flex flex-col gap-6">
+          <header className="brand-header border-b border-[var(--line)] px-6 py-8 sm:px-12 sm:py-10 flex flex-col gap-6">
             <div>
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--muted)]">
                 <Award size={14} className="text-[var(--brand-primary)]" />
@@ -162,7 +162,7 @@ export default function PublicProposalPage() {
           </header>
 
           {/* Proposal HTML Document Content */}
-          <div className="proposal-document px-6 py-10 sm:px-12 prose max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)]">
+          <div className="proposal-document px-6 py-10 sm:px-12 prose max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)] overflow-x-auto break-words">
             <div dangerouslySetInnerHTML={{ __html: documentHtml }} />
           </div>
 
@@ -243,7 +243,7 @@ export default function PublicProposalPage() {
 
             {message && !isSigned && (
               <p className="mt-3 text-xs text-[var(--muted)] bg-[var(--panel-strong)] rounded-lg p-2.5 border border-[var(--line)] leading-normal max-w-lg">
-                💡 {message}
+                {message}
               </p>
             )}
           </section>

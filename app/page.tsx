@@ -6,13 +6,16 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-white">
       {/* Sleek Global Header */}
-      <header className="glass sticky top-0 z-50 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] px-6 py-4">
+      <header className="glass sticky top-0 z-50 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-white shadow-md">
               <Sparkles size={16} />
             </span>
-            <span className="text-lg font-black tracking-tight">QuoteGen <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">Engine</span></span>
+            <span className="text-base font-black tracking-tight sm:text-lg">
+              QuoteGen{" "}
+              <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">Engine</span>
+            </span>
           </div>
           
           <div className="flex items-center gap-4">
@@ -24,14 +27,14 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative px-6 py-20 lg:py-32">
+      <section className="relative px-4 py-14 sm:px-6 sm:py-20 lg:py-32">
         <div className="mx-auto flex max-w-6xl flex-col items-center text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel)] px-4 py-1.5 text-xs font-bold text-[var(--accent)] shadow-sm">
             <Sparkles size={13} />
             <span>Nuova versione enterprise con IA Generativa</span>
           </div>
 
-          <h1 className="max-w-4xl text-5xl font-black leading-[1.1] tracking-tight sm:text-7xl">
+          <h1 className="max-w-4xl text-4xl font-black leading-[1.1] tracking-tight sm:text-6xl lg:text-7xl">
             Preventivi commerciali con{" "}
             <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">
               AI & Brand Styling
@@ -42,12 +45,12 @@ export default function LandingPage() {
             Incolla appunti disordinati. QuoteGen analizza il sito web del cliente, stima il budget, estrae la palette e genera una proposta digitale firmabile online.
           </p>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link href="/login" className="btn-primary flex items-center gap-2 px-8 py-3.5 text-sm font-extrabold shadow-lg">
+          <div className="mt-10 flex w-full max-w-md flex-col justify-center gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:gap-4">
+            <Link href="/login" className="btn-primary flex w-full items-center justify-center gap-2 px-8 py-3.5 text-sm font-extrabold shadow-lg sm:w-auto">
               Crea preventivo gratis
               <ArrowRight size={16} />
             </Link>
-            <a href="#piani" className="btn-secondary px-8 py-3.5 text-sm font-bold">
+            <a href="#piani" className="btn-secondary w-full px-8 py-3.5 text-sm font-bold sm:w-auto">
               Esplora i piani
             </a>
           </div>
@@ -60,7 +63,9 @@ export default function LandingPage() {
                   <span className="h-3 w-3 rounded-full bg-red-400"></span>
                   <span className="h-3 w-3 rounded-full bg-yellow-400"></span>
                   <span className="h-3 w-3 rounded-full bg-green-400"></span>
-                  <span className="ml-2 text-xs font-mono text-[var(--muted)]">workspace/prop_0912f.pdf</span>
+                  <span className="ml-2 max-w-[160px] truncate text-xs font-mono text-[var(--muted)] sm:max-w-none">
+                    workspace/prop_0912f.pdf
+                  </span>
                 </div>
                 <span className="rounded-lg bg-[var(--accent-glow)] px-2.5 py-1 text-xs font-bold text-[var(--accent)]">
                   Analisi completata

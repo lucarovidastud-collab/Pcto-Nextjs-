@@ -254,7 +254,7 @@ export default function DashboardPage() {
             <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
               Preventivo Grezzo (File) *
               <div
-                className="input min-h-36 resize-y whitespace-pre-line cursor-pointer"
+                className="input min-h-36 resize-y whitespace-pre-line break-words cursor-pointer"
                 role="button"
                 tabIndex={0}
                 onClick={() => fileInputRef.current?.click()}
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                 }}
               />
             </label>
-            <div className="flex justify-between items-center text-xs text-[var(--muted)]">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-xs text-[var(--muted)]">
               <span>Clicca o trascina i file per generare un preventivo di qualità.</span>
               <span className="font-mono">{fileCount} file</span>
             </div>

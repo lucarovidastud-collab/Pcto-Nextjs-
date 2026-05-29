@@ -256,12 +256,12 @@ export default function LoginPage() {
               {/* Feedback messages */}
               {error ? (
                 <div className="rounded-xl border border-red-200 bg-red-500/10 px-4 py-3 text-xs text-red-600 leading-normal">
-                  ⚠️ {error}
+                  {error}
                 </div>
               ) : null}
               {success ? (
                 <div className="rounded-xl border border-emerald-200 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-600 font-semibold">
-                  ✓ {success}
+                  {success}
                 </div>
               ) : null}
 
@@ -284,7 +284,7 @@ export default function LoginPage() {
 
             {/* Simulated/Demo Login Helper Callout */}
             <div className="mt-5 rounded-xl border border-amber-300/30 bg-amber-500/5 px-4 py-3 text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
-              💡 <strong>Modalità Demo:</strong> Usa l&apos;email <strong>admin@quotegen.local</strong> e password <strong>admin12345</strong> per provare istantaneamente tutte le feature senza configurare Firebase Auth.
+              <strong>Modalità Demo:</strong> Usa l&apos;email <strong>admin@quotegen.local</strong> e password <strong>admin12345</strong> per provare istantaneamente tutte le feature senza configurare Firebase Auth.
             </div>
 
             {/* Separator */}

@@ -27,6 +27,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
+    if (!mobileMenuOpen) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     void (async () => {
       const response = await fetch("/api/auth/me");
       const payload = (await response.json()) as { authenticated?: boolean; user?: { email: string } };
@@ -78,8 +90,20 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Menu Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-          <aside className="glass absolute top-0 right-0 h-full w-[280px] p-6 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-right duration-200">
+        <div
+          className="fixed inset-0 z-50 lg:hidden bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+          role="button"
+          tabIndex={0}
+          aria-label="Chiudi menu"
+          onClick={() => setMobileMenuOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" || e.key === "Enter" || e.key === " ") setMobileMenuOpen(false);
+          }}
+        >
+          <aside
+            className="glass absolute top-0 right-0 h-full w-[280px] p-6 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-right duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
               <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-white">
