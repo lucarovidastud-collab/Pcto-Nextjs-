@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/security/guard";
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
+import { resolveNotesFromSourceUrl } from "@/lib/services/source-notes";
 import { analyzeSiteSchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
@@ -14,10 +15,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
   }
   const result = await analyzeWebsitePalette(parsed.data.website);
+  let notes = (parsed.data.notes || "").trim();
+  if (notes.length < 10 && parsed.data.sourceUrl) {
+    try {
+      notes = await resolveNotesFromSourceUrl(parsed.data.sourceUrl);
+    } catch {
+      notes = "";
+    }
+  }
+
   const estimate =
-    parsed.data.notes && parsed.data.notes.length >= 10
+    notes.length >= 10
       ? await estimateBudgetFromNotes({
-          notes: parsed.data.notes,
+          notes,
           company: parsed.data.company || "Cliente",
           sector: parsed.data.sector || "Business",
           website: parsed.data.website

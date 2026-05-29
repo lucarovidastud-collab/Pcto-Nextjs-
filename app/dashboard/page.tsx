@@ -10,9 +10,9 @@ export default function DashboardPage() {
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
   const [sector, setSector] = useState("");
-  const [notes, setNotes] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
   const [budget, setBudget] = useState<number | null>(null);
-  const [budgetNote, setBudgetNote] = useState("Il budget verrà calcolato dall'AI sulla base degli appunti.");
+  const [budgetNote, setBudgetNote] = useState("Il budget verrà calcolato dall'AI sulla base del documento linkato.");
   const [palette, setPalette] = useState<string[]>(["#0D9488", "#8B5CF6", "#F59E0B"]);
   const [brandMessage, setBrandMessage] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -24,7 +24,16 @@ export default function DashboardPage() {
   const [workspaceCount, setWorkspaceCount] = useState(0);
   const [planName, setPlanName] = useState("starter");
 
-  const wordCount = useMemo(() => notes.trim().split(/\s+/).filter(Boolean).length, [notes]);
+  const linkCount = useMemo(() => (sourceUrl.trim() ? 1 : 0), [sourceUrl]);
+  const isValidSourceUrl = useMemo(() => {
+    if (!sourceUrl.trim()) return false;
+    try {
+      const url = new URL(sourceUrl.trim());
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, [sourceUrl]);
 
   useEffect(() => {
     void refreshWorkspace();
@@ -58,7 +67,7 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           website: website.trim(),
-          notes: notes.trim(),
+          sourceUrl: sourceUrl.trim(),
           company: company.trim() || "Cliente",
           sector: sector.trim() || "Business"
         })
@@ -89,8 +98,8 @@ export default function DashboardPage() {
   }
 
   async function generateProposal() {
-    if (!company.trim() || !notes.trim() || notes.trim().length < 10) {
-      setApiMessage("Compila i campi obbligatori: azienda e appunti del preventivo (minimo 10 caratteri).");
+    if (!company.trim() || !sourceUrl.trim() || !isValidSourceUrl) {
+      setApiMessage("Compila i campi obbligatori: azienda e link del preventivo (URL valido).");
       return;
     }
     setIsGenerating(true);
@@ -107,7 +116,7 @@ export default function DashboardPage() {
           company: company.trim(),
           website: website.trim(),
           sector: sector.trim() || "Business",
-          notes: notes.trim(),
+          sourceUrl: sourceUrl.trim(),
           palette: palette.map((color) => color.toUpperCase())
         })
       });
@@ -167,7 +176,7 @@ export default function DashboardPage() {
               setCompany("");
               setWebsite("");
               setSector("");
-              setNotes("");
+              setSourceUrl("");
               setBudget(null);
               setShareLink("");
               setApiMessage("");
@@ -256,22 +265,20 @@ export default function DashboardPage() {
             </label>
 
             <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
-              Note, Dettagli e Costi Concordati *
+              Link Preventivo / Documento *
               <textarea
                 className="input min-h-36 resize-y"
                 required
-                placeholder="Incolla qui note grezze o specifiche del progetto. Ad esempio:
-- Sviluppo sito web con carrello ordinazioni
-- Integrazione gateway di pagamento Stripe
-- Stima tempistiche: 4 settimane
-- Manutenzione e cloud hosting inclusi"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Incolla qui un link al preventivo (Google Docs, PDF, pagina web). Esempi:
+https://docs.google.com/document/d/.../edit
+https://example.com/preventivo.pdf"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
               />
             </label>
             <div className="flex justify-between items-center text-xs text-[var(--muted)]">
-              <span>Inserisci dettagli dettagliati per un preventivo di qualità.</span>
-              <span className="font-mono">{wordCount} parole</span>
+              <span>Inserisci un link accessibile per generare un preventivo di qualità.</span>
+              <span className="font-mono">{linkCount} link</span>
             </div>
           </div>
 

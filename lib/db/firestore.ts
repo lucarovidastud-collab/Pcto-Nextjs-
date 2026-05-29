@@ -10,6 +10,7 @@ export type ProposalRecord = {
   website: string;
   sector: string;
   notes: string;
+  sourceUrl?: string;
   budget: number;
   palette: string[];
   generatedHtml: string;
@@ -162,6 +163,7 @@ export async function createProposal(input: {
   website: string;
   sector: string;
   notes: string;
+  sourceUrl?: string;
   budget: number;
   palette: string[];
   generatedHtml?: string;
@@ -177,6 +179,7 @@ export async function createProposal(input: {
     website: input.website,
     sector: input.sector,
     notes: input.notes,
+    sourceUrl: input.sourceUrl || "",
     budget: input.budget,
     palette: input.palette,
     generatedHtml: input.generatedHtml || "",

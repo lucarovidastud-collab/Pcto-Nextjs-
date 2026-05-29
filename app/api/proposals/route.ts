@@ -5,6 +5,7 @@ import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
 import { generateProposalHtmlWithAI } from "@/lib/services/proposal-ai";
+import { resolveNotesFromSourceUrl } from "@/lib/services/source-notes";
 import { formatReadableText } from "@/lib/utils/text";
 import { createProposalSchema } from "@/lib/validators";
 
@@ -24,10 +25,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
   }
 
+  let notes = (parsed.data.notes || "").trim();
+  const sourceUrl = parsed.data.sourceUrl;
+  if (notes.length < 10 && sourceUrl) {
+    try {
+      notes = await resolveNotesFromSourceUrl(sourceUrl);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Impossibile leggere il contenuto dal link";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+  }
+  if (notes.length < 10) {
+    return NextResponse.json({ error: "Inserisci un link valido oppure appunti (minimo 10 caratteri)." }, { status: 400 });
+  }
+
   const brand = parsed.data.website ? await analyzeWebsitePalette(parsed.data.website) : null;
   const palette = brand?.palette?.length ? brand.palette : parsed.data.palette;
   const estimate = await estimateBudgetFromNotes({
-    notes: parsed.data.notes,
+    notes,
     company: parsed.data.company,
     sector: parsed.data.sector,
     website: parsed.data.website
@@ -39,7 +54,7 @@ export async function POST(request: NextRequest) {
     (await generateProposalHtmlWithAI({
       company: parsed.data.company,
       sector,
-      notes: parsed.data.notes,
+      notes,
       budget,
       palette,
       styleDirection: brand?.styleDirection
@@ -47,7 +62,7 @@ export async function POST(request: NextRequest) {
     buildFallbackProposalHtml({
       company: parsed.data.company,
       sector,
-      notes: parsed.data.notes,
+      notes,
       budget,
       palette
     });
@@ -57,11 +72,12 @@ export async function POST(request: NextRequest) {
     company: parsed.data.company,
     website: parsed.data.website,
     sector,
-    notes: parsed.data.notes,
+    notes,
     budget,
     palette,
     generatedHtml: generatedHtml || "",
-    styleDirection: brand?.styleDirection || ""
+    styleDirection: brand?.styleDirection || "",
+    sourceUrl: sourceUrl || ""
   });
 
   return NextResponse.json(
