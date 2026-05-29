@@ -32,7 +32,7 @@ export async function resolveNotesFromUploadedFile(file: File) {
 async function extractPdfText(data: Uint8Array) {
   const mod = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const pdfjs: any = (mod as any).default || mod;
-  const loadingTask = pdfjs.getDocument({ data });
+  const loadingTask = pdfjs.getDocument({ data, disableWorker: true });
   const doc = await loadingTask.promise;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber += 1) {
