@@ -140,10 +140,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-6xl mx-auto">
+    <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
       
       {/* Premium Dashboard Header */}
-      <header className="glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="glass w-full rounded-2xl p-5 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent)] uppercase tracking-widest">
             <Sparkles size={14} />
@@ -155,7 +155,7 @@ export default function DashboardPage() {
           </p>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <button 
             type="button" 
             onClick={() => {
@@ -169,7 +169,7 @@ export default function DashboardPage() {
               setApiMessage("");
               setBrandMessage("");
             }}
-            className="btn-secondary flex items-center gap-2 text-xs min-h-[2.5rem]"
+            className="btn-secondary w-full flex items-center justify-center gap-2 text-xs min-h-[2.5rem] sm:w-auto"
           >
             <RefreshCw size={14} />
             Svuota campi
@@ -177,12 +177,12 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+      <div className="grid w-full gap-5 sm:gap-6 lg:grid-cols-[1fr_340px]">
         {/* Main Form Area */}
-        <section className="grid gap-6">
+        <section className="grid w-full gap-5 sm:gap-6">
           
           {/* Step 1: Info Cliente */}
-          <div className="glass rounded-2xl p-6 grid gap-4">
+          <div className="glass w-full rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">1</span>
               <h2 className="text-lg font-black tracking-tight">Dati del Cliente</h2>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Step 2: Dettagli Proposta */}
-          <div className="glass rounded-2xl p-6 grid gap-4">
+          <div className="glass w-full rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">2</span>
               <h2 className="text-lg font-black tracking-tight">Scope del Lavoro & Appunti</h2>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Step 3: Generazione AI & Risultato */}
-          <div className="glass rounded-2xl p-6 grid gap-4">
+          <div className="glass w-full rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">3</span>
               <h2 className="text-lg font-black tracking-tight">Genera & Pubblica</h2>
@@ -320,7 +320,7 @@ export default function DashboardPage() {
               <button
                 onClick={generateProposal}
                 disabled={isGenerating || isAnalyzing}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem]"
+                className="btn-primary w-full flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem]"
               >
                 {isGenerating ? (
                   <>
@@ -350,7 +350,7 @@ export default function DashboardPage() {
                   <span>Proposta commercializzata con successo!</span>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <input
                     readOnly
                     className="input text-xs font-mono select-all bg-[var(--panel-strong)] flex-1 min-h-[2.25rem] py-1"
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                   </button>
                 </div>
                 
-                <div className="flex gap-2 mt-1">
+                <div className="flex flex-col sm:flex-row gap-2 mt-1">
                   <a
                     href={shareLink}
                     target="_blank"
@@ -391,10 +391,10 @@ export default function DashboardPage() {
         </section>
 
         {/* Sidebar Summary & Brand Area */}
-        <aside className="grid content-start gap-6">
+        <aside className="grid w-full content-start gap-5 sm:gap-6">
           
           {/* Brand Palette */}
-          <div className="glass rounded-2xl p-6">
+          <div className="glass w-full rounded-2xl p-5 sm:p-6">
             <h3 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] border-b border-[var(--line)] pb-2 mb-3">
               Palette del Brand
             </h3>
@@ -407,7 +407,7 @@ export default function DashboardPage() {
                   key={color}
                   type="button"
                   onClick={() => copyColor(color)}
-                  className="group relative flex h-12 w-12 flex-col items-center justify-center rounded-xl border border-[var(--line)] shadow-sm transition-transform active:scale-95 shrink-0"
+                  className="group relative flex h-11 w-11 sm:h-12 sm:w-12 flex-col items-center justify-center rounded-xl border border-[var(--line)] shadow-sm transition-transform active:scale-95 shrink-0"
                   style={{ background: color }}
                   title={`Copia ${color}`}
                 >
@@ -426,7 +426,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Quick Metrics */}
-          <div className="glass rounded-2xl p-6">
+          <div className="glass w-full rounded-2xl p-5 sm:p-6">
             <h3 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] border-b border-[var(--line)] pb-2 mb-3">
               Limiti & Workspace
             </h3>
