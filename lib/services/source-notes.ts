@@ -32,6 +32,26 @@ export async function resolveNotesFromUploadedFile(file: File) {
 async function extractPdfText(data: Uint8Array) {
   const mod = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const pdfjs: any = (mod as any).default || mod;
+  try {
+    const nodeModule = await import("node:module");
+    const require = nodeModule.createRequire(import.meta.url);
+    const candidates = [
+      "pdfjs-dist/legacy/build/pdf.worker.mjs",
+      "pdfjs-dist/legacy/build/pdf.worker.js",
+      "pdfjs-dist/build/pdf.worker.mjs",
+      "pdfjs-dist/build/pdf.worker.js"
+    ];
+    for (const candidate of candidates) {
+      try {
+        pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(candidate);
+        break;
+      } catch {
+        // ignore
+      }
+    }
+  } catch {
+    // ignore
+  }
   const loadingTask = pdfjs.getDocument({ data, disableWorker: true });
   const doc = await loadingTask.promise;
   const pages: string[] = [];
