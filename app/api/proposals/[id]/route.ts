@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProposalById, updateProposal, type ProposalStatus } from "@/lib/db/repositories";
+import { logger } from "@/lib/logger";
 import { requireSession } from "@/lib/security/guard";
 import { z } from "zod";
 
@@ -27,10 +28,20 @@ export async function PATCH(request: NextRequest, { params }: RouteProps) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
 
-  const updated = await updateProposal(id, auth.session.tenantId, {
-    status: parsed.data.status as ProposalStatus | undefined,
-    expiresAt: parsed.data.expiresAt
-  });
-  if (!updated) return NextResponse.json({ error: "Proposta non trovata" }, { status: 404 });
-  return NextResponse.json({ proposal: updated });
+  if (!parsed.data.status && !parsed.data.expiresAt) {
+    return NextResponse.json({ error: "Nessun campo da aggiornare" }, { status: 400 });
+  }
+
+  try {
+    const updated = await updateProposal(id, auth.session.tenantId, {
+      status: parsed.data.status as ProposalStatus | undefined,
+      expiresAt: parsed.data.expiresAt
+    });
+    if (!updated) return NextResponse.json({ error: "Proposta non trovata" }, { status: 404 });
+    return NextResponse.json({ proposal: updated });
+  } catch (error) {
+    logger.error({ error, proposalId: id }, "proposals.patch.failed");
+    const message = error instanceof Error ? error.message : "Aggiornamento fallito";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

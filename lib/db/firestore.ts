@@ -233,6 +233,10 @@ export async function getProposalByShareToken(shareToken: string) {
   return { id: doc.id, ...(doc.data() as Omit<ProposalRecord, "id">) } as ProposalRecord;
 }
 
+function stripUndefinedPatch<T extends Record<string, unknown>>(patch: T) {
+  return Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined)) as Partial<T>;
+}
+
 export async function updateProposal(
   id: string,
   tenantId: string,
@@ -248,8 +252,16 @@ export async function updateProposal(
   const ref = db.collection("proposals").doc(id);
   const current = await ref.get();
   if (!current.exists || current.data()?.tenantId !== tenantId) return null;
-  await ref.set({ ...patch, updatedAt: new Date().toISOString() }, { merge: true });
-  return { id, ...(current.data() as Record<string, unknown>), ...patch };
+
+  const cleanPatch = stripUndefinedPatch(patch);
+  if (Object.keys(cleanPatch).length === 0) {
+    return { id, ...(current.data() as Omit<ProposalRecord, "id">) } as ProposalRecord;
+  }
+
+  const updatedAt = new Date().toISOString();
+  await ref.set({ ...cleanPatch, updatedAt }, { merge: true });
+  const data = current.data() as Omit<ProposalRecord, "id">;
+  return { id, ...data, ...cleanPatch, updatedAt };
 }
 
 export async function signProposalByToken(shareToken: string, signedBy: string) {

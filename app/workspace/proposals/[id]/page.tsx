@@ -19,7 +19,7 @@ export default function WorkspaceProposalPage() {
   const [message, setMessage] = useState("");
 
   const load = async () => {
-    const response = await fetch(`/api/proposals/${id}`);
+    const response = await fetch(`/api/proposals/${id}`, { credentials: "include" });
     if (!response.ok) {
       setMessage("Proposta non trovata o sessione scaduta.");
       return;
@@ -36,10 +36,12 @@ export default function WorkspaceProposalPage() {
     const response = await fetch(`/api/proposals/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ status })
     });
     if (!response.ok) {
-      setMessage("Aggiornamento stato fallito.");
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      setMessage(payload.error || "Aggiornamento stato fallito.");
       return;
     }
     setMessage(`Stato aggiornato: ${status}`);
@@ -72,8 +74,8 @@ export default function WorkspaceProposalPage() {
         </div>
         <p className="mt-4 text-sm text-[var(--muted)]">Scadenza link: {proposal.expiresAt}</p>
         {message ? <p className="mt-2 text-sm">{message}</p> : null}
-        <Link href="/" className="mt-6 inline-block text-sm font-bold underline">
-          Torna alla dashboard
+        <Link href="/dashboard/history" className="mt-6 inline-block text-sm font-bold underline">
+          Torna alla cronologia
         </Link>
       </section>
     </main>
