@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const [proposalId, setProposalId] = useState<string | null>(null);
   const [workspaceCount, setWorkspaceCount] = useState(0);
   const [planName, setPlanName] = useState("starter");
   const [billingNotice, setBillingNotice] = useState("");
@@ -133,6 +134,7 @@ export default function DashboardPage() {
 
       const proposalResponse = await fetch("/api/proposals", { method: "POST", body: form });
       const proposalPayload = (await proposalResponse.json()) as {
+        id?: string;
         link?: string;
         deployMessage?: string;
         budget?: number;
@@ -148,6 +150,7 @@ export default function DashboardPage() {
       }
       if (proposalPayload.budget) setBudget(proposalPayload.budget);
       setShareLink(`${window.location.origin}${proposalPayload.link}`);
+      setProposalId(proposalPayload.id || null);
       setApiMessage(proposalPayload.deployMessage || "Proposta generata con successo. Il link per il cliente è pronto.");
     } catch {
       setApiMessage("Impossibile connettersi al server per la generazione. Verifica la configurazione.");
@@ -206,6 +209,7 @@ export default function DashboardPage() {
               if (fileInputRef.current) fileInputRef.current.value = "";
               setBudget(null);
               setShareLink("");
+              setProposalId(null);
               setApiMessage("");
               setBrandMessage("");
             }}
@@ -398,10 +402,11 @@ export default function DashboardPage() {
                   />
                   <button
                     onClick={copyLink}
-                    className="btn-secondary h-9 w-9 p-0 flex items-center justify-center shrink-0"
+                    className="btn-secondary text-xs min-h-[2.25rem] px-3 py-1.5 flex items-center justify-center gap-1.5 font-bold shrink-0"
                     title="Copia link"
                   >
-                    {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                    {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                    {copied ? "Copiato!" : "Copia Link"}
                   </button>
                 </div>
                 
@@ -415,13 +420,17 @@ export default function DashboardPage() {
                     <FileText size={14} />
                     Apri Proposta Cliente
                   </a>
-                  <button
-                    onClick={() => window.print()}
-                    className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
-                  >
-                    <Download size={14} />
-                    Stampa / PDF
-                  </button>
+                  {proposalId && (
+                    <a
+                      href={`/api/proposals/${proposalId}/pdf`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
+                    >
+                      <Download size={14} />
+                      Stampa / PDF
+                    </a>
+                  )}
                 </div>
               </div>
             )}
