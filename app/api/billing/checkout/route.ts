@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSubscriptionForTenant, setSubscriptionForTenant } from "@/lib/db/repositories";
 import { requireSession } from "@/lib/security/guard";
+import { isBillingSandboxEnabled } from "@/lib/billing/sandbox";
 import { createCheckoutSession, getPlanLimits, planCatalog, type PlanName, stripe } from "@/lib/services/billing";
 import { z } from "zod";
 
@@ -13,12 +14,11 @@ export async function GET(request: NextRequest) {
   const auth = await requireSession(request);
   if (auth.error || !auth.session) return auth.error!;
   const subscription = await getSubscriptionForTenant(auth.session.tenantId);
-  const allowSandbox = process.env.NODE_ENV !== "production" || process.env.BILLING_ALLOW_SANDBOX === "1";
   return NextResponse.json({
     current: subscription,
     limits: getPlanLimits(subscription.plan),
     catalog: planCatalog,
-    allowSandbox
+    allowSandbox: isBillingSandboxEnabled()
   });
 }
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Permessi insufficienti" }, { status: 403 });
   }
 
-  const allowSandbox = process.env.NODE_ENV !== "production" || process.env.BILLING_ALLOW_SANDBOX === "1";
+  const allowSandbox = isBillingSandboxEnabled();
   const baseUrl = request.nextUrl.origin;
 
   const body = await request.json().catch(() => null);

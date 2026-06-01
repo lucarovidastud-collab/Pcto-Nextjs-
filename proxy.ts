@@ -3,27 +3,7 @@ import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE = "quotegen_session";
 
-function canonicalRedirect(request: NextRequest): NextResponse | null {
-  const configured = process.env.APP_URL?.trim();
-  if (!configured) return null;
-
-  let canonical: URL;
-  try {
-    canonical = new URL(configured);
-  } catch {
-    return null;
-  }
-
-  if (request.nextUrl.host === canonical.host) return null;
-
-  const target = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, canonical);
-  return NextResponse.redirect(target, 308);
-}
-
 export function proxy(request: NextRequest) {
-  const canonical = canonicalRedirect(request);
-  if (canonical) return canonical;
-
   const { pathname } = request.nextUrl;
   const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 

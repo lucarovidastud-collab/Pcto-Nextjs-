@@ -36,7 +36,7 @@ Puoi verificarla in Stripe Dashboard → **Settings → Billing → Customer por
 ## Checkout e sandbox
 
 - In **dashboard → Piani e pagamenti**, il checkout usa **Stripe Checkout** (non Payment Link statici).
-- In produzione non impostare `BILLING_ALLOW_SANDBOX=1`: altrimenti compare il toggle demo che bypassa Stripe.
+- `BILLING_ALLOW_SANDBOX` funziona **solo** con `npm run dev` (mai su Vercel production).
 - Gli ID prezzo in `.env` devono essere `price_...` (consigliato) o `prod_...` coerenti con i piani €10 / €29 / €99.
 
 ## Diagnostica locale

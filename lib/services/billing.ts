@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { getSubscriptionForTenant, setSubscriptionForTenant, setTenantStripeCustomer } from "@/lib/db/repositories";
+import { isBillingSandboxEnabled } from "@/lib/billing/sandbox";
 import { getPlanLimits, planCatalog, type PlanName } from "@/lib/billing/plans";
 
 export { getPlanLimits, planCatalog, type PlanName };
@@ -137,7 +138,7 @@ export async function ensureBillingPortalConfiguration() {
 export async function getBillingDiagnostics() {
   const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET || "").trim();
   const publishableKey = (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "").trim();
-  const allowSandbox = process.env.NODE_ENV !== "production" || process.env.BILLING_ALLOW_SANDBOX === "1";
+  const allowSandbox = isBillingSandboxEnabled();
 
   if (!stripe) {
     return {

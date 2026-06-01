@@ -1,7 +1,7 @@
 "use client";
 
-import { Check, ShieldCheck, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 import { planCatalog, type PlanName } from "@/lib/billing/plans";
 
@@ -48,18 +48,6 @@ const plans = [
 export function PricingPlans({ currentPlan }: { currentPlan: string }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [allowSandbox, setAllowSandbox] = useState(false);
-  const [useSandbox, setUseSandbox] = useState(false);
-
-  useEffect(() => {
-    void (async () => {
-      const response = await fetch("/api/billing/checkout");
-      if (!response.ok) return;
-      const payload = (await response.json()) as { allowSandbox?: boolean };
-      setAllowSandbox(Boolean(payload.allowSandbox));
-    })();
-  }, []);
-
   async function checkout(plan: PlanName) {
     setLoading(plan);
     setMessage("");
@@ -67,7 +55,7 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
       const response = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, sandbox: useSandbox })
+        body: JSON.stringify({ plan })
       });
       const payload = (await response.json()) as { url?: string; error?: string };
       if (!response.ok || !payload.url) {
@@ -119,30 +107,6 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
           {loading === "portal" ? "Caricamento portale..." : "Gestisci fatturazione Stripe"}
         </button>
       </div>
-
-      {allowSandbox ? (
-        <div className="rounded-xl border border-amber-300/30 bg-amber-500/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex gap-2 text-amber-800 dark:text-amber-300">
-            <AlertCircle size={16} className="shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">Modalità demo (solo sviluppo)</p>
-              <p className="text-[11px] opacity-80 mt-0.5">
-                Attiva il simulatore per attivare un piano senza passare da Stripe Checkout.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setUseSandbox(!useSandbox)}
-            className={`btn-secondary min-h-9 px-4 text-xs font-bold shrink-0 ${
-              useSandbox ? "border-amber-500 text-amber-700 bg-amber-500/10" : ""
-            }`}
-          >
-            {useSandbox ? "Simulatore attivo" : "Usa checkout Stripe"}
-          </button>
-        </div>
-      ) : null}
 
       {/* Pricing Cards Grid */}
       <div className="grid gap-6 md:grid-cols-3">
@@ -200,9 +164,7 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
                 }`}
               >
                 {loading === plan.id ? (
-                  <span className="inline-block animate-pulse">
-                    {useSandbox ? "Attivazione..." : "Reindirizzamento..."}
-                  </span>
+                  <span className="inline-block animate-pulse">Reindirizzamento...</span>
                 ) : isActive ? (
                   "Piano Attivo"
                 ) : (

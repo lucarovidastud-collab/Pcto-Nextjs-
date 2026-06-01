@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Building2, CreditCard, LayoutDashboard, LogOut, Moon, Sun, Menu, X, Sparkles, User } from "lucide-react";
+import { applyTheme, readStoredTheme, type ThemeMode } from "@/lib/theme";
 import { useEffect, useState } from "react";
 
 const links = [
@@ -13,18 +14,18 @@ const links = [
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const fromDom = document.documentElement.dataset.theme;
-    if (fromDom === "dark" || fromDom === "light") return fromDom;
-    return window.localStorage.getItem("quotegen_theme") === "dark" ? "dark" : "light";
-  });
+  const [theme, setTheme] = useState<ThemeMode>("light");
   const [email, setEmail] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    window.localStorage.setItem("quotegen_theme", theme);
+    const stored = readStoredTheme();
+    setTheme(stored);
+    applyTheme(stored);
+  }, []);
+
+  useEffect(() => {
+    applyTheme(theme);
   }, [theme]);
 
   useEffect(() => {
