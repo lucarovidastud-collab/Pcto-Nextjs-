@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createProposal, listTenantProposals } from "@/lib/db/repositories";
+import { listTenantProposals } from "@/lib/db/repositories";
 import { assertCanCreateProposal } from "@/lib/billing/entitlements";
 import { requireSession } from "@/lib/security/guard";
-import { analyzeWebsitePalette } from "@/lib/services/brand";
-import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
-import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
-import { generateProposalHtmlWithAI } from "@/lib/services/proposal-ai";
-
-import { resolveNotesFromUploadedFile } from "@/lib/services/source-notes";
-import { formatReadableText } from "@/lib/utils/text";
-import { createProposalSchema } from "@/lib/validators";
+import { parseProposalRequest } from "@/lib/services/proposal-form";
+import { buildAndSaveProposal } from "@/lib/services/proposal-pipeline";
+import { proposalSlugError, slugifyProposalLink } from "@/lib/proposals/slug";
 
 export const runtime = "nodejs";
 
@@ -17,7 +12,20 @@ export async function GET(request: NextRequest) {
   const auth = await requireSession(request);
   if (auth.error || !auth.session) return auth.error!;
   const proposals = await listTenantProposals(auth.session.tenantId);
-  return NextResponse.json({ proposals });
+  const summary = proposals.map((p) => ({
+    id: p.id,
+    company: p.company,
+    sector: p.sector,
+    budget: p.budget,
+    status: p.status,
+    shareToken: p.shareToken,
+    website: p.website,
+    createdAt: p.createdAt,
+    expiresAt: p.expiresAt,
+    signedAt: p.signedAt,
+    signedBy: p.signedBy
+  }));
+  return NextResponse.json({ proposals: summary });
 }
 
 export async function POST(request: NextRequest) {
@@ -40,131 +48,50 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "subscription_required" }, { status: 403 });
   }
 
-  const contentType = request.headers.get("content-type") || "";
-
-  let company = "";
-  let website = "";
-  let sector = "";
-  let palette: string[] = [];
-  let notes = "";
-
-  if (contentType.includes("multipart/form-data")) {
-    const form = await request.formData();
-    company = String(form.get("company") || "").trim();
-    website = String(form.get("website") || "").trim();
-    sector = String(form.get("sector") || "").trim();
-    palette = parsePalette(String(form.get("palette") || "[]"));
-
-    const files = [...form.getAll("files"), form.get("file")].filter((entry): entry is File => entry instanceof File);
-    if (files.length === 0) {
-      return NextResponse.json({ error: "File mancante" }, { status: 400 });
-    }
-    try {
-      const parts: string[] = [];
-      for (const file of files) {
-        const extracted = await resolveNotesFromUploadedFile(file);
-        if (extracted.trim()) parts.push(extracted);
-      }
-      notes = parts.join("\n");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Impossibile leggere il file";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-
-    if (!company || company.length < 2) return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
-    if (!sector || sector.length < 2) return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
-    if (!Array.isArray(palette) || palette.length < 1 || palette.length > 10) {
-      return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
-    }
-    if (!palette.every((c) => /^#[0-9a-fA-F]{6}$/.test(c))) {
-      return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
-    }
-    if (website) {
-      try {
-        new URL(website);
-      } catch {
-        return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
-      }
-    }
-  } else {
-    const body = await request.json().catch(() => null);
-    const parsed = createProposalSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
-    }
-    company = parsed.data.company;
-    website = parsed.data.website;
-    sector = parsed.data.sector;
-    palette = parsed.data.palette;
-    notes = parsed.data.notes.trim();
+  const parsed = await parseProposalRequest(request);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: parsed.status });
   }
+
+  const { company, website, sector, palette, notes, linkSlug } = parsed.data;
 
   if (notes.trim().length < 10) {
     return NextResponse.json({ error: "Documento troppo corto o non leggibile" }, { status: 400 });
   }
 
-  const brand = website ? await analyzeWebsitePalette(website) : null;
-  const resolvedPalette = brand?.palette?.length ? brand.palette : palette;
-  const estimate = await estimateBudgetFromNotes({
-    notes,
-    company,
-    sector,
-    website
-  });
-  const budget = estimate.budget;
-  const resolvedSector = formatReadableText(estimate.sectorSummary || sector);
+  if (linkSlug) {
+    const slugErr = proposalSlugError(slugifyProposalLink(linkSlug));
+    if (slugErr) {
+      return NextResponse.json({ error: slugErr }, { status: 400 });
+    }
+  }
 
-  const generatedHtml =
-    (await generateProposalHtmlWithAI({
+  try {
+    const result = await buildAndSaveProposal({
+      tenantId: auth.session.tenantId,
       company,
-      sector: resolvedSector,
+      website,
+      sector,
+      palette,
       notes,
-      budget,
-      palette: resolvedPalette,
-      styleDirection: brand?.styleDirection
-    })) ||
-    buildFallbackProposalHtml({
-      company,
-      sector: resolvedSector,
-      notes,
-      budget,
-      palette: resolvedPalette
+      linkSlug
     });
 
-  const proposal = await createProposal({
-    tenantId: auth.session.tenantId,
-    company,
-    website,
-    sector: resolvedSector,
-    notes,
-    budget,
-    palette: resolvedPalette,
-    generatedHtml: generatedHtml || "",
-    styleDirection: brand?.styleDirection || ""
-  });
-
-  return NextResponse.json(
-    {
-      id: proposal.id,
-      link: `/p/${proposal.shareToken}`,
-      workspaceLink: `/workspace/proposals/${proposal.id}`,
-      expiresAt: proposal.expiresAt,
-      budget,
-      palette,
-      deployMessage: `Proposta creata. Budget stimato: € ${budget.toLocaleString("it-IT")}.`
-    },
-    { status: 201 }
-  );
-}
-
-function parsePalette(value: string) {
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    if (Array.isArray(parsed)) {
-      return parsed.map((v) => String(v).toUpperCase());
-    }
-  } catch {
-    // ignore
+    return NextResponse.json(
+      {
+        id: result.id,
+        link: `/p/${result.shareToken}`,
+        workspaceLink: `/workspace/proposals/${result.id}`,
+        shareToken: result.shareToken,
+        expiresAt: result.expiresAt,
+        budget: result.budget,
+        palette: result.palette,
+        deployMessage: `Proposta creata. Budget stimato: € ${result.budget.toLocaleString("it-IT")}.`
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Errore generazione";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-  return [];
 }

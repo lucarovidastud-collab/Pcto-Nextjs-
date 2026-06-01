@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Building2, CreditCard, LayoutDashboard, LogOut, Moon, Sun, Menu, X, Sparkles, User } from "lucide-react";
+import { Building2, CreditCard, History, LayoutDashboard, LogOut, Moon, Sun, Menu, X, Sparkles, User } from "lucide-react";
 import { applyTheme, readStoredTheme, type ThemeMode } from "@/lib/theme";
 import { useEffect, useState } from "react";
 
 const links = [
   { href: "/dashboard", label: "Workspace", icon: LayoutDashboard },
+  { href: "/dashboard/history", label: "Cronologia", icon: History },
   { href: "/dashboard/billing", label: "Abbonamento", icon: CreditCard }
 ];
 

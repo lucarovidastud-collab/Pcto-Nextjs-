@@ -157,6 +157,14 @@ export async function setTenantStripeCustomer(tenantId: string, stripeCustomerId
   await db.collection("subscriptions").doc(tenantId).set({ stripeCustomerId, updatedAt: new Date().toISOString() }, { merge: true });
 }
 
+export async function isShareTokenTaken(shareToken: string, excludeProposalId?: string) {
+  const db = getFirestoreDb();
+  const snap = await db.collection("proposals").where("shareToken", "==", shareToken).limit(1).get();
+  if (snap.empty) return false;
+  if (excludeProposalId && snap.docs[0].id === excludeProposalId) return false;
+  return true;
+}
+
 export async function createProposal(input: {
   tenantId: string;
   company: string;
@@ -167,10 +175,11 @@ export async function createProposal(input: {
   palette: string[];
   generatedHtml?: string;
   styleDirection?: string;
+  shareToken?: string;
 }) {
   const db = getFirestoreDb();
   const id = makeId("prop");
-  const shareToken = makeId("share");
+  const shareToken = input.shareToken || makeId("share");
   const now = new Date().toISOString();
   const payload = {
     tenantId: input.tenantId,

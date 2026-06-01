@@ -6,8 +6,10 @@ import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileT
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { GenerationProgress } from "@/components/dashboard/generation-progress";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
+import { slugifyProposalLink } from "@/lib/proposals/slug";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -22,6 +24,11 @@ export default function DashboardPage() {
   const [brandMessage, setBrandMessage] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [genPercent, setGenPercent] = useState(0);
+  const [genLabel, setGenLabel] = useState("");
+  const [linkSlug, setLinkSlug] = useState("");
+  const [linkSlugTouched, setLinkSlugTouched] = useState(false);
+  const [slugHint, setSlugHint] = useState("");
   const [apiMessage, setApiMessage] = useState("");
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
@@ -56,6 +63,26 @@ export default function DashboardPage() {
   useEffect(() => {
     void refreshBilling();
   }, []);
+
+  useEffect(() => {
+    if (linkSlugTouched || !company.trim()) return;
+    setLinkSlug(slugifyProposalLink(company));
+  }, [company, linkSlugTouched]);
+
+  async function checkSlugAvailability(slug: string) {
+    const normalized = slugifyProposalLink(slug);
+    if (normalized.length < 2) {
+      setSlugHint("");
+      return;
+    }
+    const res = await fetch(`/api/proposals/check-slug?slug=${encodeURIComponent(normalized)}`);
+    const payload = (await res.json()) as { available?: boolean; error?: string | null; slug?: string };
+    if (payload.available) {
+      setSlugHint(`Link disponibile: /p/${payload.slug || normalized}`);
+    } else {
+      setSlugHint(payload.error || "Link non disponibile");
+    }
+  }
 
   useEffect(() => {
     if (portalReturn) {
@@ -130,6 +157,8 @@ export default function DashboardPage() {
       return;
     }
     setIsGenerating(true);
+    setGenPercent(0);
+    setGenLabel("Avvio generazione...");
     setApiMessage("");
     try {
       if (website.trim() && !brandMessage) {
@@ -140,38 +169,86 @@ export default function DashboardPage() {
       form.append("company", company.trim());
       form.append("website", website.trim());
       form.append("sector", sector.trim() || "Business");
+      form.append("linkSlug", slugifyProposalLink(linkSlug || company));
       form.append("palette", JSON.stringify(palette.map((color) => color.toUpperCase())));
       for (const file of quoteFiles) form.append("files", file);
 
-      const proposalResponse = await fetch("/api/proposals", { method: "POST", body: form });
-      const proposalPayload = (await proposalResponse.json()) as {
-        id?: string;
-        link?: string;
-        deployMessage?: string;
-        budget?: number;
-        error?: string;
-      };
-      if (!proposalResponse.ok) {
-        if (proposalPayload.error === "subscription_required") {
+      const proposalResponse = await fetch("/api/proposals/stream", { method: "POST", body: form });
+      if (!proposalResponse.ok || !proposalResponse.body) {
+        const errPayload = (await proposalResponse.json().catch(() => ({}))) as { error?: string };
+        if (errPayload.error === "subscription_required") {
           router.push("/dashboard/subscribe");
           return;
         }
-        if (proposalPayload.error === "proposal_limit_reached") {
+        if (errPayload.error === "proposal_limit_reached") {
           router.push("/dashboard/billing?limit=reached");
           return;
         }
-        setApiMessage(proposalPayload.error || "Errore nella creazione della proposta.");
+        setApiMessage(errPayload.error || "Errore nella creazione della proposta.");
         return;
       }
-      void refreshBilling();
-      if (proposalPayload.budget) setBudget(proposalPayload.budget);
-      setShareLink(`${window.location.origin}${proposalPayload.link}`);
-      setProposalId(proposalPayload.id || null);
-      setApiMessage(proposalPayload.deployMessage || "Proposta generata con successo. Il link per il cliente è pronto.");
+
+      const reader = proposalResponse.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let completed = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const evt = JSON.parse(line) as {
+            type: string;
+            percent?: number;
+            label?: string;
+            error?: string;
+            link?: string;
+            id?: string;
+            budget?: number;
+            deployMessage?: string;
+          };
+
+          if (evt.type === "progress" && typeof evt.percent === "number") {
+            setGenPercent(evt.percent);
+            setGenLabel(evt.label || "Elaborazione...");
+          }
+          if (evt.type === "error") {
+            if (evt.error === "subscription_required") {
+              router.push("/dashboard/subscribe");
+              return;
+            }
+            if (evt.error === "proposal_limit_reached") {
+              router.push("/dashboard/billing?limit=reached");
+              return;
+            }
+            setApiMessage(evt.error || "Generazione non riuscita.");
+            return;
+          }
+          if (evt.type === "complete") {
+            completed = true;
+            void refreshBilling();
+            if (evt.budget) setBudget(evt.budget);
+            setShareLink(`${window.location.origin}${evt.link}`);
+            setProposalId(evt.id || null);
+            setApiMessage(evt.deployMessage || "Proposta generata con successo.");
+          }
+        }
+      }
+
+      if (!completed) {
+        setApiMessage("Generazione interrotta. Riprova.");
+      }
     } catch {
       setApiMessage("Impossibile connettersi al server per la generazione. Verifica la configurazione.");
     } finally {
       setIsGenerating(false);
+      setGenPercent(0);
+      setGenLabel("");
     }
   }
 
@@ -276,10 +353,36 @@ export default function DashboardPage() {
                 <input
                   className="input"
                   required
-                  placeholder="Es. KFC S.p.A."
+                  placeholder="Es. King Inox S.r.l."
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                 />
+              </label>
+
+              <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide sm:col-span-2">
+                Link personalizzato (Vercel)
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
+                  <span className="text-[11px] font-mono text-[var(--muted)] shrink-0">…/p/</span>
+                  <input
+                    className="input font-mono text-sm"
+                    placeholder="king-inox"
+                    value={linkSlug}
+                    onChange={(e) => {
+                      setLinkSlugTouched(true);
+                      setLinkSlug(e.target.value);
+                    }}
+                    onBlur={() => void checkSlugAvailability(linkSlug)}
+                  />
+                </div>
+                {slugHint ? (
+                  <span className="text-[10px] font-semibold text-[var(--muted)] normal-case tracking-normal">
+                    {slugHint}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-medium text-[var(--muted)] normal-case tracking-normal">
+                    Es. king-inox → {typeof window !== "undefined" ? window.location.origin : ""}/p/king-inox
+                  </span>
+                )}
               </label>
 
               <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
@@ -397,6 +500,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            <GenerationProgress percent={genPercent} label={genLabel} active={isGenerating} />
+
             {/* Action buttons */}
             <div className="flex flex-wrap gap-3 mt-2">
               <button
@@ -407,7 +512,9 @@ export default function DashboardPage() {
                 {isGenerating ? (
                   <>
                     <Laptop className="animate-bounce" size={18} />
-                    <span className="text-center leading-tight break-words">L&apos;AI sta compilando il preventivo...</span>
+                    <span className="text-center leading-tight break-words">
+                      Generazione… {genPercent}%
+                    </span>
                   </>
                 ) : (
                   <>
@@ -416,6 +523,13 @@ export default function DashboardPage() {
                   </>
                 )}
               </button>
+              <Link
+                href="/dashboard/history"
+                className="btn-secondary w-full sm:w-auto text-sm font-bold flex items-center justify-center gap-2 min-h-[3rem]"
+              >
+                <FileText size={16} />
+                Cronologia preventivi
+              </Link>
             </div>
 
             {apiMessage && (
