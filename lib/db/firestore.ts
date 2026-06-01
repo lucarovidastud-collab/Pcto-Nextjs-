@@ -259,3 +259,51 @@ export async function signProposalByToken(shareToken: string, signedBy: string) 
     );
   return { ok: true as const, id: proposal.id as string };
 }
+
+// ADMIN METHODS
+
+export async function listAllTenantsWithDetails() {
+  const db = getFirestoreDb();
+  
+  // 1. Fetch all tenants
+  const tenantsSnap = await db.collection("tenants").get();
+  const tenants = tenantsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // 2. Fetch all subscriptions
+  const subsSnap = await db.collection("subscriptions").get();
+  const subsMap = new Map();
+  subsSnap.docs.forEach(d => subsMap.set(d.id, d.data()));
+
+  // 3. Fetch all proposals to count them
+  const propsSnap = await db.collection("proposals").get();
+  const propsCount = new Map();
+  propsSnap.docs.forEach(d => {
+    const data = d.data();
+    if (data.tenantId) {
+      propsCount.set(data.tenantId, (propsCount.get(data.tenantId) || 0) + 1);
+    }
+  });
+
+  // 4. Fetch all users to map ownerId -> email
+  const usersSnap = await db.collection("users").get();
+  const usersMap = new Map();
+  usersSnap.docs.forEach(d => usersMap.set(d.id, d.data()));
+
+  return tenants.map(t => {
+    const data = t as any;
+    const sub = subsMap.get(data.id) || { plan: "none", status: "inactive" };
+    const user = usersMap.get(data.ownerId as string) || { email: "N/A" };
+    const proposalsCount = propsCount.get(data.id) || 0;
+    
+    return {
+      id: data.id,
+      name: (data.name as string) || "Unknown",
+      ownerId: data.ownerId as string,
+      ownerEmail: (user.email as string) || "N/A",
+      plan: sub.plan as string,
+      status: sub.status as string,
+      proposalsCount,
+      createdAt: (data.createdAt as string) || ""
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}

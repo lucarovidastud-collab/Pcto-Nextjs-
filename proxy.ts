@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
 const SESSION_COOKIE = "quotegen_session";
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "super-secret-admin-fallback-key-2026";
+const encodedKey = new TextEncoder().encode(ADMIN_SECRET_KEY);
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 
@@ -12,6 +15,22 @@ export function proxy(request: NextRequest) {
   }
   if (pathname === "/login" && hasSession) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Admin route protection
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    const adminToken = request.cookies.get("admin_token")?.value;
+    if (!adminToken) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    try {
+      const { payload } = await jwtVerify(adminToken, encodedKey, { algorithms: ["HS256"] });
+      if (payload.role !== "superadmin") {
+        return NextResponse.redirect(new URL("/admin/login", request.url));
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
   }
 
   const response = NextResponse.next();
