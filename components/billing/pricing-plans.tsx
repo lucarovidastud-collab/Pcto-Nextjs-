@@ -2,6 +2,7 @@
 
 import { Check, ShieldCheck, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 import { planCatalog, type PlanName } from "@/lib/billing/plans";
 
 const plans = [
@@ -84,17 +85,9 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
   async function openPortal() {
     setLoading("portal");
     setMessage("");
-    try {
-      const response = await fetch("/api/billing/portal", { method: "POST" });
-      const payload = (await response.json()) as { url?: string; error?: string };
-      if (!response.ok || !payload.url) {
-        setMessage(payload.error || "Portale clienti Stripe disponibile solo per clienti paganti attivi.");
-        setLoading(null);
-        return;
-      }
-      window.location.assign(payload.url);
-    } catch {
-      setMessage("Errore di connessione al portale Stripe.");
+    const result = await openStripeBillingPortal();
+    if (!result.ok) {
+      setMessage(result.error);
       setLoading(null);
     }
   }

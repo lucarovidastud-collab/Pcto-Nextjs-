@@ -41,7 +41,7 @@ function BillingContent() {
         <p className="text-sm font-semibold text-[var(--muted)]">Stripe Billing</p>
         <h1 className="text-2xl font-black sm:text-3xl">Piani e pagamenti</h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--muted)]">
-          Scegli un piano e completa il checkout su Stripe. Puoi aggiornare metodo di pagamento e fatture dal portale clienti.
+          Qui puoi passare a un altro piano. Per fatture e metodo di pagamento usa il portale Stripe dal workspace principale.
         </p>
         {checkoutStatus === "success" ? (
           <p className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">

@@ -4,9 +4,12 @@ import { paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { SiteFooter } from "@/components/site-footer";
 import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileText, CheckCircle, Copy, Laptop, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 
 export default function DashboardPage() {
+  const searchParams = useSearchParams();
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
   const [sector, setSector] = useState("");
@@ -23,8 +26,11 @@ export default function DashboardPage() {
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [workspaceCount, setWorkspaceCount] = useState(0);
   const [planName, setPlanName] = useState("starter");
+  const [billingNotice, setBillingNotice] = useState("");
+  const [openingPortal, setOpeningPortal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const portalReturn = searchParams.get("billing") === "portal";
   const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
 
   async function refreshWorkspace() {
@@ -48,6 +54,22 @@ export default function DashboardPage() {
     };
     void init();
   }, []);
+
+  useEffect(() => {
+    if (portalReturn) {
+      void refreshBilling();
+    }
+  }, [portalReturn]);
+
+  async function handleOpenPortal() {
+    setOpeningPortal(true);
+    setBillingNotice("");
+    const result = await openStripeBillingPortal();
+    if (!result.ok) {
+      setBillingNotice(result.error);
+      setOpeningPortal(false);
+    }
+  }
 
   async function analyzeBrand() {
     if (!website.trim()) {
@@ -144,7 +166,17 @@ export default function DashboardPage() {
 
   return (
     <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
-      
+      {portalReturn ? (
+        <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+          Sei tornato dal portale Stripe. Le modifiche alla fatturazione saranno visibili a breve.
+        </p>
+      ) : null}
+      {billingNotice ? (
+        <p className="rounded-xl border border-red-200 bg-red-500/10 px-4 py-3 text-xs font-medium text-red-600">
+          {billingNotice}
+        </p>
+      ) : null}
+
       {/* Premium Dashboard Header */}
       <header className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -448,9 +480,20 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <Link href="/dashboard/billing" className="btn-secondary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5">
+            <button
+              type="button"
+              disabled={openingPortal}
+              onClick={() => void handleOpenPortal()}
+              className="btn-secondary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
+            >
               <Laptop size={14} />
-              Gestisci Piani Stripe
+              {openingPortal ? "Apertura portale Stripe..." : "Gestisci fatturazione Stripe"}
+            </button>
+            <Link
+              href="/dashboard/billing"
+              className="mt-2 block text-center text-[10px] font-bold text-[var(--muted)] underline-offset-2 hover:underline"
+            >
+              Cambia piano abbonamento
             </Link>
           </div>
 

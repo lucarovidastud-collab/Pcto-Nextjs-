@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 const links = [
   { href: "/dashboard", label: "Workspace", icon: LayoutDashboard },
-  { href: "/dashboard/billing", label: "Piani e pagamenti", icon: CreditCard }
+  { href: "/dashboard/billing", label: "Cambia piano", icon: CreditCard }
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -15,8 +15,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
-    const stored = window.localStorage.getItem("quotegen_theme");
-    return stored === "dark" ? "dark" : "light";
+    const fromDom = document.documentElement.dataset.theme;
+    if (fromDom === "dark" || fromDom === "light") return fromDom;
+    return window.localStorage.getItem("quotegen_theme") === "dark" ? "dark" : "light";
   });
   const [email, setEmail] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

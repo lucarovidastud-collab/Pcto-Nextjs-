@@ -275,7 +275,7 @@ export async function createCustomerPortalSession(tenantId: string, email: strin
   try {
     return await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${resolvedBase}/dashboard/billing`
+      return_url: `${resolvedBase}/dashboard?billing=portal`
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Errore portale Stripe";
