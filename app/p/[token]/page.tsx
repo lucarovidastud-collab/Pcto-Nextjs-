@@ -4,9 +4,9 @@ import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature } from "lucide-react";
+import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer } from "lucide-react";
 
 type ProposalView = {
   company: string;
@@ -56,6 +56,14 @@ export default function PublicProposalPage() {
   const [signedBy, setSignedBy] = useState("");
   const [message, setMessage] = useState("Caricamento proposta commerciale in corso...");
   const [loadingSign, setLoadingSign] = useState(false);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (proposal && searchParams.get("print") === "true") {
+      setTimeout(() => window.print(), 800);
+    }
+  }, [proposal, searchParams]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -149,15 +157,25 @@ export default function PublicProposalPage() {
             </div>
 
             {/* Badges / Metrics Row */}
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="brand-pill rounded-xl px-4 py-2 text-xs flex items-center gap-2 shadow-sm">
-                <Wallet size={14} />
-                <span>Budget € {Number(proposal.budget).toLocaleString("it-IT")}</span>
-              </span>
-              <span className="rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-2 text-xs text-[var(--muted)] flex items-center gap-2 shadow-sm">
-                <Calendar size={14} />
-                <span>Scadenza: {formatDate(proposal.expiresAt)}</span>
-              </span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="brand-pill rounded-xl px-4 py-2 text-xs flex items-center gap-2 shadow-sm">
+                  <Wallet size={14} />
+                  <span>Budget € {Number(proposal.budget).toLocaleString("it-IT")}</span>
+                </span>
+                <span className="rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-2 text-xs text-[var(--muted)] flex items-center gap-2 shadow-sm">
+                  <Calendar size={14} />
+                  <span>Scadenza: {formatDate(proposal.expiresAt)}</span>
+                </span>
+              </div>
+              
+              <button 
+                onClick={() => window.print()}
+                className="no-print btn-secondary text-xs px-4 py-2 flex items-center gap-2 self-start sm:self-auto shrink-0"
+              >
+                <Printer size={14} />
+                <span>Stampa / PDF</span>
+              </button>
             </div>
           </header>
 
@@ -167,7 +185,7 @@ export default function PublicProposalPage() {
           </div>
 
           {/* Official Sign/Contract Panel */}
-          <section className="bg-[color-mix(in_srgb,var(--panel)_50%,transparent)] px-6 py-8 sm:px-12 border-t border-[var(--line)]">
+          <section className="no-print bg-[color-mix(in_srgb,var(--panel)_50%,transparent)] px-6 py-8 sm:px-12 border-t border-[var(--line)]">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary,var(--brand-primary))] text-white shadow-md">
                 <FileSignature size={18} />

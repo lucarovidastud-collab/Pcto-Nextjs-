@@ -420,17 +420,15 @@ export default function DashboardPage() {
                     <FileText size={14} />
                     Apri Proposta Cliente
                   </a>
-                  {proposalId && (
-                    <a
-                      href={`/api/proposals/${proposalId}/pdf`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
-                    >
-                      <Download size={14} />
-                      Stampa / PDF
-                    </a>
-                  )}
+                  <a
+                    href={`${shareLink}?print=true`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
+                  >
+                    <Download size={14} />
+                    Stampa / Scarica PDF
+                  </a>
                 </div>
               </div>
             )}
