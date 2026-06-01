@@ -7,7 +7,7 @@
 | `STRIPE_SECRET_KEY` | Sì | `sk_live_...` o `sk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Sì | `whsec_...` dalla destinazione webhook |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Consigliata | `pk_live_...` / `pk_test_...` |
-| `APP_URL` | Sì | Es. `https://pcto-versionecodex.vercel.app` |
+| `APP_URL` | Sì | Dominio **unico** usato dagli utenti (es. `https://pcto-nextjs.vercel.app`). Se hai due deploy Vercel, imposta lo stesso valore su entrambi: il vecchio hostname verrà reindirizzato qui. |
 | `STRIPE_PRICE_STARTER` | No | Se assente, l'app crea/recupera prezzi con `lookup_key` |
 | `STRIPE_PRICE_GROWTH` | No | Idem |
 | `STRIPE_PRICE_ENTERPRISE` | No | Idem |
@@ -16,7 +16,7 @@
 
 URL production:
 
-`https://pcto-versionecodex.vercel.app/api/billing/webhook`
+`https://TUO-DOMINIO.vercel.app/api/billing/webhook` (stesso host di `APP_URL`)
 
 Eventi consigliati:
 

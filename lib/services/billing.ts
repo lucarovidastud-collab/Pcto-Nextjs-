@@ -19,8 +19,10 @@ function normalizeBaseUrl(value: string) {
   return raw || "http://localhost:3000";
 }
 
-function appUrl(fallback?: string) {
-  return normalizeBaseUrl(process.env.APP_URL || fallback || "http://localhost:3000");
+/** Preferisce l'origine della richiesta (dominio su cui l'utente è loggato), poi APP_URL. */
+function appUrl(requestOrigin?: string) {
+  if (requestOrigin?.trim()) return normalizeBaseUrl(requestOrigin);
+  return normalizeBaseUrl(process.env.APP_URL || "http://localhost:3000");
 }
 
 function stripeMode() {
