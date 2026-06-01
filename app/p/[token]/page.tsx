@@ -4,7 +4,7 @@ import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer } from "lucide-react";
 
@@ -56,14 +56,6 @@ export default function PublicProposalPage() {
   const [signedBy, setSignedBy] = useState("");
   const [message, setMessage] = useState("Caricamento proposta commerciale in corso...");
   const [loadingSign, setLoadingSign] = useState(false);
-
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (proposal && searchParams.get("print") === "true") {
-      setTimeout(() => window.print(), 800);
-    }
-  }, [proposal, searchParams]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");

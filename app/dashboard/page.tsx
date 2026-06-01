@@ -172,6 +172,28 @@ export default function DashboardPage() {
     setTimeout(() => setCopiedColor(null), 1500);
   }
 
+  function printProposal() {
+    if (!shareLink) return;
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.top = "-9999px";
+    iframe.style.left = "-9999px";
+    iframe.style.width = "1px";
+    iframe.style.height = "1px";
+    iframe.style.opacity = "0";
+    iframe.src = `${shareLink}?print=true`;
+    document.body.appendChild(iframe);
+    iframe.addEventListener("load", () => {
+      try {
+        iframe.contentWindow?.print();
+      } catch {
+        // fallback: open in new tab if iframe print fails (cross-origin quirks)
+        window.open(`${shareLink}?print=true`, "_blank");
+      }
+      setTimeout(() => document.body.removeChild(iframe), 3000);
+    });
+  }
+
   return (
     <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
       {portalReturn ? (
@@ -420,15 +442,13 @@ export default function DashboardPage() {
                     <FileText size={14} />
                     Apri Proposta Cliente
                   </a>
-                  <a
-                    href={`${shareLink}?print=true`}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    onClick={printProposal}
                     className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
                   >
                     <Download size={14} />
                     Stampa / Scarica PDF
-                  </a>
+                  </button>
                 </div>
               </div>
             )}

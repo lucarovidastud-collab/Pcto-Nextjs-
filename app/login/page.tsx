@@ -44,37 +44,13 @@ export default function LoginPage() {
     
     setLoading(true);
 
-    // 1. Check for Demo login bypass first
-    if (email.trim() === "admin@quotegen.local" && password === "admin12345") {
-      try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email.trim(), password })
-        });
-        const payload = (await response.json()) as { ok?: boolean; error?: string };
-        if (!response.ok || !payload.ok) {
-          throw new Error(payload.error || "Accesso demo fallito.");
-        }
-        setSuccess("Accesso demo riuscito! Reindirizzamento...");
-        setTimeout(() => {
-          window.location.assign("/dashboard");
-        }, 800);
-        return;
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Errore sconosciuto.");
-        setLoading(false);
-        return;
-      }
-    }
-
-    // 2. Real Credentials Auth via Firebase
+    // Real Credentials Auth via Firebase
     try {
       let auth;
       try {
         auth = getClientAuth();
       } catch {
-        throw new Error("I login personalizzati richiedono le chiavi Firebase configurate su Vercel. Per testare l'app all'istante, usa le credenziali demo indicate sotto.");
+        throw new Error("Il login con email e password richiede Firebase Auth configurato. Usa il login Google o GitHub.");
       }
 
       if (tab === "login") {
@@ -282,10 +258,6 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Simulated/Demo Login Helper Callout */}
-            <div className="mt-5 rounded-xl border border-amber-300/30 bg-amber-500/5 px-4 py-3 text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
-              <strong>Modalità Demo:</strong> Usa l&apos;email <strong>admin@quotegen.local</strong> e password <strong>admin12345</strong> per provare istantaneamente tutte le feature senza configurare Firebase Auth.
-            </div>
 
             {/* Separator */}
             <div className="relative my-6 text-center">
