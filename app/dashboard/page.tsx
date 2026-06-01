@@ -380,7 +380,7 @@ export default function DashboardPage() {
                   </span>
                 ) : (
                   <span className="text-[10px] font-medium text-[var(--muted)] normal-case tracking-normal">
-                    Es. king-inox → {typeof window !== "undefined" ? window.location.origin : ""}/p/king-inox
+                    Es. king-inox → /p/king-inox
                   </span>
                 )}
               </label>

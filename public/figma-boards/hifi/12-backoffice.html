@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>12 — Backoffice</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1440px; min-height: 900px; font-family: Inter, system-ui, sans-serif;
+      background: #faf9f6; color: #0f172a;
+      background-image: radial-gradient(circle at 20% 20%, rgba(13,148,136,0.08), transparent 40%), radial-gradient(circle at 80% 0%, rgba(139,92,246,0.1), transparent 35%);
+    }
+    .wrap { padding: 0; }
+    .glass {
+      background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 16px; backdrop-filter: blur(8px);
+    }
+    .btn-p {
+      background: linear-gradient(135deg, #0d9488, #8b5cf6);
+      color: #fff; border: none; border-radius: 12px;
+      padding: 12px 20px; font-weight: 800; font-size: 13px;
+    }
+    .btn-s {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 12px;
+      padding: 12px 20px; font-weight: 700; font-size: 13px; color: #0f172a;
+    }
+    .muted { color: #475569; }
+    .accent { color: #0d9488; }
+    .grad {
+      background: linear-gradient(90deg, #0d9488, #8b5cf6); -webkit-background-clip: text; color: transparent;
+    }
+    h1 { font-size: 56px; font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; }
+    h2 { font-size: 28px; font-weight: 900; }
+    h3 { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #475569; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800;
+      border: 1px solid rgba(15, 23, 42, 0.08); background: rgba(255,255,255,0.6);
+      color: #0d9488;
+    }
+    .block { height: 12px; background: rgba(15, 23, 42, 0.08); border-radius: 4px; }
+    .block.sm { width: 40%; height: 8px; }
+    .block.md { width: 65%; }
+    .block.lg { width: 90%; }
+    .placeholder {
+      background: rgba(15,23,42,0.06);
+      border: 1px dashed rgba(15, 23, 42, 0.08); border-radius: 16px;
+    }
+  </style>
+</head>
+<body data-screen="12 — Backoffice" data-mode="hifi">
+  <div class="wrap"><div style="min-height:900px;background:#0f172a;color:#f8fafc;padding:32px 48px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:900">QuoteGen Backoffice</span><span class="chip" style="color:#a5b4fc">Admin</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px">
+      <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px"><p style="font-size:11px;color:#94a3b8">Tenant attivi</p><p style="font-size:28px;font-weight:900;margin-top:8px">128</p></div><div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px"><p style="font-size:11px;color:#94a3b8">Proposte mese</p><p style="font-size:28px;font-weight:900;margin-top:8px">128</p></div><div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px"><p style="font-size:11px;color:#94a3b8">MRR</p><p style="font-size:28px;font-weight:900;margin-top:8px">128</p></div><div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px"><p style="font-size:11px;color:#94a3b8">Alert</p><p style="font-size:28px;font-weight:900;margin-top:8px">128</p></div>
+    </div>
+    <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;margin-top:24px;padding:20px">
+      <h3 style="color:#94a3b8;font-size:12px">TENANT</h3>
+      <div style="margin-top:16px;display:grid;gap:8px"><div style="height:48px;background:#020617;border-radius:8px"></div><div style="height:48px;background:#020617;border-radius:8px"></div><div style="height:48px;background:#020617;border-radius:8px"></div></div>
+    </div>
+  </div></div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+[
+  {
+    "id": "01-landing",
+    "mode": "hifi",
+    "title": "01 — Landing",
+    "path": "/figma-boards/hifi/01-landing.html",
+    "frameName": "01 — Landing"
+  },
+  {
+    "id": "01-landing",
+    "mode": "wf",
+    "title": "WF 01 — Landing",
+    "path": "/figma-boards/wf/01-landing.html",
+    "frameName": "WF 01 — Landing"
+  },
+  {
+    "id": "02-login",
+    "mode": "hifi",
+    "title": "02 — Login",
+    "path": "/figma-boards/hifi/02-login.html",
+    "frameName": "02 — Login"
+  },
+  {
+    "id": "02-login",
+    "mode": "wf",
+    "title": "WF 02 — Login",
+    "path": "/figma-boards/wf/02-login.html",
+    "frameName": "WF 02 — Login"
+  },
+  {
+    "id": "03-workspace",
+    "mode": "hifi",
+    "title": "03 — Workspace",
+    "path": "/figma-boards/hifi/03-workspace.html",
+    "frameName": "03 — Workspace"
+  },
+  {
+    "id": "03-workspace",
+    "mode": "wf",
+    "title": "WF 03 — Workspace",
+    "path": "/figma-boards/wf/03-workspace.html",
+    "frameName": "WF 03 — Workspace"
+  },
+  {
+    "id": "04-subscribe",
+    "mode": "hifi",
+    "title": "04 — Subscribe",
+    "path": "/figma-boards/hifi/04-subscribe.html",
+    "frameName": "04 — Subscribe"
+  },
+  {
+    "id": "04-subscribe",
+    "mode": "wf",
+    "title": "WF 04 — Subscribe",
+    "path": "/figma-boards/wf/04-subscribe.html",
+    "frameName": "WF 04 — Subscribe"
+  },
+  {
+    "id": "05-billing",
+    "mode": "hifi",
+    "title": "05 — Billing",
+    "path": "/figma-boards/hifi/05-billing.html",
+    "frameName": "05 — Billing"
+  },
+  {
+    "id": "05-billing",
+    "mode": "wf",
+    "title": "WF 05 — Billing",
+    "path": "/figma-boards/wf/05-billing.html",
+    "frameName": "WF 05 — Billing"
+  },
+  {
+    "id": "06-checkout",
+    "mode": "hifi",
+    "title": "06 — Checkout",
+    "path": "/figma-boards/hifi/06-checkout.html",
+    "frameName": "06 — Checkout"
+  },
+  {
+    "id": "06-checkout",
+    "mode": "wf",
+    "title": "WF 06 — Checkout",
+    "path": "/figma-boards/wf/06-checkout.html",
+    "frameName": "WF 06 — Checkout"
+  },
+  {
+    "id": "07-proposta-cliente",
+    "mode": "hifi",
+    "title": "07 — Proposta cliente",
+    "path": "/figma-boards/hifi/07-proposta-cliente.html",
+    "frameName": "07 — Proposta cliente"
+  },
+  {
+    "id": "07-proposta-cliente",
+    "mode": "wf",
+    "title": "WF 07 — Proposta cliente",
+    "path": "/figma-boards/wf/07-proposta-cliente.html",
+    "frameName": "WF 07 — Proposta cliente"
+  },
+  {
+    "id": "08-dettaglio-proposta",
+    "mode": "hifi",
+    "title": "08 — Dettaglio proposta",
+    "path": "/figma-boards/hifi/08-dettaglio-proposta.html",
+    "frameName": "08 — Dettaglio proposta"
+  },
+  {
+    "id": "08-dettaglio-proposta",
+    "mode": "wf",
+    "title": "WF 08 — Dettaglio proposta",
+    "path": "/figma-boards/wf/08-dettaglio-proposta.html",
+    "frameName": "WF 08 — Dettaglio proposta"
+  },
+  {
+    "id": "09-termini",
+    "mode": "hifi",
+    "title": "09 — Termini",
+    "path": "/figma-boards/hifi/09-termini.html",
+    "frameName": "09 — Termini"
+  },
+  {
+    "id": "09-termini",
+    "mode": "wf",
+    "title": "WF 09 — Termini",
+    "path": "/figma-boards/wf/09-termini.html",
+    "frameName": "WF 09 — Termini"
+  },
+  {
+    "id": "10-privacy",
+    "mode": "hifi",
+    "title": "10 — Privacy",
+    "path": "/figma-boards/hifi/10-privacy.html",
+    "frameName": "10 — Privacy"
+  },
+  {
+    "id": "10-privacy",
+    "mode": "wf",
+    "title": "WF 10 — Privacy",
+    "path": "/figma-boards/wf/10-privacy.html",
+    "frameName": "WF 10 — Privacy"
+  },
+  {
+    "id": "11-admin-login",
+    "mode": "hifi",
+    "title": "11 — Admin login",
+    "path": "/figma-boards/hifi/11-admin-login.html",
+    "frameName": "11 — Admin login"
+  },
+  {
+    "id": "11-admin-login",
+    "mode": "wf",
+    "title": "WF 11 — Admin login",
+    "path": "/figma-boards/wf/11-admin-login.html",
+    "frameName": "WF 11 — Admin login"
+  },
+  {
+    "id": "12-backoffice",
+    "mode": "hifi",
+    "title": "12 — Backoffice",
+    "path": "/figma-boards/hifi/12-backoffice.html",
+    "frameName": "12 — Backoffice"
+  },
+  {
+    "id": "12-backoffice",
+    "mode": "wf",
+    "title": "WF 12 — Backoffice",
+    "path": "/figma-boards/wf/12-backoffice.html",
+    "frameName": "WF 12 — Backoffice"
+  }
+]
