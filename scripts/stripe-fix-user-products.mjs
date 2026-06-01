@@ -12,10 +12,10 @@ for (const line of fs.readFileSync(".env", "utf8").split(/\r?\n/)) {
 const stripe = new Stripe(env.get("STRIPE_SECRET_KEY"));
 const products = {
   starter: "prod_UbJaGspnmcORH3",
-  growth: "prod_UbKy4zojWfYsG9",
+  growth: "prod_UbJanmPcKWAadk",
   enterprise: "prod_UbJbWRAAsdOpWp"
 };
-const amounts = { starter: 29, growth: 99, enterprise: 399 };
+const amounts = { starter: 10, growth: 29, enterprise: 99 };
 
 for (const [plan, productId] of Object.entries(products)) {
   const listed = await stripe.prices.list({ product: productId, active: true, limit: 20 });

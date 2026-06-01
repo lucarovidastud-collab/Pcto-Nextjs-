@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
-import { ArrowRight, Sparkles, Shield, Zap, Palette, Award, FileCheck } from "lucide-react";
+import { planCatalog } from "@/lib/billing/plans";
+import { ArrowRight, Sparkles, Shield, Zap, Palette, FileCheck } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -168,7 +169,7 @@ export default function LandingPage() {
               <div>
                 <h3 className="text-xl font-black">Starter</h3>
                 <p className="mt-1 text-xs text-[var(--muted)]">Per piccoli team e professionisti</p>
-                <p className="mt-4 text-3xl font-black">€29<span className="text-xs font-bold text-[var(--muted)]">/mese</span></p>
+                <p className="mt-4 text-3xl font-black">€{planCatalog.starter.monthly}<span className="text-xs font-bold text-[var(--muted)]">/mese</span></p>
                 <ul className="mt-6 space-y-2 text-sm text-[var(--muted)]">
                   <li>• 40 proposte/mese</li>
                   <li>• 3 membri workspace</li>
@@ -189,7 +190,7 @@ export default function LandingPage() {
               <div>
                 <h3 className="text-xl font-black">Growth</h3>
                 <p className="mt-1 text-xs text-[var(--muted)]">Il piano perfetto per le agenzie</p>
-                <p className="mt-4 text-3xl font-black">€99<span className="text-xs font-bold text-[var(--muted)]">/mese</span></p>
+                <p className="mt-4 text-3xl font-black">€{planCatalog.growth.monthly}<span className="text-xs font-bold text-[var(--muted)]">/mese</span></p>
                 <ul className="mt-6 space-y-2 text-sm text-[var(--muted)]">
                   <li>• 300 proposte/mese</li>
                   <li>• 20 membri workspace</li>
@@ -207,7 +208,7 @@ export default function LandingPage() {
               <div>
                 <h3 className="text-xl font-black">Enterprise</h3>
                 <p className="mt-1 text-xs text-[var(--muted)]">Per esigenze su scala elevata</p>
-                <p className="mt-4 text-3xl font-black">€399<span className="text-xs font-bold text-[var(--muted)]">/mese</span></p>
+                <p className="mt-4 text-3xl font-black">€{planCatalog.enterprise.monthly}<span className="text-xs font-bold text-[var(--muted)]">/mese</span></p>
                 <ul className="mt-6 space-y-2 text-sm text-[var(--muted)]">
                   <li>• 5000 proposte/mese</li>
                   <li>• 200 membri workspace</li>

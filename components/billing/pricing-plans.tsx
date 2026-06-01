@@ -1,13 +1,14 @@
 "use client";
 
-import { Check, ShieldCheck, Sparkles, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { Check, ShieldCheck, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { planCatalog, type PlanName } from "@/lib/billing/plans";
 
 const plans = [
   {
     id: "starter" as const,
     name: "Starter",
-    price: "10",
+    price: String(planCatalog.starter.monthly),
     subtitle: "Ideale per freelance e piccoli studi",
     features: [
       "40 proposte commerciali al mese",
@@ -19,7 +20,7 @@ const plans = [
   {
     id: "growth" as const,
     name: "Growth",
-    price: "29",
+    price: String(planCatalog.growth.monthly),
     subtitle: "Perfetto per agenzie e team attivi",
     features: [
       "300 proposte commerciali al mese",
@@ -32,7 +33,7 @@ const plans = [
   {
     id: "enterprise" as const,
     name: "Enterprise",
-    price: "99",
+    price: String(planCatalog.enterprise.monthly),
     subtitle: "Per grandi aziende e volumi elevati",
     features: [
       "5000 proposte commerciali al mese",
@@ -46,9 +47,19 @@ const plans = [
 export function PricingPlans({ currentPlan }: { currentPlan: string }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
-  const [useSandbox, setUseSandbox] = useState(true);
+  const [allowSandbox, setAllowSandbox] = useState(false);
+  const [useSandbox, setUseSandbox] = useState(false);
 
-  async function checkout(plan: "starter" | "growth" | "enterprise") {
+  useEffect(() => {
+    void (async () => {
+      const response = await fetch("/api/billing/checkout");
+      if (!response.ok) return;
+      const payload = (await response.json()) as { allowSandbox?: boolean };
+      setAllowSandbox(Boolean(payload.allowSandbox));
+    })();
+  }, []);
+
+  async function checkout(plan: PlanName) {
     setLoading(plan);
     setMessage("");
     try {
@@ -116,26 +127,29 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
         </button>
       </div>
 
-      {/* Developer Sandbox Controls */}
-      <div className="rounded-xl border border-amber-300/30 bg-amber-500/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-        <div className="flex gap-2 text-amber-800 dark:text-amber-300">
-          <AlertCircle size={16} className="shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold">Simulatore Sandbox PCTO</p>
-            <p className="text-[11px] opacity-80 mt-0.5">Sei in modalità demo. Puoi abilitare o disabilitare il pagamento reale con Stripe.</p>
+      {allowSandbox ? (
+        <div className="rounded-xl border border-amber-300/30 bg-amber-500/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex gap-2 text-amber-800 dark:text-amber-300">
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Modalità demo (solo sviluppo)</p>
+              <p className="text-[11px] opacity-80 mt-0.5">
+                Attiva il simulatore per attivare un piano senza passare da Stripe Checkout.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={() => setUseSandbox(!useSandbox)}
-          className={`btn-secondary min-h-9 px-4 text-xs font-bold shrink-0 ${
-            useSandbox ? "border-amber-500 text-amber-700 bg-amber-500/10" : ""
-          }`}
-        >
-          {useSandbox ? "✓ Simulatore Attivo (Consigliato)" : "Usa Stripe Reale"}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setUseSandbox(!useSandbox)}
+            className={`btn-secondary min-h-9 px-4 text-xs font-bold shrink-0 ${
+              useSandbox ? "border-amber-500 text-amber-700 bg-amber-500/10" : ""
+            }`}
+          >
+            {useSandbox ? "Simulatore attivo" : "Usa checkout Stripe"}
+          </button>
+        </div>
+      ) : null}
 
       {/* Pricing Cards Grid */}
       <div className="grid gap-6 md:grid-cols-3">

@@ -33,10 +33,17 @@ L'app tenta di creare automaticamente una configurazione portal se manca.
 
 Puoi verificarla in Stripe Dashboard → **Settings → Billing → Customer portal**.
 
+## Checkout e sandbox
+
+- In **dashboard → Piani e pagamenti**, il checkout usa **Stripe Checkout** (non Payment Link statici).
+- In produzione non impostare `BILLING_ALLOW_SANDBOX=1`: altrimenti compare il toggle demo che bypassa Stripe.
+- Gli ID prezzo in `.env` devono essere `price_...` (consigliato) o `prod_...` coerenti con i piani €10 / €29 / €99.
+
 ## Diagnostica locale
 
 ```bash
-node scripts/stripe-diagnose.mjs
+npm run stripe:diagnose
+node scripts/stripe-list-prices.mjs
 ```
 
 ## Sync env su Vercel

@@ -13,10 +13,12 @@ export async function GET(request: NextRequest) {
   const auth = await requireSession(request);
   if (auth.error || !auth.session) return auth.error!;
   const subscription = await getSubscriptionForTenant(auth.session.tenantId);
+  const allowSandbox = process.env.NODE_ENV !== "production" || process.env.BILLING_ALLOW_SANDBOX === "1";
   return NextResponse.json({
     current: subscription,
     limits: getPlanLimits(subscription.plan),
-    catalog: planCatalog
+    catalog: planCatalog,
+    allowSandbox
   });
 }
 
@@ -77,20 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Checkout Stripe fallito";
-    if (!allowSandbox) {
-      console.warn("[billing.checkout] Stripe failed:", message);
-      return NextResponse.json({ error: message }, { status: 502 });
-    }
-
-    console.warn("[billing.checkout] Stripe failed, falling back to sandbox:", message);
-    await setSubscriptionForTenant(auth.session.tenantId, {
-      plan: parsed.data.plan,
-      status: "active",
-      stripeCustomerId: "cus_fallback_" + auth.session.tenantId,
-      stripeSubscriptionId: "sub_fallback_" + auth.session.tenantId
-    });
-    return NextResponse.json({
-      url: `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
-    });
+    console.error("[billing.checkout] Stripe failed:", message, error);
+    return NextResponse.json({ error: message }, { status: 502 });
   }
 }

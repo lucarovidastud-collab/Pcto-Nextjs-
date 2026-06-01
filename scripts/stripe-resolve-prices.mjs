@@ -46,9 +46,9 @@ if (!secret?.startsWith("sk_")) {
 
 const stripe = new Stripe(secret);
 const plans = [
-  ["starter", env.get("STRIPE_PRICE_STARTER"), 29],
-  ["growth", env.get("STRIPE_PRICE_GROWTH"), 99],
-  ["enterprise", env.get("STRIPE_PRICE_ENTERPRISE"), 399]
+  ["starter", env.get("STRIPE_PRICE_STARTER"), 10],
+  ["growth", env.get("STRIPE_PRICE_GROWTH"), 29],
+  ["enterprise", env.get("STRIPE_PRICE_ENTERPRISE"), 99]
 ];
 
 console.log("# Copia questi valori in .env e Vercel (devono iniziare con price_):\n");

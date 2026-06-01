@@ -1,20 +1,11 @@
 import Stripe from "stripe";
 import { getSubscriptionForTenant, setSubscriptionForTenant, setTenantStripeCustomer } from "@/lib/db/repositories";
+import { getPlanLimits, planCatalog, type PlanName } from "@/lib/billing/plans";
+
+export { getPlanLimits, planCatalog, type PlanName };
 
 const stripeKey = process.env.STRIPE_SECRET_KEY || "";
 export const stripe = stripeKey ? new Stripe(stripeKey) : null;
-
-export const planCatalog = {
-  starter: { monthly: 10, proposalLimit: 40, memberLimit: 3 },
-  growth: { monthly: 29, proposalLimit: 300, memberLimit: 20 },
-  enterprise: { monthly: 99, proposalLimit: 5000, memberLimit: 200 }
-} as const;
-
-export type PlanName = keyof typeof planCatalog;
-
-export function getPlanLimits(plan: string) {
-  return planCatalog[(plan as PlanName) || "starter"] || planCatalog.starter;
-}
 
 function normalizeBaseUrl(value: string) {
   let raw = value.trim();
@@ -215,13 +206,19 @@ export async function getBillingDiagnostics() {
   }
 }
 
+function isSimulatedStripeCustomerId(customerId: string) {
+  return /^(cus|sub)_(sandbox|fallback)_/i.test(customerId);
+}
+
 export async function getOrCreateStripeCustomer(tenantId: string, email: string) {
   if (!stripe) throw new Error("Stripe non configurato");
   if (!email) throw new Error("Email utente mancante per Stripe");
 
   try {
     const sub = await getSubscriptionForTenant(tenantId);
-    if (sub.stripeCustomerId) return sub.stripeCustomerId;
+    if (sub.stripeCustomerId && !isSimulatedStripeCustomerId(sub.stripeCustomerId)) {
+      return sub.stripeCustomerId;
+    }
 
     const customer = await stripe.customers.create({
       email,
