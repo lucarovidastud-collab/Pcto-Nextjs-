@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { assertCanCreateProposal } from "@/lib/billing/entitlements";
 import { requireSession } from "@/lib/security/guard";
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
@@ -9,7 +10,23 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const auth = await requireSession(request);
-  if (auth.error) return auth.error;
+  if (auth.error || !auth.session) return auth.error!;
+
+  const access = await assertCanCreateProposal(auth.session.tenantId);
+  if (!access.allowed) {
+    const code = access.error.code;
+    return NextResponse.json(
+      code === "proposal_limit_reached"
+        ? {
+            error: code,
+            used: access.error.used,
+            limit: access.error.limit,
+            plan: access.error.plan
+          }
+        : { error: "subscription_required" },
+      { status: 403 }
+    );
+  }
 
   const contentType = request.headers.get("content-type") || "";
 

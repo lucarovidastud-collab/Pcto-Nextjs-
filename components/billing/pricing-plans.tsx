@@ -45,7 +45,13 @@ const plans = [
   }
 ];
 
-export function PricingPlans({ currentPlan }: { currentPlan: string }) {
+export function PricingPlans({
+  currentPlan,
+  hasActiveSubscription = false
+}: {
+  currentPlan: string;
+  hasActiveSubscription?: boolean;
+}) {
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   async function checkout(plan: PlanName) {
@@ -83,29 +89,47 @@ export function PricingPlans({ currentPlan }: { currentPlan: string }) {
   return (
     <div className="grid gap-6">
       
-      {/* Current Active Plan Card */}
-      <div className="glass rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md border-l-4 border-[var(--accent)]">
+      {/* Subscription status */}
+      <div
+        className={`glass rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md border-l-4 ${
+          hasActiveSubscription ? "border-[var(--accent)]" : "border-amber-500"
+        }`}
+      >
         <div>
-          <span className="text-[10px] font-extrabold text-[var(--muted)] uppercase tracking-wider block">Stato Sottoscrizione</span>
+          <span className="text-[10px] font-extrabold text-[var(--muted)] uppercase tracking-wider block">
+            Stato sottoscrizione
+          </span>
           <div className="flex items-center gap-2 mt-1">
-            <h2 className="text-2xl font-black capitalize text-[var(--foreground)]">{currentPlan}</h2>
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <ShieldCheck size={12} />
-              Attivo
-            </span>
+            <h2 className="text-2xl font-black capitalize text-[var(--foreground)]">
+              {currentPlan === "none" ? "Nessun piano" : currentPlan}
+            </h2>
+            {hasActiveSubscription ? (
+              <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <ShieldCheck size={12} />
+                Attivo
+              </span>
+            ) : (
+              <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-400">
+                Non attivo
+              </span>
+            )}
           </div>
           <p className="text-xs text-[var(--muted)] mt-1.5">
-            Gestisci i tuoi dati di fatturazione, scarica le fatture precedenti o annulla l&apos;abbonamento tramite Stripe.
+            {hasActiveSubscription
+              ? "Gestisci fatturazione, fatture e metodo di pagamento tramite Stripe."
+              : "Scegli un piano qui sotto per sbloccare le generazioni AI."}
           </p>
         </div>
 
-        <button 
-          onClick={openPortal} 
-          disabled={Boolean(loading)} 
-          className="btn-secondary text-xs font-bold py-2 px-5 shrink-0 self-start md:self-center"
-        >
-          {loading === "portal" ? "Caricamento portale..." : "Gestisci fatturazione Stripe"}
-        </button>
+        {hasActiveSubscription ? (
+          <button
+            onClick={openPortal}
+            disabled={Boolean(loading)}
+            className="btn-secondary text-xs font-bold py-2 px-5 shrink-0 self-start md:self-center"
+          >
+            {loading === "portal" ? "Caricamento portale..." : "Gestisci fatturazione Stripe"}
+          </button>
+        ) : null}
       </div>
 
       {/* Pricing Cards Grid */}

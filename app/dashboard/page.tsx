@@ -26,8 +26,10 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
-  const [workspaceCount, setWorkspaceCount] = useState(0);
-  const [planName, setPlanName] = useState("starter");
+  const [proposalsUsed, setProposalsUsed] = useState(0);
+  const [proposalLimit, setProposalLimit] = useState<number | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [planName, setPlanName] = useState("none");
   const [billingNotice, setBillingNotice] = useState("");
   const [openingPortal, setOpeningPortal] = useState(false);
 
@@ -35,26 +37,23 @@ export default function DashboardPage() {
   const portalReturn = searchParams.get("billing") === "portal";
   const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
 
-  async function refreshWorkspace() {
-    const response = await fetch("/api/workspaces");
-    if (!response.ok) return;
-    const payload = (await response.json()) as { workspaces: Array<{ id: string }> };
-    setWorkspaceCount(payload.workspaces.length);
-  }
-
   async function refreshBilling() {
     const response = await fetch("/api/billing/checkout");
     if (!response.ok) return;
-    const payload = (await response.json()) as { current: { plan: string } };
+    const payload = (await response.json()) as {
+      current: { plan: string };
+      limits: { proposalLimit: number } | null;
+      usage: { proposalsThisMonth: number };
+      hasActiveSubscription: boolean;
+    };
     setPlanName(payload.current.plan);
+    setProposalsUsed(payload.usage.proposalsThisMonth);
+    setProposalLimit(payload.limits?.proposalLimit ?? null);
+    setHasActiveSubscription(payload.hasActiveSubscription);
   }
 
   useEffect(() => {
-    const init = async () => {
-      await refreshWorkspace();
-      await refreshBilling();
-    };
-    void init();
+    void refreshBilling();
   }, []);
 
   useEffect(() => {
@@ -94,8 +93,19 @@ export default function DashboardPage() {
         estimatedBudget?: number;
         sectorSummary?: string;
         budgetRationale?: string;
+        error?: string;
       };
       if (!response.ok) {
+        if (payload.error) {
+          if (payload.error === "subscription_required") {
+            router.push("/dashboard/subscribe");
+            return;
+          }
+          if (payload.error === "proposal_limit_reached") {
+            router.push("/dashboard/billing?limit=reached");
+            return;
+          }
+        }
         setBrandMessage("Analisi brand non riuscita. Puoi comunque inserire la palette manualmente.");
         return;
       }
@@ -145,9 +155,14 @@ export default function DashboardPage() {
           router.push("/dashboard/subscribe");
           return;
         }
+        if (proposalPayload.error === "proposal_limit_reached") {
+          router.push("/dashboard/billing?limit=reached");
+          return;
+        }
         setApiMessage(proposalPayload.error || "Errore nella creazione della proposta.");
         return;
       }
+      void refreshBilling();
       if (proposalPayload.budget) setBudget(proposalPayload.budget);
       setShareLink(`${window.location.origin}${proposalPayload.link}`);
       setProposalId(proposalPayload.id || null);
@@ -500,32 +515,45 @@ export default function DashboardPage() {
             
             <div className="grid gap-3 text-xs">
               <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-[var(--muted)]">Proposte create</span>
-                <strong className="text-[var(--foreground)] w-fit">{workspaceCount}</strong>
+                <span className="text-[var(--muted)]">Generazioni questo mese</span>
+                <strong className="text-[var(--foreground)] w-fit">
+                  {hasActiveSubscription && proposalLimit !== null
+                    ? `${proposalsUsed} / ${proposalLimit}`
+                    : "—"}
+                </strong>
               </div>
               
               <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[var(--muted)]">Piano Abbonamento</span>
                 <span className="rounded-full bg-[var(--accent-glow)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)] w-fit">
-                  {planName === "none" ? "Nessun Piano" : planName}
+                  {planName === "none" ? "Nessun piano" : planName}
                 </span>
               </div>
             </div>
 
-            <button
-              type="button"
-              disabled={openingPortal}
-              onClick={() => void handleOpenPortal()}
-              className="btn-secondary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
-            >
-              <Laptop size={14} />
-              {openingPortal ? "Apertura portale Stripe..." : "Gestisci fatturazione Stripe"}
-            </button>
+            {hasActiveSubscription ? (
+              <button
+                type="button"
+                disabled={openingPortal}
+                onClick={() => void handleOpenPortal()}
+                className="btn-secondary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
+              >
+                <Laptop size={14} />
+                {openingPortal ? "Apertura portale Stripe..." : "Gestisci fatturazione Stripe"}
+              </button>
+            ) : (
+              <Link
+                href="/dashboard/subscribe"
+                className="btn-primary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
+              >
+                Attiva un abbonamento
+              </Link>
+            )}
             <Link
-              href="/dashboard/billing"
+              href={hasActiveSubscription ? "/dashboard/billing" : "/dashboard/subscribe"}
               className="mt-2 block text-center text-[10px] font-bold text-[var(--muted)] underline-offset-2 hover:underline"
             >
-              Cambia piano abbonamento
+              {hasActiveSubscription ? "Cambia piano abbonamento" : "Vedi piani disponibili"}
             </Link>
           </div>
 

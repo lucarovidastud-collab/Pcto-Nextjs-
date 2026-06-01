@@ -15,9 +15,13 @@ type BillingDiagnostics = {
 
 function BillingContent() {
   const searchParams = useSearchParams();
-  const [planName, setPlanName] = useState("starter");
+  const [planName, setPlanName] = useState("none");
+  const [proposalsUsed, setProposalsUsed] = useState(0);
+  const [proposalLimit, setProposalLimit] = useState<number | null>(null);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [diagnostics, setDiagnostics] = useState<BillingDiagnostics | null>(null);
   const checkoutStatus = searchParams.get("checkout");
+  const limitReached = searchParams.get("limit") === "reached";
 
   useEffect(() => {
     void (async () => {
@@ -26,8 +30,16 @@ function BillingContent() {
         fetch("/api/billing/status")
       ]);
       if (checkoutRes.ok) {
-        const payload = (await checkoutRes.json()) as { current: { plan: string } };
+        const payload = (await checkoutRes.json()) as {
+          current: { plan: string };
+          limits: { proposalLimit: number } | null;
+          usage: { proposalsThisMonth: number };
+          hasActiveSubscription: boolean;
+        };
         setPlanName(payload.current.plan);
+        setProposalsUsed(payload.usage.proposalsThisMonth);
+        setProposalLimit(payload.limits?.proposalLimit ?? null);
+        setHasActiveSubscription(payload.hasActiveSubscription);
       }
       if (statusRes.ok) {
         setDiagnostics((await statusRes.json()) as BillingDiagnostics);
@@ -53,6 +65,18 @@ function BillingContent() {
             Checkout annullato. Puoi riprovare quando vuoi.
           </p>
         ) : null}
+        {limitReached ? (
+          <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+            Hai raggiunto il limite mensile di generazioni
+            {proposalLimit !== null ? ` (${proposalsUsed}/${proposalLimit})` : ""}. Passa a un piano superiore per continuare.
+          </p>
+        ) : null}
+        {hasActiveSubscription && proposalLimit !== null ? (
+          <p className="mt-4 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 text-sm text-[var(--muted)]">
+            Utilizzo mensile: <strong className="text-[var(--foreground)]">{proposalsUsed}</strong> su{" "}
+            <strong className="text-[var(--foreground)]">{proposalLimit}</strong> generazioni incluse nel piano.
+          </p>
+        ) : null}
         {diagnostics ? (
           <p className="mt-4 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 text-xs text-[var(--muted)]">
             Stripe {diagnostics.mode || "n/d"}
@@ -63,7 +87,7 @@ function BillingContent() {
         ) : null}
       </header>
 
-      <PricingPlans currentPlan={planName} />
+      <PricingPlans currentPlan={planName} hasActiveSubscription={hasActiveSubscription} />
       <SiteFooter />
     </div>
   );

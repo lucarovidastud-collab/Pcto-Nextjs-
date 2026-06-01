@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createProposal, listTenantProposals, getSubscriptionForTenant } from "@/lib/db/repositories";
+import { createProposal, listTenantProposals } from "@/lib/db/repositories";
+import { assertCanCreateProposal } from "@/lib/billing/entitlements";
 import { requireSession } from "@/lib/security/guard";
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
@@ -23,8 +24,19 @@ export async function POST(request: NextRequest) {
   const auth = await requireSession(request);
   if (auth.error || !auth.session) return auth.error!;
 
-  const sub = await getSubscriptionForTenant(auth.session.tenantId);
-  if (sub.plan === "none" || (sub.status !== "active" && sub.status !== "trialing")) {
+  const access = await assertCanCreateProposal(auth.session.tenantId);
+  if (!access.allowed) {
+    if (access.error.code === "proposal_limit_reached") {
+      return NextResponse.json(
+        {
+          error: "proposal_limit_reached",
+          used: access.error.used,
+          limit: access.error.limit,
+          plan: access.error.plan
+        },
+        { status: 403 }
+      );
+    }
     return NextResponse.json({ error: "subscription_required" }, { status: 403 });
   }
 

@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSubscriptionForTenant, setSubscriptionForTenant } from "@/lib/db/repositories";
 import { requireSession } from "@/lib/security/guard";
 import { isBillingSandboxEnabled } from "@/lib/billing/sandbox";
-import { createCheckoutSession, getPlanLimits, planCatalog, type PlanName, stripe } from "@/lib/services/billing";
+import { getProposalUsage } from "@/lib/billing/entitlements";
+import { getPlanLimits, isSubscriptionActive } from "@/lib/billing/plans";
+import { createCheckoutSession, planCatalog, type PlanName, stripe } from "@/lib/services/billing";
 import { z } from "zod";
 
 const schema = z.object({
@@ -14,11 +16,18 @@ export async function GET(request: NextRequest) {
   const auth = await requireSession(request);
   if (auth.error || !auth.session) return auth.error!;
   const subscription = await getSubscriptionForTenant(auth.session.tenantId);
+  const limits = getPlanLimits(subscription.plan);
+  const usage = await getProposalUsage(auth.session.tenantId);
   return NextResponse.json({
     current: subscription,
-    limits: getPlanLimits(subscription.plan),
+    limits,
+    usage: {
+      proposalsThisMonth: usage.used,
+      periodStart: usage.periodStart
+    },
     catalog: planCatalog,
-    allowSandbox: isBillingSandboxEnabled()
+    allowSandbox: isBillingSandboxEnabled(),
+    hasActiveSubscription: limits !== null && isSubscriptionActive(subscription.status)
   });
 }
 

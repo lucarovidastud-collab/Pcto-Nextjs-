@@ -35,7 +35,7 @@ export default function SubscribePage() {
         </div>
       </header>
 
-      <PricingPlans currentPlan="none" />
+      <PricingPlans currentPlan="none" hasActiveSubscription={false} />
       <SiteFooter />
     </div>
   );

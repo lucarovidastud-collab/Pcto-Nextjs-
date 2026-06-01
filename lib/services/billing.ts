@@ -1,9 +1,15 @@
 import Stripe from "stripe";
 import { getSubscriptionForTenant, setSubscriptionForTenant, setTenantStripeCustomer } from "@/lib/db/repositories";
 import { isBillingSandboxEnabled } from "@/lib/billing/sandbox";
-import { getPlanLimits, planCatalog, type PlanName } from "@/lib/billing/plans";
+import {
+  getPlanLimits,
+  isPaidPlan,
+  isSubscriptionActive,
+  planCatalog,
+  type PlanName
+} from "@/lib/billing/plans";
 
-export { getPlanLimits, planCatalog, type PlanName };
+export { getPlanLimits, isPaidPlan, isSubscriptionActive, planCatalog, type PlanName };
 
 const stripeKey = process.env.STRIPE_SECRET_KEY || "";
 export const stripe = stripeKey ? new Stripe(stripeKey) : null;

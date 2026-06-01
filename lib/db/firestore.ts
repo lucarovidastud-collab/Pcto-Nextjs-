@@ -202,6 +202,11 @@ export async function listTenantProposals(tenantId: string) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+export async function countTenantProposalsSince(tenantId: string, sinceIso: string) {
+  const proposals = await listTenantProposals(tenantId);
+  return proposals.filter((p) => p.createdAt >= sinceIso).length;
+}
+
 export async function getProposalById(id: string, tenantId?: string) {
   const db = getFirestoreDb();
   const doc = await db.collection("proposals").doc(id).get();
