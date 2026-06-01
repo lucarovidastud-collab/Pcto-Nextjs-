@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       if (tenantId) {
         await syncStripeSubscription({
           tenantId,
-          plan: "starter",
+          plan: "none",
           status: "canceled",
           stripeSubscriptionId: subscription.id
         });

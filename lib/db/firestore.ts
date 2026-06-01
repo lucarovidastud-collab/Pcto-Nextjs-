@@ -77,7 +77,7 @@ export async function upsertUserFromFirebase(input: {
     createdAt: now
   });
   await db.collection("subscriptions").doc(tenantId).set({
-    plan: "starter",
+    plan: "none",
     status: "inactive",
     stripeCustomerId: "",
     stripeSubscriptionId: "",
@@ -112,7 +112,7 @@ export async function createWorkspaceForUser(userId: string, name: string) {
   await db.collection("tenants").doc(tenantId).set({ name, ownerId: userId, createdAt: now });
   await db.collection("memberships").doc(membershipId).set({ userId, tenantId, role: "owner", createdAt: now });
   await db.collection("subscriptions").doc(tenantId).set({
-    plan: "starter",
+    plan: "none",
     status: "inactive",
     stripeCustomerId: "",
     stripeSubscriptionId: "",
@@ -125,10 +125,10 @@ export async function createWorkspaceForUser(userId: string, name: string) {
 export async function getSubscriptionForTenant(tenantId: string) {
   const db = getFirestoreDb();
   const doc = await db.collection("subscriptions").doc(tenantId).get();
-  if (!doc.exists) return { plan: "starter", status: "inactive", stripeCustomerId: "" };
+  if (!doc.exists) return { plan: "none", status: "inactive", stripeCustomerId: "" };
   const data = doc.data() || {};
   return {
-    plan: (data.plan as string) || "starter",
+    plan: (data.plan as string) || "none",
     status: (data.status as string) || "inactive",
     stripeCustomerId: (data.stripeCustomerId as string) || "",
     stripeSubscriptionId: (data.stripeSubscriptionId as string) || ""

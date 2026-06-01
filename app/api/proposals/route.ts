@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createProposal, listTenantProposals } from "@/lib/db/repositories";
+import { createProposal, listTenantProposals, getSubscriptionForTenant } from "@/lib/db/repositories";
 import { requireSession } from "@/lib/security/guard";
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
 import { generateProposalHtmlWithAI } from "@/lib/services/proposal-ai";
+
 import { resolveNotesFromUploadedFile } from "@/lib/services/source-notes";
 import { formatReadableText } from "@/lib/utils/text";
 import { createProposalSchema } from "@/lib/validators";
@@ -21,6 +22,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const auth = await requireSession(request);
   if (auth.error || !auth.session) return auth.error!;
+
+  const sub = await getSubscriptionForTenant(auth.session.tenantId);
+  if (sub.plan === "none" || (sub.status !== "active" && sub.status !== "trialing")) {
+    return NextResponse.json({ error: "subscription_required" }, { status: 403 });
+  }
+
   const contentType = request.headers.get("content-type") || "";
 
   let company = "";

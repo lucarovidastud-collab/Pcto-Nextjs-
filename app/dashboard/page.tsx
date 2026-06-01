@@ -4,11 +4,12 @@ import { paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { SiteFooter } from "@/components/site-footer";
 import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileText, CheckCircle, Copy, Laptop, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
@@ -138,6 +139,10 @@ export default function DashboardPage() {
         error?: string;
       };
       if (!proposalResponse.ok) {
+        if (proposalPayload.error === "subscription_required") {
+          router.push("/dashboard/subscribe");
+          return;
+        }
         setApiMessage(proposalPayload.error || "Errore nella creazione della proposta.");
         return;
       }
@@ -475,7 +480,7 @@ export default function DashboardPage() {
               <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-[var(--muted)]">Piano Abbonamento</span>
                 <span className="rounded-full bg-[var(--accent-glow)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)] w-fit">
-                  {planName}
+                  {planName === "none" ? "Nessun Piano" : planName}
                 </span>
               </div>
             </div>
