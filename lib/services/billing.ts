@@ -289,7 +289,7 @@ export async function createCheckoutSession(input: {
       customer_update: { address: "auto", name: "auto" },
       line_items: [{ price: priceId, quantity: 1 }],
       locale: "it",
-      branding_settings: buildCheckoutBrandingSettings(baseUrl),
+      branding_settings: buildCheckoutBrandingSettings(baseUrl, { embedded }),
       custom_text: buildCheckoutCustomText(input.plan),
       metadata: { tenantId: input.tenantId, plan: input.plan },
       subscription_data: { metadata: { tenantId: input.tenantId, plan: input.plan } },

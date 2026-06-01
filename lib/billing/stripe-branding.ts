@@ -35,16 +35,25 @@ export function planCheckoutCopy(plan: PlanName) {
   return planCopy[plan];
 }
 
-export function buildCheckoutBrandingSettings(baseUrl: string): Stripe.Checkout.SessionCreateParams.BrandingSettings {
-  const iconUrl = `${baseUrl.replace(/\/$/, "")}/brand/stripe-icon.svg`;
-  return {
+/** Stripe non consente `icon`/`logo` in branding_settings con ui_mode embedded_page. */
+export function buildCheckoutBrandingSettings(
+  baseUrl: string,
+  options?: { embedded?: boolean }
+): Stripe.Checkout.SessionCreateParams.BrandingSettings {
+  const settings: Stripe.Checkout.SessionCreateParams.BrandingSettings = {
     display_name: stripeCheckoutBranding.displayName,
     background_color: stripeCheckoutBranding.backgroundColor,
     button_color: stripeCheckoutBranding.buttonColor,
     border_style: stripeCheckoutBranding.borderStyle,
-    font_family: stripeCheckoutBranding.fontFamily,
-    icon: { type: "url", url: iconUrl }
+    font_family: stripeCheckoutBranding.fontFamily
   };
+
+  if (!options?.embedded) {
+    const iconUrl = `${baseUrl.replace(/\/$/, "")}/brand/stripe-icon.svg`;
+    settings.icon = { type: "url", url: iconUrl };
+  }
+
+  return settings;
 }
 
 export function buildCheckoutCustomText(plan: PlanName): Stripe.Checkout.SessionCreateParams.CustomText {
