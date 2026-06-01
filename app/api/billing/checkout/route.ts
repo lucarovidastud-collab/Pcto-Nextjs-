@@ -9,7 +9,8 @@ import { z } from "zod";
 
 const schema = z.object({
   plan: z.enum(["starter", "growth", "enterprise"]),
-  sandbox: z.boolean().optional()
+  sandbox: z.boolean().optional(),
+  embedded: z.boolean().optional()
 });
 
 export async function GET(request: NextRequest) {
@@ -83,8 +84,20 @@ export async function POST(request: NextRequest) {
       tenantId: auth.session.tenantId,
       email: auth.session.email,
       plan: parsed.data.plan as PlanName,
-      baseUrl
+      baseUrl,
+      embedded: parsed.data.embedded
     });
+
+    if (parsed.data.embedded) {
+      if (!session.client_secret) {
+        return NextResponse.json({ error: "Sessione checkout non valida" }, { status: 502 });
+      }
+      return NextResponse.json({ clientSecret: session.client_secret });
+    }
+
+    if (!session.url) {
+      return NextResponse.json({ error: "URL checkout non disponibile" }, { status: 502 });
+    }
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Checkout Stripe fallito";

@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 const links = [
   { href: "/dashboard", label: "Workspace", icon: LayoutDashboard },
-  { href: "/dashboard/billing", label: "Cambia piano", icon: CreditCard }
+  { href: "/dashboard/billing", label: "Abbonamento", icon: CreditCard }
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {

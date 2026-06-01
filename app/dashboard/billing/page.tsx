@@ -1,5 +1,7 @@
 "use client";
 
+import { BillingAlert } from "@/components/billing/billing-alerts";
+import { BillingShell } from "@/components/billing/billing-shell";
 import { PricingPlans } from "@/components/billing/pricing-plans";
 import { SiteFooter } from "@/components/site-footer";
 import { useSearchParams } from "next/navigation";
@@ -47,56 +49,69 @@ function BillingContent() {
     })();
   }, []);
 
-  return (
-    <div className="flex flex-col gap-5 pb-8">
-      <header className="glass rounded-2xl p-5">
-        <p className="text-sm font-semibold text-[var(--muted)]">Stripe Billing</p>
-        <h1 className="text-2xl font-black sm:text-3xl">Piani e pagamenti</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[var(--muted)]">
-          Qui puoi passare a un altro piano. Per fatture e metodo di pagamento usa il portale Stripe dal workspace principale.
-        </p>
-        {checkoutStatus === "success" ? (
-          <p className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
-            Pagamento completato. Il piano verrà aggiornato entro pochi secondi.
-          </p>
-        ) : null}
-        {checkoutStatus === "cancel" ? (
-          <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Checkout annullato. Puoi riprovare quando vuoi.
-          </p>
-        ) : null}
-        {limitReached ? (
-          <p className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
-            Hai raggiunto il limite mensile di generazioni
-            {proposalLimit !== null ? ` (${proposalsUsed}/${proposalLimit})` : ""}. Passa a un piano superiore per continuare.
-          </p>
-        ) : null}
-        {hasActiveSubscription && proposalLimit !== null ? (
-          <p className="mt-4 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 text-sm text-[var(--muted)]">
-            Utilizzo mensile: <strong className="text-[var(--foreground)]">{proposalsUsed}</strong> su{" "}
-            <strong className="text-[var(--foreground)]">{proposalLimit}</strong> generazioni incluse nel piano.
-          </p>
-        ) : null}
-        {diagnostics ? (
-          <p className="mt-4 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 text-xs text-[var(--muted)]">
-            Stripe {diagnostics.mode || "n/d"}
-            {diagnostics.chargesEnabled === false ? " · pagamenti non ancora abilitati" : ""}
-            {diagnostics.portalConfigured === false ? " · portale in creazione al primo accesso" : " · portale OK"}
-            {diagnostics.message ? ` · ${diagnostics.message}` : ""}
-          </p>
-        ) : null}
-      </header>
+  const alerts = (
+    <>
+      {checkoutStatus === "success" ? (
+        <BillingAlert variant="success" title="Pagamento completato">
+          Il piano si aggiornerà automaticamente entro pochi secondi. Puoi tornare alla dashboard e iniziare a
+          generare.
+        </BillingAlert>
+      ) : null}
+      {checkoutStatus === "cancel" ? (
+        <BillingAlert variant="warning" title="Checkout annullato">
+          Nessun addebito effettuato. Puoi scegliere un piano quando vuoi.
+        </BillingAlert>
+      ) : null}
+      {limitReached ? (
+        <BillingAlert variant="warning" title="Limite mensile raggiunto">
+          Hai usato tutte le generazioni incluse nel piano
+          {proposalLimit !== null ? ` (${proposalsUsed}/${proposalLimit})` : ""}. Passa a Growth o Enterprise per
+          continuare.
+        </BillingAlert>
+      ) : null}
+    </>
+  );
 
-      <PricingPlans currentPlan={planName} hasActiveSubscription={hasActiveSubscription} />
-      <SiteFooter />
-    </div>
+  return (
+    <BillingShell
+      eyebrow="Abbonamento"
+      title="Piani e pagamenti"
+      description="Gestisci il tuo abbonamento, confronta i piani e aggiorna la fatturazione in pochi clic. I pagamenti sono elaborati in modo sicuro da Stripe."
+      alerts={alerts}
+    >
+      <PricingPlans
+        currentPlan={planName}
+        hasActiveSubscription={hasActiveSubscription}
+        proposalsUsed={proposalsUsed}
+        proposalLimit={proposalLimit}
+      />
+
+      {diagnostics?.configured === false ? (
+        <BillingAlert variant="info" title="Stripe in configurazione">
+          {diagnostics.message || "I pagamenti non sono ancora disponibili su questo ambiente."}
+        </BillingAlert>
+      ) : null}
+    </BillingShell>
   );
 }
 
 export default function BillingPage() {
   return (
-    <Suspense fallback={<p className="p-6 text-sm text-[var(--muted)]">Caricamento billing...</p>}>
-      <BillingContent />
-    </Suspense>
+    <>
+      <Suspense
+        fallback={
+          <div className="mx-auto max-w-6xl px-2 py-12">
+            <p className="animate-pulse text-center text-sm font-medium text-[var(--muted)]">
+              Caricamento piani...
+            </p>
+          </div>
+        }
+      >
+        <BillingContent />
+      </Suspense>
+      <div className="mx-auto max-w-6xl">
+        <SiteFooter />
+      </div>
+    </>
   );
 }

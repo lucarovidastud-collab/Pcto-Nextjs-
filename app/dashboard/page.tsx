@@ -6,6 +6,7 @@ import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileT
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { UsageMeter } from "@/components/billing/usage-meter";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 
 export default function DashboardPage() {
@@ -212,8 +213,8 @@ export default function DashboardPage() {
   return (
     <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
       {portalReturn ? (
-        <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-          Sei tornato dal portale Stripe. Le modifiche alla fatturazione saranno visibili a breve.
+        <p className="glass-premium rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3.5 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+          Modifiche salvate nel portale Stripe — l&apos;abbonamento si aggiorna entro pochi secondi.
         </p>
       ) : null}
       {billingNotice ? (
@@ -507,29 +508,26 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Quick Metrics */}
-          <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6">
-            <h3 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] border-b border-[var(--line)] pb-2 mb-3">
-              Limiti & Workspace
+          {/* Abbonamento */}
+          <div className="glass-premium w-full overflow-x-hidden rounded-2xl p-5 sm:p-6">
+            <h3 className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[var(--muted)] border-b border-[var(--line)] pb-2.5 mb-4">
+              Abbonamento
             </h3>
-            
-            <div className="grid gap-3 text-xs">
-              <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-[var(--muted)]">Generazioni questo mese</span>
-                <strong className="text-[var(--foreground)] w-fit">
-                  {hasActiveSubscription && proposalLimit !== null
-                    ? `${proposalsUsed} / ${proposalLimit}`
-                    : "—"}
-                </strong>
-              </div>
-              
-              <div className="flex flex-col items-start gap-1 py-1 border-b border-[var(--line)]/50 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-[var(--muted)]">Piano Abbonamento</span>
-                <span className="rounded-full bg-[var(--accent-glow)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)] w-fit">
-                  {planName === "none" ? "Nessun piano" : planName}
-                </span>
-              </div>
+
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <span className="text-xs font-bold text-[var(--muted)]">Piano</span>
+              <span className="rounded-full bg-[var(--accent-glow)] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)]">
+                {planName === "none" ? "Nessun piano" : planName}
+              </span>
             </div>
+
+            {hasActiveSubscription && proposalLimit !== null ? (
+              <UsageMeter used={proposalsUsed} limit={proposalLimit} compact />
+            ) : (
+              <p className="text-[11px] font-medium leading-relaxed text-[var(--muted)]">
+                Attiva un piano per sbloccare le generazioni AI e il link cliente.
+              </p>
+            )}
 
             {hasActiveSubscription ? (
               <button
@@ -539,21 +537,21 @@ export default function DashboardPage() {
                 className="btn-secondary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
               >
                 <Laptop size={14} />
-                {openingPortal ? "Apertura portale Stripe..." : "Gestisci fatturazione Stripe"}
+                {openingPortal ? "Apertura portale..." : "Gestisci abbonamento"}
               </button>
             ) : (
               <Link
                 href="/dashboard/subscribe"
                 className="btn-primary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
               >
-                Attiva un abbonamento
+                Scegli un piano
               </Link>
             )}
             <Link
               href={hasActiveSubscription ? "/dashboard/billing" : "/dashboard/subscribe"}
-              className="mt-2 block text-center text-[10px] font-bold text-[var(--muted)] underline-offset-2 hover:underline"
+              className="mt-2 block text-center text-[10px] font-bold text-[var(--muted)] underline-offset-2 hover:underline hover:text-[var(--foreground)]"
             >
-              {hasActiveSubscription ? "Cambia piano abbonamento" : "Vedi piani disponibili"}
+              {hasActiveSubscription ? "Confronta i piani" : "Vedi prezzi e funzionalità"}
             </Link>
           </div>
 

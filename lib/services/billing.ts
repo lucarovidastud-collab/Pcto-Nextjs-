@@ -2,6 +2,11 @@ import Stripe from "stripe";
 import { getSubscriptionForTenant, setSubscriptionForTenant, setTenantStripeCustomer } from "@/lib/db/repositories";
 import { isBillingSandboxEnabled } from "@/lib/billing/sandbox";
 import {
+  buildCheckoutBrandingSettings,
+  buildCheckoutCustomText,
+  planCheckoutCopy
+} from "@/lib/billing/stripe-branding";
+import {
   getPlanLimits,
   isPaidPlan,
   isSubscriptionActive,
@@ -130,7 +135,8 @@ export async function ensureBillingPortalConfiguration() {
 
   await stripe.billingPortal.configurations.create({
     business_profile: {
-      headline: "QuoteGen Engine — gestione abbonamento"
+      headline: "QuoteGen — il tuo abbonamento",
+      privacy_policy_url: process.env.APP_URL ? `${normalizeBaseUrl(process.env.APP_URL)}/` : undefined
     },
     features: {
       payment_method_update: { enabled: true },
@@ -244,30 +250,62 @@ export async function getOrCreateStripeCustomer(tenantId: string, email: string)
   }
 }
 
+async function syncPlanProductPresentation(plan: PlanName, priceId: string) {
+  if (!stripe) return;
+  try {
+    const price = await stripe.prices.retrieve(priceId, { expand: ["product"] });
+    const product = price.product;
+    const productId = typeof product === "string" ? product : product?.id;
+    if (!productId) return;
+    const copy = planCheckoutCopy(plan);
+    await stripe.products.update(productId, {
+      name: copy.productName,
+      description: copy.description
+    });
+  } catch {
+    // non bloccare il checkout se l'aggiornamento catalogo fallisce
+  }
+}
+
 export async function createCheckoutSession(input: {
   tenantId: string;
   email: string;
   plan: PlanName;
   baseUrl?: string;
+  embedded?: boolean;
 }) {
   if (!stripe) throw new Error("Stripe non configurato");
 
   const customerId = await getOrCreateStripeCustomer(input.tenantId, input.email);
   const priceId = await resolvePlanPriceId(input.plan);
+  await syncPlanProductPresentation(input.plan, priceId);
   const baseUrl = appUrl(input.baseUrl);
+  const embedded = Boolean(input.embedded);
 
   try {
-    return await stripe.checkout.sessions.create({
+    const params: Stripe.Checkout.SessionCreateParams = {
       mode: "subscription",
       customer: customerId,
+      customer_update: { address: "auto", name: "auto" },
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/dashboard/billing?checkout=success&plan=${input.plan}`,
-      cancel_url: `${baseUrl}/dashboard/billing?checkout=cancel`,
+      locale: "it",
+      branding_settings: buildCheckoutBrandingSettings(baseUrl),
+      custom_text: buildCheckoutCustomText(input.plan),
       metadata: { tenantId: input.tenantId, plan: input.plan },
       subscription_data: { metadata: { tenantId: input.tenantId, plan: input.plan } },
       allow_promotion_codes: true,
       billing_address_collection: "auto"
-    });
+    };
+
+    if (embedded) {
+      params.ui_mode = "embedded_page";
+      params.return_url = `${baseUrl}/dashboard/billing?checkout=success&plan=${input.plan}&session_id={CHECKOUT_SESSION_ID}`;
+    } else {
+      params.success_url = `${baseUrl}/dashboard/billing?checkout=success&plan=${input.plan}`;
+      params.cancel_url = `${baseUrl}/dashboard/billing?checkout=cancel&plan=${input.plan}`;
+    }
+
+    return await stripe.checkout.sessions.create(params);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Errore Stripe checkout";
     throw new Error(`Checkout non disponibile: ${message}`);

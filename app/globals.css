@@ -113,6 +113,14 @@
   box-shadow: var(--shadow-lg);
 }
 
+/* Stripe Embedded Checkout — iframe a tutta larghezza nel layout QuoteGen */
+.stripe-checkout-embed iframe {
+  width: 100% !important;
+  min-height: 520px;
+  border: 0;
+  border-radius: 1.25rem;
+}
+
 /* Premium Navigation Elements */
 .nav-link {
   display: flex;
