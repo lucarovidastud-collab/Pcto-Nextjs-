@@ -17,10 +17,40 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
+  const base = (process.env.APP_URL ?? "https://pcto-nextjs.vercel.app").replace(/\/$/, "");
+  const title = t("title");
+  const description = t("description");
+
   return {
-    title: t("title"),
-    description: t("description"),
-    icons: { icon: "/favicon.ico" }
+    title,
+    description,
+    metadataBase: new URL(base),
+    icons: { icon: "/favicon.ico" },
+    openGraph: {
+      title,
+      description,
+      url: base,
+      siteName: "QuoteGen Engine",
+      type: "website",
+      locale
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description
+    },
+    alternates: {
+      canonical: base,
+      languages: {
+        it: base,
+        en: `${base}/en`,
+        de: `${base}/de`,
+        fr: `${base}/fr`,
+        es: `${base}/es`,
+        pt: `${base}/pt`,
+        nl: `${base}/nl`
+      }
+    }
   };
 }
 
