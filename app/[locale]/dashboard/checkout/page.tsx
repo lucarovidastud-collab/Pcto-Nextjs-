@@ -35,14 +35,24 @@ function CheckoutEmbed() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plan, embedded: true, locale })
     });
-    const payload = (await response.json()) as { clientSecret?: string; error?: string };
-    if (!response.ok || !payload.clientSecret) {
+    const payload = (await response.json()) as { clientSecret?: string; url?: string; error?: string };
+    if (!response.ok) {
       const message = payload.error || t("paymentError");
       setError(message);
       throw new Error(message);
     }
+    // Sandbox mode: server returns a redirect URL instead of clientSecret
+    if (payload.url && !payload.clientSecret) {
+      router.replace(payload.url);
+      throw new Error("sandbox_redirect");
+    }
+    if (!payload.clientSecret) {
+      const message = t("paymentError");
+      setError(message);
+      throw new Error(message);
+    }
     return payload.clientSecret;
-  }, [plan, t]);
+  }, [plan, t, router, locale]);
 
   if (!plan || !copy) {
     return (

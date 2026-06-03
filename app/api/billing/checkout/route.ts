@@ -53,8 +53,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Sandbox non disponibile" }, { status: 403 });
   }
 
-  if (!stripe) {
-    if (!allowSandbox) {
+  // Auto-sandbox: when BILLING_ALLOW_SANDBOX=1, bypass Stripe for all checkout flows
+  const useSandbox = allowSandbox && (parsed.data.sandbox || !stripe);
+  if (useSandbox || (!stripe && !allowSandbox)) {
+    if (!stripe && !allowSandbox) {
       return NextResponse.json({ error: "Stripe non configurato" }, { status: 503 });
     }
     await setSubscriptionForTenant(auth.session.tenantId, {
@@ -63,21 +65,8 @@ export async function POST(request: NextRequest) {
       stripeCustomerId: "cus_sandbox_" + auth.session.tenantId,
       stripeSubscriptionId: "sub_sandbox_" + auth.session.tenantId
     });
-    return NextResponse.json({
-      url: `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
-    });
-  }
-
-  if (parsed.data.sandbox) {
-    await setSubscriptionForTenant(auth.session.tenantId, {
-      plan: parsed.data.plan,
-      status: "active",
-      stripeCustomerId: "cus_sandbox_" + auth.session.tenantId,
-      stripeSubscriptionId: "sub_sandbox_" + auth.session.tenantId
-    });
-    return NextResponse.json({
-      url: `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`
-    });
+    const redirectUrl = `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`;
+    return NextResponse.json({ url: redirectUrl });
   }
 
   const stripeLocales = new Set(["bg","cs","da","de","el","en","en-GB","es","es-419","et","fi","fil","fr","fr-CA","hr","hu","id","it","ja","ko","lt","lv","ms","mt","nb","nl","pl","pt","pt-BR","ro","ru","sk","sl","sv","th","tr","vi","zh","zh-HK","zh-TW"]);
