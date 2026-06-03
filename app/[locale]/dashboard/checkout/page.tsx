@@ -77,7 +77,7 @@ function CheckoutEmbed() {
     <BillingShell
       eyebrow={t("securePayment")}
       title={`${t("activate")} ${copy.productName}`}
-      description={`${t("completePayment")} ${formatPlanPriceLabel(plan)} · ${t("processedByStripe")}`}
+      description={`${t("completePayment")} ${formatPlanPriceLabel(plan, common("perMonth"))} · ${t("processedByStripe")}`}
       showTrust={false}
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">

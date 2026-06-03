@@ -1,12 +1,17 @@
-import { CreditCard, Lock, RefreshCw } from "lucide-react";
+"use client";
 
-const items = [
-  { icon: Lock, label: "Pagamenti crittografati" },
-  { icon: CreditCard, label: "Carte e SEPA via Stripe" },
-  { icon: RefreshCw, label: "Disdici quando vuoi" }
-] as const;
+import { CreditCard, Lock, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function StripeTrust() {
+  const t = useTranslations("stripeTrust");
+
+  const items = [
+    { icon: Lock, label: t("encrypted") },
+    { icon: CreditCard, label: t("cardsSepa") },
+    { icon: RefreshCw, label: t("cancelAnytime") }
+  ] as const;
+
   return (
     <div
       className="rounded-2xl border border-[var(--line)] bg-[color-mix(in_srgb,var(--panel-strong)_60%,transparent)] px-4 py-4"

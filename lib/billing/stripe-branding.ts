@@ -66,6 +66,6 @@ export function buildCheckoutCustomText(plan: PlanName): Stripe.Checkout.Session
   };
 }
 
-export function formatPlanPriceLabel(plan: PlanName) {
-  return `€${planCatalog[plan].monthly}/mese · IVA secondo normativa`;
+export function formatPlanPriceLabel(plan: PlanName, perMonthLabel = "/month") {
+  return `€${planCatalog[plan].monthly}${perMonthLabel}`;
 }

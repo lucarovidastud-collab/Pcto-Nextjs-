@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 type GenerationProgressProps = {
   percent: number;
   label: string;
@@ -7,6 +9,8 @@ type GenerationProgressProps = {
 };
 
 export function GenerationProgress({ percent, label, active }: GenerationProgressProps) {
+  const t = useTranslations("generationProgress");
+
   if (!active) return null;
 
   const safePercent = Math.min(100, Math.max(0, Math.round(percent)));
@@ -19,7 +23,7 @@ export function GenerationProgress({ percent, label, active }: GenerationProgres
       aria-busy="true"
     >
       <div className="flex items-center justify-between gap-3 mb-3">
-        <p className="text-sm font-bold text-[var(--foreground)]">Generazione in corso</p>
+        <p className="text-sm font-bold text-[var(--foreground)]">{t("title")}</p>
         <span className="text-lg font-black tabular-nums text-[var(--accent)]">{safePercent}%</span>
       </div>
       <div
@@ -28,7 +32,7 @@ export function GenerationProgress({ percent, label, active }: GenerationProgres
         aria-valuenow={safePercent}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label="Avanzamento generazione preventivo"
+        aria-label={t("ariaLabel")}
       >
         <div
           className="h-full rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] transition-all duration-500 ease-out"

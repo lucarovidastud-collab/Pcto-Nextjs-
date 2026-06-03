@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Lock, Mail, ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function AdminLoginPage() {
+  const t = useTranslations("admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,11 +22,11 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
-      if (!res.ok) throw new Error("Credenziali non valide.");
-      
+      if (!res.ok) throw new Error(t("invalidCredentials"));
+
       window.location.assign("/admin");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Errore");
+      setError(err instanceof Error ? err.message : t("error"));
       setLoading(false);
     }
   }
@@ -32,12 +34,12 @@ export default function AdminLoginPage() {
   return (
     <div className="max-w-sm mx-auto mt-20">
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
-        <h1 className="text-2xl font-black mb-1">Accesso Riservato</h1>
-        <p className="text-sm text-slate-400 mb-6">Area di gestione QuoteGen</p>
-        
+        <h1 className="text-2xl font-black mb-1">{t("restrictedAccess")}</h1>
+        <p className="text-sm text-slate-400 mb-6">{t("managementArea")}</p>
+
         <form onSubmit={handleSubmit} className="grid gap-4">
           <label className="grid gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wide">
-            Email Amministratore
+            {t("adminEmail")}
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
@@ -53,7 +55,7 @@ export default function AdminLoginPage() {
           </label>
 
           <label className="grid gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wide">
-            Password Sicura
+            {t("securePassword")}
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
@@ -79,7 +81,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
           >
-            {loading ? "Verifica..." : "Entra nel Backoffice"}
+            {loading ? t("verifying") : t("enterBackoffice")}
             {!loading && <ArrowRight size={16} />}
           </button>
         </form>

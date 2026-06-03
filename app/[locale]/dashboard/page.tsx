@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileText, CheckCircle, Copy, Laptop, RefreshCw } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
 import { UsageMeter } from "@/components/billing/usage-meter";
@@ -14,6 +14,7 @@ import { slugifyProposalLink } from "@/lib/proposals/slug";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [company, setCompany] = useState("");
@@ -95,7 +96,7 @@ export default function DashboardPage() {
   async function handleOpenPortal() {
     setOpeningPortal(true);
     setBillingNotice("");
-    const result = await openStripeBillingPortal();
+    const result = await openStripeBillingPortal(t("portalUnavailable") as string);
     if (!result.ok) {
       setBillingNotice(result.error);
       setOpeningPortal(false);
@@ -489,7 +490,7 @@ export default function DashboardPage() {
               <div className="min-w-0">
                 <span className="text-[10px] font-extrabold text-[var(--muted)] uppercase tracking-wider block">{t("budgetLabel")}</span>
                 <p className="text-2xl sm:text-3xl font-black text-[var(--accent)] mt-0.5 break-words leading-tight">
-                  {budget ? `€ ${budget.toLocaleString("it-IT")}` : t("budgetWaiting")}
+                  {budget ? `€ ${budget.toLocaleString(locale)}` : t("budgetWaiting")}
                 </p>
                 <p className="text-[11px] text-[var(--muted)] mt-1 truncate max-w-md" title={budgetNote ?? undefined}>
                   {budgetNote ?? t("budgetFromFile")}

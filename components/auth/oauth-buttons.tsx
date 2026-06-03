@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import {
   getRedirectResult,
@@ -12,14 +13,9 @@ import { authProviders, getClientAuth } from "@/lib/firebase/client";
 
 type ProviderKey = "google" | "github";
 
-const labels: Record<ProviderKey, string> = {
-  google: "Google",
-  github: "GitHub"
-};
-
 const REDIRECT_FLAG = "quotegen_oauth_redirect";
 
-async function completeServerSession(idToken: string) {
+async function completeServerSession(idToken: string, sessionError: string) {
   const response = await fetch("/api/auth/firebase", {
     method: "POST",
     credentials: "include",
@@ -28,7 +24,7 @@ async function completeServerSession(idToken: string) {
   });
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
-    throw new Error(payload.error || "Sessione server non creata");
+    throw new Error(payload.error || sessionError);
   }
 }
 
@@ -39,6 +35,7 @@ export function OAuthButtons({
   onSuccess: () => void;
   onError: (msg: string) => void;
 }) {
+  const t = useTranslations("oauth");
   const [loading, setLoading] = useState<ProviderKey | null>(null);
   const [finishing, setFinishing] = useState(false);
   const handledRef = useRef(false);
@@ -50,7 +47,7 @@ export function OAuthButtons({
     setLoading(null);
     try {
       const idToken = await user.getIdToken(true);
-      await completeServerSession(idToken);
+      await completeServerSession(idToken, t("sessionError"));
       sessionStorage.removeItem(REDIRECT_FLAG);
       onSuccess();
       window.location.assign("/dashboard");
@@ -58,7 +55,7 @@ export function OAuthButtons({
       handledRef.current = false;
       sessionStorage.removeItem(REDIRECT_FLAG);
       setFinishing(false);
-      onError(error instanceof Error ? error.message : "Login social fallito");
+      onError(error instanceof Error ? error.message : t("socialFailed"));
     }
   }
 
@@ -67,10 +64,9 @@ export function OAuthButtons({
     try {
       auth = getClientAuth();
     } catch {
-      // Firebase not configured yet
       return;
     }
-    
+
     const pendingRedirect = sessionStorage.getItem(REDIRECT_FLAG);
     if (pendingRedirect) setFinishing(true);
 
@@ -105,10 +101,10 @@ export function OAuthButtons({
         return;
       }
       setLoading(null);
-      
-      const message = error instanceof Error ? error.message : "Login social fallito";
-      if (message.includes("Firebase client non configurato")) {
-        onError("Firebase non configurato. Inserisci le chiavi NEXT_PUBLIC_FIREBASE_* su Vercel per abilitare i login social.");
+
+      const message = error instanceof Error ? error.message : t("socialFailed");
+      if (message.includes("Firebase client non configurato") || message.includes("Firebase client not configured")) {
+        onError(t("firebaseNotConfigured"));
       } else {
         onError(message);
       }
@@ -119,10 +115,10 @@ export function OAuthButtons({
     <div className="grid gap-2">
       {finishing ? (
         <div className="rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-3 py-2 text-center text-xs text-[var(--muted)]">
-          <span className="inline-block animate-pulse">Completamento accesso in corso…</span>
+          <span className="inline-block animate-pulse">{t("completing")}</span>
         </div>
       ) : null}
-      
+
       <button
         type="button"
         disabled={Boolean(loading) || finishing}
@@ -135,7 +131,7 @@ export function OAuthButtons({
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        <span>Continua con Google</span>
+        <span>{t("continueWithGoogle")}</span>
       </button>
 
       <button
@@ -147,7 +143,7 @@ export function OAuthButtons({
         <svg className="h-5 w-5 text-[var(--foreground)]" viewBox="0 0 24 24" fill="currentColor">
           <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
         </svg>
-        <span>Continua con GitHub</span>
+        <span>{t("continueWithGithub")}</span>
       </button>
     </div>
   );

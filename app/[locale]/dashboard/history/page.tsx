@@ -3,7 +3,7 @@
 import { SiteFooter } from "@/components/site-footer";
 import { ExternalLink, FileText, History, Link2, RefreshCw } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 type ProposalSummary = {
@@ -33,6 +33,7 @@ function formatWhen(iso: string, locale: string) {
 
 export default function ProposalHistoryPage() {
   const t = useTranslations("history");
+  const locale = useLocale();
   const [proposals, setProposals] = useState<ProposalSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -133,8 +134,8 @@ export default function ProposalHistoryPage() {
                       € {Number(p.budget || 0).toLocaleString("it-IT")}
                     </p>
                     <p className="mt-2 text-xs text-[var(--muted)]">
-                      {t("createdAt")} {formatWhen(p.createdAt, "it-IT")}
-                      {p.expiresAt ? ` ${t("expiresAt")} ${formatWhen(p.expiresAt, "it-IT")}` : null}
+                      {t("createdAt")} {formatWhen(p.createdAt, locale)}
+                      {p.expiresAt ? ` ${t("expiresAt")} ${formatWhen(p.expiresAt, locale)}` : null}
                     </p>
                     <p className="mt-2 flex items-center gap-1.5 text-xs font-mono text-[var(--muted)] break-all">
                       <Link2 size={12} className="shrink-0" aria-hidden />
