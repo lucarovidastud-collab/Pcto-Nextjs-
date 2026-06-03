@@ -187,6 +187,18 @@
     "feature2Title": "Veilige betaling",
     "feature2Desc": "Stripe checkout: kaarten, SEPA en facturen via het klantportaal."
   },
+  "workspace": {
+    "notFound": "Offerte niet gevonden of sessie verlopen.",
+    "updateFailed": "Statusupdate mislukt.",
+    "statusUpdated": "Status bijgewerkt",
+    "loading": "Laden...",
+    "workflow": "Offerte workflow",
+    "currentStatus": "Huidige status",
+    "exportPdf": "PDF exporteren",
+    "openClientLink": "Klantlink openen",
+    "linkExpiry": "Link vervaldatum",
+    "backToHistory": "Terug naar geschiedenis"
+  },
   "checkout": {
     "invalidPlan": "Ongeldig plan",
     "paymentError": "Kan betaling niet starten.",

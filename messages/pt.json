@@ -187,6 +187,18 @@
     "feature2Title": "Pagamento seguro",
     "feature2Desc": "Checkout Stripe: cartões, SEPA e faturas do portal do cliente."
   },
+  "workspace": {
+    "notFound": "Proposta não encontrada ou sessão expirada.",
+    "updateFailed": "Atualização de estado falhou.",
+    "statusUpdated": "Estado atualizado",
+    "loading": "A carregar...",
+    "workflow": "Fluxo de proposta",
+    "currentStatus": "Estado atual",
+    "exportPdf": "Exportar PDF",
+    "openClientLink": "Abrir link cliente",
+    "linkExpiry": "Validade do link",
+    "backToHistory": "Voltar ao histórico"
+  },
   "checkout": {
     "invalidPlan": "Plano inválido",
     "paymentError": "Não foi possível iniciar o pagamento.",

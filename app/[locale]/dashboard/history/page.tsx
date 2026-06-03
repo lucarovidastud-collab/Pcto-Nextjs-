@@ -142,14 +142,15 @@ export default function ProposalHistoryPage() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 shrink-0">
-                    <Link
+                    <a
                       href={`/p/${p.shareToken}`}
                       target="_blank"
+                      rel="noreferrer"
                       className="btn-primary text-xs font-bold flex items-center gap-1.5"
                     >
                       <ExternalLink size={14} aria-hidden />
                       {t("preview")}
-                    </Link>
+                    </a>
                     <Link
                       href={`/workspace/proposals/${p.id}`}
                       className="btn-secondary text-xs font-bold flex items-center gap-1.5"

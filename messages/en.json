@@ -187,6 +187,18 @@
     "feature2Title": "Secure payment",
     "feature2Desc": "Stripe checkout: cards, SEPA and invoices from the customer portal."
   },
+  "workspace": {
+    "notFound": "Proposal not found or session expired.",
+    "updateFailed": "Status update failed.",
+    "statusUpdated": "Status updated",
+    "loading": "Loading...",
+    "workflow": "Proposal workflow",
+    "currentStatus": "Current status",
+    "exportPdf": "Export PDF",
+    "openClientLink": "Open client link",
+    "linkExpiry": "Link expiry",
+    "backToHistory": "Back to history"
+  },
   "checkout": {
     "invalidPlan": "Invalid plan",
     "paymentError": "Unable to start payment.",

@@ -187,6 +187,18 @@
     "feature2Title": "Paiement sécurisé",
     "feature2Desc": "Checkout Stripe : cartes, SEPA et factures depuis le portail client."
   },
+  "workspace": {
+    "notFound": "Proposition introuvable ou session expirée.",
+    "updateFailed": "Échec de la mise à jour du statut.",
+    "statusUpdated": "Statut mis à jour",
+    "loading": "Chargement...",
+    "workflow": "Workflow proposition",
+    "currentStatus": "Statut actuel",
+    "exportPdf": "Exporter PDF",
+    "openClientLink": "Ouvrir lien client",
+    "linkExpiry": "Expiration du lien",
+    "backToHistory": "Retour à l'historique"
+  },
   "checkout": {
     "invalidPlan": "Plan invalide",
     "paymentError": "Impossible de démarrer le paiement.",

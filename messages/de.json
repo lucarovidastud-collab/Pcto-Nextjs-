@@ -187,6 +187,18 @@
     "feature2Title": "Sichere Zahlung",
     "feature2Desc": "Stripe-Checkout: Karten, SEPA und Rechnungen über das Kundenportal."
   },
+  "workspace": {
+    "notFound": "Angebot nicht gefunden oder Sitzung abgelaufen.",
+    "updateFailed": "Statusaktualisierung fehlgeschlagen.",
+    "statusUpdated": "Status aktualisiert",
+    "loading": "Wird geladen...",
+    "workflow": "Angebot-Workflow",
+    "currentStatus": "Aktueller Status",
+    "exportPdf": "PDF exportieren",
+    "openClientLink": "Kunden-Link öffnen",
+    "linkExpiry": "Link-Ablauf",
+    "backToHistory": "Zurück zum Verlauf"
+  },
   "checkout": {
     "invalidPlan": "Ungültiger Plan",
     "paymentError": "Zahlung konnte nicht gestartet werden.",
