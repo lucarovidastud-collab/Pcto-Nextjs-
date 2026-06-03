@@ -33,15 +33,17 @@ export function buildFallbackProposalHtml(input: {
     </section>
     <section class="proposal-card" style="border-left:4px solid ${primary}">
       <h3 style="color:${primary}">Stima economica</h3>
-      <table class="pricing-table">
-        <thead><tr><th>Voce</th><th>Dettaglio</th><th>Importo</th></tr></thead>
-        <tbody>
-          <tr><td>Design & Brand</td><td>UI, UX, identita visiva</td><td>€ ${design.toLocaleString("it-IT")}</td></tr>
-          <tr><td>Sviluppo & Automazioni</td><td>Implementazione e integrazioni</td><td>€ ${build.toLocaleString("it-IT")}</td></tr>
-          <tr><td>QA & Go-live</td><td>Test, sicurezza, rilascio</td><td>€ ${qa.toLocaleString("it-IT")}</td></tr>
-          <tr class="total-row" style="background:color-mix(in srgb, ${primary} 12%, transparent)"><td colspan="2"><strong>Totale investimento</strong></td><td><strong style="color:${primary}">€ ${input.budget.toLocaleString("it-IT")}</strong></td></tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="pricing-table">
+          <thead><tr><th>Voce</th><th>Dettaglio</th><th>Importo</th></tr></thead>
+          <tbody>
+            <tr><td>Design & Brand</td><td>UI, UX, identita visiva</td><td>€ ${design.toLocaleString("it-IT")}</td></tr>
+            <tr><td>Sviluppo & Automazioni</td><td>Implementazione e integrazioni</td><td>€ ${build.toLocaleString("it-IT")}</td></tr>
+            <tr><td>QA & Go-live</td><td>Test, sicurezza, rilascio</td><td>€ ${qa.toLocaleString("it-IT")}</td></tr>
+            <tr class="total-row" style="background:color-mix(in srgb, ${primary} 12%, transparent)"><td colspan="2"><strong>Totale investimento</strong></td><td><strong style="color:${primary}">€ ${input.budget.toLocaleString("it-IT")}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
     <section class="signature-box" style="border-color:${primary}">
       <h3 style="color:${primary}">Accettazione formale</h3>

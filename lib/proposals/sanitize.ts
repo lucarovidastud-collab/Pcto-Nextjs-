@@ -1,24 +1,39 @@
 import { formatReadableText } from "@/lib/utils/text";
 
+const STYLE_SECTION_RE =
+  /<(?:section|div|article)[^>]*>(?:\s*<(?:h[1-6])[^>]*>\s*(?:direzione\s+stile|stile|style\s+direction)[^<]*<\/h[1-6]>)[\s\S]*?<\/(?:section|div|article)>/gi;
+
 export function sanitizeProposalHtml(html: string) {
-  const cleanedButtons = html
+  const noStyleSections = html.replace(STYLE_SECTION_RE, "");
+
+  const cleanedButtons = noStyleSections
     .replace(/<button\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/button>/gi, "")
     .replace(/<a\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/a>/gi, "")
     .replace(/<input\b[^>]*\bvalue\s*=\s*["']\s*accetta\s+preventivo\s*["'][^>]*>/gi, "")
     .replace(/<button\b[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/button>/gi, "")
     .replace(/<a\b[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi, "");
 
-  const cleanedStyles = cleanedButtons.replace(/style="([^"]*)"/gi, (_, styleText: string) => {
+  // Wrap bare <table> tags in a scroll container so they fill 100% width
+  const wrappedTables = cleanedButtons.replace(
+    /(?<!<div[^>]*class="[^"]*table-scroll[^"]*"[^>]*>\s*)(<table\b[\s\S]*?<\/table>)/gi,
+    '<div class="table-scroll">$1</div>'
+  );
+
+  const cleanedStyles = wrappedTables.replace(/style="([^"]*)"/gi, (_, styleText: string) => {
     const sanitized = sanitizeInlineStyle(styleText);
     if (!sanitized) return "";
     return `style="${sanitized}"`;
   });
 
+  // Fix missing spaces after punctuation before uppercase
   const spaced = cleanedStyles
     .replace(/\.([A-ZÀ-ÖØ-Þ])/g, ". $1")
     .replace(/\)([A-ZÀ-ÖØ-Þ])/g, ") $1");
 
-  return spaced.replace(/>([^<]+)</g, (_, text: string) => {
+  // Fix honorific caps (presentarVi → presentarvi, VostRA → vostra, etc.)
+  const fixedCaps = spaced.replace(/\b(presentar|inviar|comunica[rt]|scriver|mostrar|informa[rt])(V[iI])\b/g, "$1vi");
+
+  return fixedCaps.replace(/>([^<]+)</g, (_, text: string) => {
     const cleaned = formatReadableText(text);
     return `>${cleaned}<`;
   });

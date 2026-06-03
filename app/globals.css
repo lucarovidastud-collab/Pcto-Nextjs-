@@ -267,7 +267,17 @@
   cursor: not-allowed;
 }
 
-/* Accent Branded Proposals */
+/* Accent Branded Proposals — resa documento sempre chiara (no tema OS) */
+.proposal-branded {
+  color-scheme: light;
+  --background: #faf9f6;
+  --foreground: #0f172a;
+  --panel: rgba(255, 255, 255, 0.85);
+  --panel-strong: #ffffff;
+  --line: rgba(15, 23, 42, 0.08);
+  --muted: #475569;
+}
+
 .proposal-branded .brand-header {
   background: linear-gradient(
     135deg,
@@ -280,7 +290,7 @@
 .proposal-branded .brand-pill {
   border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   background: color-mix(in srgb, var(--brand-primary) 8%, var(--panel-strong));
-  color: var(--brand-primary);
+  color: var(--brand-primary-text, var(--brand-primary));
   font-weight: 700;
 }
 
@@ -291,7 +301,7 @@
   justify-content: center;
   border: none;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary, var(--brand-primary)));
+  background: linear-gradient(135deg, var(--brand-primary-ui, var(--brand-primary)), var(--brand-secondary-ui, var(--brand-secondary, var(--brand-primary))));
   color: #ffffff;
   padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
@@ -319,9 +329,9 @@
   box-shadow: var(--shadow-sm);
 }
 
-.proposal-branded .proposal-document h2,
-.proposal-branded .proposal-document h3 {
-  color: var(--brand-primary);
+.proposal-branded .proposal-document h2:not([style*="color"]),
+.proposal-branded .proposal-document h3:not([style*="color"]) {
+  color: var(--brand-primary-text, var(--brand-primary));
   font-weight: 800;
 }
 
@@ -364,19 +374,23 @@
   color: color-mix(in srgb, var(--foreground) 85%, transparent);
 }
 
-.proposal-document table {
+.proposal-document .table-scroll {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 1.5rem 0;
   border-radius: 0.75rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  display: block;
-  max-width: 100%;
-  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line);
+}
+
+.proposal-document table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 0.75rem;
+  display: table;
 }
 
 .proposal-document .signature-box {

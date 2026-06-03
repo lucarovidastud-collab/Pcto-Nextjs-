@@ -12,12 +12,11 @@ export async function generateProposalHtmlWithAI(input: {
   if (!OPENROUTER_API_KEY) return null;
 
   const [primary, secondary, tertiary] = input.palette;
-  const prompt = `Sei un Senior Commercial Strategist.
-Crea SOLO HTML interno (senza <html>/<body>) per preventivo di "${input.company}" settore "${input.sector}".
+  const prompt = `Sei un Senior Commercial Strategist che scrive preventivi B2B in italiano.
+Crea SOLO HTML interno (senza <html>/<body>) per il preventivo di "${input.company}" settore "${input.sector}".
 Appunti (sintetizza, NON copiare paragrafi lunghi): ${input.notes.slice(0, 1200)}
 Budget target: EUR ${input.budget}
 Palette brand: ${input.palette.join(", ")}
-Direzione stile: ${input.styleDirection || "premium B2B"}
 
 Regole:
 - usa classi: proposal-card, proposal-grid, scope-list, pricing-table, total-row, signature-box, btn-glow
@@ -27,7 +26,9 @@ Regole:
 - accessibilità: garantisci sempre testo leggibile (no testo bianco su sfondo chiaro, no testo nero su sfondo scuro)
 - non impostare colori testo/sfondo inline su paragrafi e righe tabella; lascia colore di default e usa i colori brand solo per accenti (titoli, bordi, highlight leggeri)
 - includi tabella prezzi e sezione firma con button "Accetta Preventivo"
-- tono professionale B2B, frasi brevi, spazi dopo i punti`;
+- NON includere sezioni intitolate "Direzione Stile", "Stile", "Style Direction" o simili
+- tono professionale B2B formale, frasi brevi, spazi dopo i punti
+- usa sempre la forma verbale di terza persona o infinito (es. "siamo lieti di presentare"), MAI il Lei maiuscolo reverenziale (no "presentarVi", "VostRA", "LeI" con maiuscole interne)`;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 90_000);
