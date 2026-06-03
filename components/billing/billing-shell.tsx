@@ -1,7 +1,7 @@
 import { BrandMark } from "@/components/billing/brand-mark";
 import { StripeTrust } from "@/components/billing/stripe-trust";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { ReactNode } from "react";
 
 type BillingShellProps = {

@@ -1,20 +1,24 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { Building2, CreditCard, History, LayoutDashboard, LogOut, Moon, Sun, Menu, X, Sparkles, User } from "lucide-react";
 import { applyTheme, readStoredTheme, type ThemeMode } from "@/lib/theme";
-import { useEffect, useState } from "react";
-
-const links = [
-  { href: "/dashboard", label: "Workspace", icon: LayoutDashboard },
-  { href: "/dashboard/history", label: "Cronologia", icon: History },
-  { href: "/dashboard/billing", label: "Abbonamento", icon: CreditCard }
-];
+import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const router = useRouter();
+  const links = useMemo(
+    () => [
+      { href: "/dashboard" as const, label: t("navWorkspace"), icon: LayoutDashboard },
+      { href: "/dashboard/history" as const, label: t("navHistory"), icon: History },
+      { href: "/dashboard/billing" as const, label: t("navBilling"), icon: CreditCard }
+    ],
+    [t]
+  );
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [email, setEmail] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -75,7 +79,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             type="button"
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)]"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            title="Cambia tema"
+            title={t("themeToggle")}
           >
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
@@ -84,7 +88,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             type="button"
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] transition-all hover:bg-[var(--panel)]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Menu"
+            aria-label={t("toggleMenu")}
           >
             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -97,7 +101,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           className="fixed inset-0 z-50 lg:hidden bg-black/60 backdrop-blur-sm transition-opacity duration-300"
           role="button"
           tabIndex={0}
-          aria-label="Chiudi menu"
+          aria-label={t("closeMenu")}
           onClick={() => setMobileMenuOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "Escape" || e.key === "Enter" || e.key === " ") setMobileMenuOpen(false);
@@ -112,7 +116,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-white">
                   <Sparkles size={14} />
                 </span>
-                <span className="font-black text-sm">QuoteGen Panel</span>
+                <span className="font-black text-sm">{t("panelTitle")}</span>
               </div>
               <button
                 type="button"
@@ -146,7 +150,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <User size={14} />
               </div>
               <div className="min-w-0">
-                <p className="font-bold text-[var(--foreground)] truncate">Operatore</p>
+                <p className="font-bold text-[var(--foreground)] truncate">{t("operator")}</p>
                 <p className="text-[10px] break-all truncate">{email || "..."}</p>
               </div>
             </div>
@@ -160,7 +164,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 }}
               >
                 {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-                Tema {theme === "dark" ? "Chiaro" : "Scuro"}
+                {t("themeLabel")} {theme === "dark" ? t("themeLight") : t("themeDark")}
               </button>
               <button
                 className="btn-secondary w-full flex items-center justify-center gap-2 text-xs py-2 min-h-[2.5rem] border-red-500/20 text-red-500 hover:bg-red-500/5"
@@ -170,7 +174,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 }}
               >
                 <LogOut size={14} />
-                Disconnetti
+                {t("logout")}
               </button>
             </div>
           </aside>
@@ -185,8 +189,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">QuoteGen Engine</p>
-            <p className="text-sm font-black tracking-tight">Console SaaS</p>
+            <p className="text-sm font-black tracking-tight">{t("consoleTitle")}</p>
           </div>
+        </div>
+
+        <div className="mt-2">
+          <LocaleSwitcher className="w-full justify-between" />
         </div>
 
         <nav className="grid gap-1.5 mt-2">
@@ -212,7 +220,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <User size={14} />
           </div>
           <div className="min-w-0">
-            <p className="font-extrabold text-[var(--foreground)] truncate">Operatore</p>
+            <p className="font-extrabold text-[var(--foreground)] truncate">{t("operator")}</p>
             <p className="text-[10px] break-all truncate">{email || "..."}</p>
           </div>
         </div>
@@ -224,14 +232,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-            Tema {theme === "dark" ? "Chiaro" : "Scuro"}
+            {t("themeLabel")} {theme === "dark" ? t("themeLight") : t("themeDark")}
           </button>
           <button
             className="btn-secondary w-full flex items-center justify-center gap-2 text-xs py-2 min-h-[2.5rem] border-red-500/20 text-red-500 hover:bg-red-500/5 hover:border-red-500/30"
             onClick={logout}
           >
             <LogOut size={14} />
-            Disconnetti
+            {t("logout")}
           </button>
         </div>
       </aside>

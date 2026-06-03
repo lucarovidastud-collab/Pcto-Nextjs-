@@ -1,39 +1,48 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+import { localizedPath, stripLocaleFromPathname } from "./lib/i18n/path";
 
 const SESSION_COOKIE = "quotegen_session";
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "super-secret-admin-fallback-key-2026";
 const encodedKey = new TextEncoder().encode(ADMIN_SECRET_KEY);
+const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse.status >= 300 && intlResponse.status < 400) {
+    return intlResponse;
+  }
+
+  const { locale, pathname } = stripLocaleFromPathname(request.nextUrl.pathname);
   const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 
   if (pathname.startsWith("/dashboard") && !hasSession) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL(localizedPath("/login", locale), request.url));
   }
   if (pathname === "/login" && hasSession) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL(localizedPath("/dashboard", locale), request.url));
   }
 
   // Admin route protection
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const adminToken = request.cookies.get("admin_token")?.value;
     if (!adminToken) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL(localizedPath("/admin/login", locale), request.url));
     }
     try {
       const { payload } = await jwtVerify(adminToken, encodedKey, { algorithms: ["HS256"] });
       if (payload.role !== "superadmin") {
-        return NextResponse.redirect(new URL("/admin/login", request.url));
+        return NextResponse.redirect(new URL(localizedPath("/admin/login", locale), request.url));
       }
     } catch {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL(localizedPath("/admin/login", locale), request.url));
     }
   }
 
-  const response = NextResponse.next();
+  const response = intlResponse;
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");

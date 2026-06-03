@@ -5,7 +5,9 @@ import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-t
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer } from "lucide-react";
 
 type ProposalView = {
@@ -21,11 +23,11 @@ type ProposalView = {
   expiresAt?: string;
 };
 
-function formatDate(value?: string) {
+function formatDate(value: string | undefined, locale: string) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("it-IT", {
+  return date.toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -50,18 +52,21 @@ function resolveHtml(proposal: ProposalView) {
 }
 
 export default function PublicProposalPage() {
+  const t = useTranslations("proposal");
+  const locale = useLocale();
   const params = useParams<{ token: string }>();
   const token = params.token;
   const [proposal, setProposal] = useState<ProposalView | null>(null);
   const [signedBy, setSignedBy] = useState("");
-  const [message, setMessage] = useState("Caricamento proposta commerciale in corso...");
+  const [message, setMessage] = useState("");
   const [loadingSign, setLoadingSign] = useState(false);
 
   useEffect(() => {
     void (async () => {
+      setMessage("");
       const response = await fetch(`/api/public/proposals/${token}`);
       if (!response.ok) {
-        setMessage("Questo preventivo o link non è valido, oppure è scaduto. Contatta l'emittente per un nuovo link.");
+        setMessage("invalid");
         return;
       }
       const payload = (await response.json()) as { proposal: ProposalView };
@@ -77,7 +82,7 @@ export default function PublicProposalPage() {
 
   async function signProposal() {
     if (!signedBy.trim()) {
-      setMessage("Inserisci il tuo nome e cognome completi per validare la firma.");
+      setMessage(t("signNameRequired"));
       return;
     }
     setLoadingSign(true);
@@ -89,16 +94,16 @@ export default function PublicProposalPage() {
       });
       setLoadingSign(false);
       if (!response.ok) {
-        setMessage("Firma non riuscita. Riprova o contatta l'amministratore.");
+        setMessage(t("signFailed"));
         return;
       }
-      setMessage("Preventivo accettato e firmato elettronicamente con successo.");
+      setMessage(t("signSuccess"));
       setProposal((current) =>
         current ? { ...current, signedAt: new Date().toISOString(), signedBy: signedBy.trim(), status: "signed" } : current
       );
     } catch {
       setLoadingSign(false);
-      setMessage("Errore di rete. Controlla la connessione.");
+      setMessage(t("signNetworkError"));
     }
   }
 
@@ -107,7 +112,9 @@ export default function PublicProposalPage() {
       <main className="flex min-h-screen items-center justify-center px-4 py-8 text-[var(--foreground)] bg-[var(--background)]">
         <div className="glass rounded-2xl p-6 text-center max-w-md shadow-xl border border-[var(--line)]">
           <Sparkles className="mx-auto text-[var(--accent)] animate-pulse mb-3" size={28} />
-          <p className="text-sm font-semibold leading-relaxed">{message}</p>
+          <p className="text-sm font-semibold leading-relaxed">
+            {message === "invalid" ? t("invalid") : message || t("loading")}
+          </p>
         </div>
       </main>
     );
@@ -128,7 +135,7 @@ export default function PublicProposalPage() {
             <div>
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--muted)]">
                 <Award size={14} className="brand-accent-icon" />
-                <span>Proposta Commerciale Ufficiale</span>
+                <span>{t("officialBadge")}</span>
               </div>
               <h1 className="brand-heading mt-2 text-3xl sm:text-5xl font-black leading-tight">
                 {proposal.company}
@@ -143,21 +150,28 @@ export default function PublicProposalPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <span className="brand-pill rounded-xl px-4 py-2 text-xs flex items-center gap-2 shadow-sm">
                   <Wallet size={14} />
-                  <span>Budget € {Number(proposal.budget).toLocaleString("it-IT")}</span>
+                  <span>
+                    {t("budget")} € {Number(proposal.budget).toLocaleString()}
+                  </span>
                 </span>
                 <span className="rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-2 text-xs text-[var(--muted)] flex items-center gap-2 shadow-sm">
                   <Calendar size={14} />
-                  <span>Scadenza: {formatDate(proposal.expiresAt)}</span>
+                  <span>
+                    {t("expires")}: {formatDate(proposal.expiresAt, locale)}
+                  </span>
                 </span>
               </div>
-              
-              <button 
-                onClick={() => window.print()}
-                className="no-print btn-secondary text-xs px-4 py-2 flex items-center gap-2 self-start sm:self-auto shrink-0"
-              >
-                <Printer size={14} />
-                <span>Stampa / PDF</span>
-              </button>
+
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                <LocaleSwitcher compact />
+                <button
+                  onClick={() => window.print()}
+                  className="no-print btn-secondary text-xs px-4 py-2 flex items-center gap-2 shrink-0"
+                >
+                  <Printer size={14} />
+                  <span>{t("print")}</span>
+                </button>
+              </div>
             </div>
           </header>
 
@@ -173,10 +187,8 @@ export default function PublicProposalPage() {
                 <FileSignature size={18} />
               </div>
               <div>
-                <h2 className="brand-heading text-xl font-black tracking-tight">
-                  Sottoscrizione e Accettazione
-                </h2>
-                <p className="text-xs text-[var(--muted)]">Validazione legale tramite firma elettronica crittografata.</p>
+                <h2 className="brand-heading text-xl font-black tracking-tight">{t("signTitle")}</h2>
+                <p className="text-xs text-[var(--muted)]">{t("signSubtitle")}</p>
               </div>
             </div>
 
@@ -186,29 +198,32 @@ export default function PublicProposalPage() {
                 <div className="grid gap-1">
                   <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-extrabold text-sm">
                     <ShieldCheck size={16} />
-                    <span>DOCUMENTO FIRMATO E VALIDATO</span>
+                    <span>{t("signedTitle")}</span>
                   </div>
                   <p className="text-xs text-[var(--muted)] mt-1">
-                    Accettato formalmente da <strong className="text-[var(--foreground)]">{proposal.signedBy}</strong>
+                    {t("signedBy")}{" "}
+                    <strong className="text-[var(--foreground)]">{proposal.signedBy}</strong>
                   </p>
                   <p className="text-[10px] text-[var(--muted)] font-mono">
-                    Data validazione: {formatDate(proposal.signedAt)}
+                    {t("signedAt")}: {formatDate(proposal.signedAt, locale)}
                   </p>
                 </div>
                 
                 {/* Visual Stamp Seal */}
                 <div className="border-2 border-dashed border-emerald-600/30 rounded-xl px-4 py-3 flex flex-col items-center justify-center rotate-[-2deg] max-w-[220px] self-start md:self-auto shrink-0 bg-emerald-500/5 font-mono text-[9px] text-emerald-600 dark:text-emerald-400">
-                  <p className="font-extrabold uppercase tracking-widest text-[10px] border-b border-emerald-500/20 pb-1 mb-1">APPROVED</p>
-                  <p className="truncate w-full text-center">Firma: {proposal.signedBy}</p>
+                  <p className="font-extrabold uppercase tracking-widest text-[10px] border-b border-emerald-500/20 pb-1 mb-1">
+                    {t("approved")}
+                  </p>
+                  <p className="truncate w-full text-center">
+                    {t("signature")}: {proposal.signedBy}
+                  </p>
                   <p className="text-[8px] opacity-70">HASH ID: {token.slice(0, 10)}...</p>
                 </div>
               </div>
             ) : (
               /* Beautiful active signing input form */
               <div className="grid gap-4 max-w-lg">
-                <p className="text-xs text-[var(--muted)] leading-relaxed">
-                  Digita il tuo nome e cognome per confermare l&apos;approvazione del preventivo, del budget e delle specifiche descritte nel documento sopra riportato.
-                </p>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">{t("signHint")}</p>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
@@ -216,7 +231,7 @@ export default function PublicProposalPage() {
                     <input
                       className="input input-with-icon"
                       required
-                      placeholder="Nome e Cognome firmatario"
+                      placeholder={t("signPlaceholder")}
                       value={signedBy}
                       onChange={(e) => setSignedBy(e.target.value)}
                       disabled={loadingSign}
@@ -229,10 +244,10 @@ export default function PublicProposalPage() {
                     className="btn-brand flex items-center justify-center gap-2 sm:px-6 font-bold shadow-md transition-all active:scale-95 disabled:opacity-50"
                   >
                     {loadingSign ? (
-                      <span className="inline-block animate-pulse">Registrazione firma...</span>
+                      <span className="inline-block animate-pulse">{t("signing")}</span>
                     ) : (
                       <>
-                        <span>Firma Proposta</span>
+                        <span>{t("signButton")}</span>
                         <ArrowRight size={16} />
                       </>
                     )}
@@ -249,11 +264,6 @@ export default function PublicProposalPage() {
           </section>
         </article>
 
-        {/* Branding Footer */}
-        <p className="text-center text-xs text-[var(--muted)] mb-8 flex items-center justify-center gap-1">
-          <ShieldCheck size={14} className="text-[var(--brand-primary)]" />
-          <span>Fornito in sicurezza da QuoteGen Engine · Enterprise B2B SaaS</span>
-        </p>
       </div>
     </main>
   );
