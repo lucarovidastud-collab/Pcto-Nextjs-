@@ -53,12 +53,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Sandbox non disponibile" }, { status: 403 });
   }
 
-  // Auto-sandbox: when BILLING_ALLOW_SANDBOX=1, bypass Stripe for all checkout flows
-  const useSandbox = allowSandbox && (parsed.data.sandbox || !stripe);
-  if (useSandbox || (!stripe && !allowSandbox)) {
-    if (!stripe && !allowSandbox) {
-      return NextResponse.json({ error: "Stripe non configurato" }, { status: 503 });
-    }
+  // When BILLING_ALLOW_SANDBOX=1, always bypass Stripe (used for payment flow testing)
+  if (allowSandbox) {
     await setSubscriptionForTenant(auth.session.tenantId, {
       plan: parsed.data.plan,
       status: "active",
@@ -67,6 +63,10 @@ export async function POST(request: NextRequest) {
     });
     const redirectUrl = `${baseUrl}/dashboard/billing?checkout=success&plan=${parsed.data.plan}`;
     return NextResponse.json({ url: redirectUrl });
+  }
+
+  if (!stripe) {
+    return NextResponse.json({ error: "Stripe non configurato" }, { status: 503 });
   }
 
   const stripeLocales = new Set(["bg","cs","da","de","el","en","en-GB","es","es-419","et","fi","fil","fr","fr-CA","hr","hu","id","it","ja","ko","lt","lv","ms","mt","nb","nl","pl","pt","pt-BR","ro","ru","sk","sl","sv","th","tr","vi","zh","zh-HK","zh-TW"]);
