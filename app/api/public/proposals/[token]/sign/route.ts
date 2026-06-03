@@ -14,5 +14,6 @@ export async function POST(request: Request, { params }: RouteProps) {
   const result = await signProposalByToken(token, parsed.data.signedBy);
   if (!result) return NextResponse.json({ error: "Proposta non trovata" }, { status: 404 });
   if ("expired" in result) return NextResponse.json({ error: "Link scaduto" }, { status: 410 });
+  if ("alreadySigned" in result) return NextResponse.json({ error: "Proposta già firmata" }, { status: 409 });
   return NextResponse.json({ ok: true });
 }

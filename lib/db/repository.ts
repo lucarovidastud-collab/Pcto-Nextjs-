@@ -64,7 +64,7 @@ export interface DatabaseRepository {
   signProposalByToken(
     shareToken: string,
     signedBy: string
-  ): Promise<{ ok: true; id: string } | { expired: true } | null>;
+  ): Promise<{ ok: true; id: string } | { expired: true } | { alreadySigned: true } | null>;
 
   listAllTenantsWithDetails(): Promise<TenantAdminRow[]>;
 }

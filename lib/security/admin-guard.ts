@@ -2,24 +2,29 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "super-secret-admin-fallback-key-2026";
-const encodedKey = new TextEncoder().encode(ADMIN_SECRET_KEY);
+function getAdminSecretKey() {
+  const secret = process.env.ADMIN_SECRET_KEY;
+  if (!secret) {
+    throw new Error("ADMIN_SECRET_KEY deve essere configurata come variabile d'ambiente.");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 export async function createAdminSessionToken(payload: { role: string }) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("12h")
-    .sign(encodedKey);
+    .sign(getAdminSecretKey());
 }
 
 export async function verifyAdminSessionToken(token: string | undefined = "") {
   try {
-    const { payload } = await jwtVerify(token, encodedKey, {
+    const { payload } = await jwtVerify(token, getAdminSecretKey(), {
       algorithms: ["HS256"]
     });
     return payload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -33,7 +38,7 @@ export async function getAdminSession() {
 export async function requireAdminSession(req?: NextRequest) {
   const cookieStore = await cookies();
   let token = cookieStore.get("admin_token")?.value;
-  
+
   if (!token && req) {
     token = req.cookies.get("admin_token")?.value;
   }

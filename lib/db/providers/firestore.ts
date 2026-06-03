@@ -218,6 +218,9 @@ export function createFirestoreRepository(): DatabaseRepository {
       if (proposal.expiresAt && new Date(String(proposal.expiresAt)) < new Date()) {
         return { expired: true as const };
       }
+      if (proposal.signedAt) {
+        return { alreadySigned: true as const };
+      }
       const db = getFirestoreDb();
       await db.collection("proposals").doc(proposal.id).set(
         {

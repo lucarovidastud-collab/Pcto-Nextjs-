@@ -17,7 +17,6 @@ export async function GET(_request: Request, { params }: RouteProps) {
       budget: proposal.budget,
       palette: proposal.palette,
       generatedHtml: proposal.generatedHtml,
-      notes: proposal.notes,
       status: proposal.status,
       signedAt: proposal.signedAt,
       signedBy: proposal.signedBy,

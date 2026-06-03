@@ -3,8 +3,41 @@ import { formatReadableText } from "@/lib/utils/text";
 const STYLE_SECTION_RE =
   /<(?:section|div|article)[^>]*>(?:\s*<(?:h[1-6])[^>]*>\s*(?:direzione\s+stile|stile|style\s+direction)[^<]*<\/h[1-6]>)[\s\S]*?<\/(?:section|div|article)>/gi;
 
+/**
+ * Strips all dangerous HTML that could lead to XSS or content injection.
+ * Applied as the first pass before any other sanitization.
+ */
+function stripDangerousHtml(html: string): string {
+  // Remove script blocks (including content)
+  let safe = html.replace(/<script\b[\s\S]*?<\/script>/gi, "");
+
+  // Remove dangerous singleton/block tags entirely
+  safe = safe.replace(
+    /<\/?(iframe|object|embed|form|input|button|select|textarea|base|link|meta|applet|canvas|audio|video|source|track|svg|math)\b[^>]*>/gi,
+    ""
+  );
+
+  // Remove event handlers (on*)
+  safe = safe.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+
+  // Remove javascript: and data: URIs from href/src/action/formaction attributes
+  safe = safe.replace(
+    /(\s(?:href|src|action|formaction|xlink:href)\s*=\s*["'])\s*(?:javascript|data|vbscript):[^"']*/gi,
+    "$1#"
+  );
+
+  // Remove srcdoc (can inject HTML into iframes even if iframe removed)
+  safe = safe.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
+
+  // Remove <style> blocks (can contain expression() / url() XSS in IE)
+  safe = safe.replace(/<style\b[\s\S]*?<\/style>/gi, "");
+
+  return safe;
+}
+
 export function sanitizeProposalHtml(html: string) {
-  const noStyleSections = html.replace(STYLE_SECTION_RE, "");
+  const stripped = stripDangerousHtml(html);
+  const noStyleSections = stripped.replace(STYLE_SECTION_RE, "");
 
   const cleanedButtons = noStyleSections
     .replace(/<button\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/button>/gi, "")
