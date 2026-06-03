@@ -5,6 +5,7 @@ export function formatReadableText(value: string) {
     .replace(/\.([A-ZÀ-ÖØ-Þ])/g, ". $1")
     .replace(/\)([A-ZÀ-ÖØ-Þ])/g, ") $1")
     .replace(/([a-zà-öø-ÿ]),([A-ZÀ-ÖØ-Þ])/g, "$1, $2")
+    .replace(/([a-zà-öø-ÿ])([A-ZÀ-ÖØ-Þ])/g, "$1 $2")
     .replace(/\s{2,}/g, " ")
     .trim();
 }

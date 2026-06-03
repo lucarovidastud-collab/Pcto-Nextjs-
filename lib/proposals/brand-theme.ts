@@ -3,6 +3,7 @@ export function paletteToCssVars(palette: string[]) {
   const secondary = palette[1] || primary;
   const tertiary = palette[2] || secondary;
   const proposalBg = "#faf9f6";
+  const headerSurface = "#ffffff";
   return {
     "--accent": primary,
     "--accent-2": secondary,
@@ -10,8 +11,8 @@ export function paletteToCssVars(palette: string[]) {
     "--brand-primary": primary,
     "--brand-secondary": secondary,
     "--brand-tertiary": tertiary,
-    "--brand-primary-text": readableBrandOnSurface(primary, proposalBg),
-    "--brand-secondary-text": readableBrandOnSurface(secondary, proposalBg),
+    "--brand-primary-text": readableBrandOnSurface(primary, headerSurface),
+    "--brand-secondary-text": readableBrandOnSurface(secondary, headerSurface),
     "--brand-primary-ui": readableBrandOnSurface(primary, "#ffffff", 3),
     "--brand-secondary-ui": readableBrandOnSurface(secondary, "#ffffff", 3)
   } as Record<string, string>;

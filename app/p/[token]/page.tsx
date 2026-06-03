@@ -58,16 +58,6 @@ export default function PublicProposalPage() {
   const [loadingSign, setLoadingSign] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      document.documentElement.dataset.theme = mq.matches ? "dark" : "light";
-    };
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
-
-  useEffect(() => {
     void (async () => {
       const response = await fetch(`/api/public/proposals/${token}`);
       if (!response.ok) {
@@ -137,10 +127,10 @@ export default function PublicProposalPage() {
           <header className="brand-header border-b border-[var(--line)] px-6 py-8 sm:px-12 sm:py-10 flex flex-col gap-6">
             <div>
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--muted)]">
-                <Award size={14} className="text-[var(--brand-primary)]" />
+                <Award size={14} className="brand-accent-icon" />
                 <span>Proposta Commerciale Ufficiale</span>
               </div>
-              <h1 className="mt-2 text-3xl sm:text-5xl font-black leading-tight" style={{ color: "var(--brand-primary)" }}>
+              <h1 className="brand-heading mt-2 text-3xl sm:text-5xl font-black leading-tight">
                 {proposal.company}
               </h1>
               <p className="mt-2 text-sm sm:text-base text-[var(--muted)] max-w-2xl font-medium">
@@ -183,7 +173,7 @@ export default function PublicProposalPage() {
                 <FileSignature size={18} />
               </div>
               <div>
-                <h2 className="text-xl font-black tracking-tight" style={{ color: "var(--brand-primary)" }}>
+                <h2 className="brand-heading text-xl font-black tracking-tight">
                   Sottoscrizione e Accettazione
                 </h2>
                 <p className="text-xs text-[var(--muted)]">Validazione legale tramite firma elettronica crittografata.</p>

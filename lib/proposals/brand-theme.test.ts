@@ -11,4 +11,9 @@ describe("readableBrandOnSurface", () => {
     expect(result.toLowerCase()).not.toBe("#e8e8e8");
     expect(result).toMatch(/^#[0-9a-f]{6}$/i);
   });
+
+  it("darkens white brand on white header surface", () => {
+    const result = readableBrandOnSurface("#FFFFFF", "#ffffff");
+    expect(result.toLowerCase()).not.toBe("#ffffff");
+  });
 });

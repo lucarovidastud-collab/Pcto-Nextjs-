@@ -287,6 +287,15 @@
   border-bottom: 1px solid color-mix(in srgb, var(--brand-primary) 15%, var(--line));
 }
 
+/* Titoli brand: non usare text-[var(--…)] in Tailwind (trattini nel nome variabile) */
+.proposal-branded .brand-heading {
+  color: var(--brand-primary-text, var(--foreground));
+}
+
+.proposal-branded .brand-accent-icon {
+  color: var(--brand-primary-text, var(--foreground));
+}
+
 .proposal-branded .brand-pill {
   border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
   background: color-mix(in srgb, var(--brand-primary) 8%, var(--panel-strong));
