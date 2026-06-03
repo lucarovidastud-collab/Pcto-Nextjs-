@@ -10,7 +10,8 @@ import { z } from "zod";
 const schema = z.object({
   plan: z.enum(["starter", "growth", "enterprise"]),
   sandbox: z.boolean().optional(),
-  embedded: z.boolean().optional()
+  embedded: z.boolean().optional(),
+  locale: z.string().optional()
 });
 
 export async function GET(request: NextRequest) {
@@ -79,10 +80,9 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const acceptLang = request.headers.get("accept-language") ?? "";
-  const primaryLang = acceptLang.split(",")[0]?.split(";")[0]?.split("-")[0]?.toLowerCase();
-  const stripeLocales = new Set(["auto","bg","cs","da","de","el","en","en-GB","es","es-419","et","fi","fil","fr","fr-CA","hr","hu","id","it","ja","ko","lt","lv","ms","mt","nb","nl","pl","pt","pt-BR","ro","ru","sk","sl","sv","th","tr","vi","zh","zh-HK","zh-TW"]);
-  const locale = stripeLocales.has(primaryLang) ? primaryLang : "auto";
+  const stripeLocales = new Set(["bg","cs","da","de","el","en","en-GB","es","es-419","et","fi","fil","fr","fr-CA","hr","hu","id","it","ja","ko","lt","lv","ms","mt","nb","nl","pl","pt","pt-BR","ro","ru","sk","sl","sv","th","tr","vi","zh","zh-HK","zh-TW"]);
+  const rawLocale = parsed.data.locale ?? "";
+  const locale = stripeLocales.has(rawLocale) ? rawLocale : "auto";
 
   try {
     const session = await createCheckoutSession({

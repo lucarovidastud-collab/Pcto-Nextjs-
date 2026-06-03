@@ -9,7 +9,7 @@ import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe
 import { CreditCard, Loader2 } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Suspense, useCallback, useMemo, useState } from "react";
 
 const validPlans = new Set<PlanName>(["starter", "growth", "enterprise"]);
@@ -17,6 +17,7 @@ const validPlans = new Set<PlanName>(["starter", "growth", "enterprise"]);
 function CheckoutEmbed() {
   const t = useTranslations("checkout");
   const common = useTranslations("common");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
@@ -32,7 +33,7 @@ function CheckoutEmbed() {
     const response = await fetch("/api/billing/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan, embedded: true })
+      body: JSON.stringify({ plan, embedded: true, locale })
     });
     const payload = (await response.json()) as { clientSecret?: string; error?: string };
     if (!response.ok || !payload.clientSecret) {

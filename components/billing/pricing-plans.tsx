@@ -6,7 +6,7 @@ import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 import { planCatalog, type PlanName } from "@/lib/billing/plans";
 import { canUseEmbeddedCheckout } from "@/lib/stripe/client";
 import { Building2, Check, Crown, Loader2, ShieldCheck, Sparkles, Zap } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 const planIds = ["starter", "growth", "enterprise"] as const;
@@ -30,6 +30,7 @@ export function PricingPlans({
 }) {
   const t = useTranslations("pricing");
   const common = useTranslations("common");
+  const locale = useLocale();
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
@@ -61,7 +62,7 @@ export function PricingPlans({
       const response = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ plan, locale })
       });
       const payload = (await response.json()) as { url?: string; error?: string };
       if (!response.ok || !payload.url) {
