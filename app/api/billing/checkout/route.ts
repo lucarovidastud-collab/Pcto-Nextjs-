@@ -79,13 +79,19 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  const acceptLang = request.headers.get("accept-language") ?? "";
+  const primaryLang = acceptLang.split(",")[0]?.split(";")[0]?.split("-")[0]?.toLowerCase();
+  const stripeLocales = new Set(["auto","bg","cs","da","de","el","en","en-GB","es","es-419","et","fi","fil","fr","fr-CA","hr","hu","id","it","ja","ko","lt","lv","ms","mt","nb","nl","pl","pt","pt-BR","ro","ru","sk","sl","sv","th","tr","vi","zh","zh-HK","zh-TW"]);
+  const locale = stripeLocales.has(primaryLang) ? primaryLang : "auto";
+
   try {
     const session = await createCheckoutSession({
       tenantId: auth.session.tenantId,
       email: auth.session.email,
       plan: parsed.data.plan as PlanName,
       baseUrl,
-      embedded: parsed.data.embedded
+      embedded: parsed.data.embedded,
+      locale
     });
 
     if (parsed.data.embedded) {

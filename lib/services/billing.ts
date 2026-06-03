@@ -273,6 +273,7 @@ export async function createCheckoutSession(input: {
   plan: PlanName;
   baseUrl?: string;
   embedded?: boolean;
+  locale?: string;
 }) {
   if (!stripe) throw new Error("Stripe non configurato");
 
@@ -288,7 +289,7 @@ export async function createCheckoutSession(input: {
       customer: customerId,
       customer_update: { address: "auto", name: "auto" },
       line_items: [{ price: priceId, quantity: 1 }],
-      locale: "it",
+      locale: (input.locale as Stripe.Checkout.SessionCreateParams.Locale) ?? "auto",
       branding_settings: buildCheckoutBrandingSettings(baseUrl, { embedded }),
       custom_text: buildCheckoutCustomText(input.plan),
       metadata: { tenantId: input.tenantId, plan: input.plan },
