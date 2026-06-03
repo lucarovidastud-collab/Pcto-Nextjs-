@@ -3,6 +3,7 @@
 import { SiteFooter } from "@/components/site-footer";
 import { ExternalLink, FileText, History, Link2, RefreshCw } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 type ProposalSummary = {
@@ -18,10 +19,10 @@ type ProposalSummary = {
   signedAt?: string;
 };
 
-function formatWhen(iso: string) {
+function formatWhen(iso: string, locale: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString("it-IT", {
+  return d.toLocaleString(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -31,6 +32,7 @@ function formatWhen(iso: string) {
 }
 
 export default function ProposalHistoryPage() {
+  const t = useTranslations("history");
   const [proposals, setProposals] = useState<ProposalSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -42,17 +44,17 @@ export default function ProposalHistoryPage() {
     try {
       const res = await fetch("/api/proposals");
       if (!res.ok) {
-        setMessage("Impossibile caricare la cronologia.");
+        setMessage(t("loadFailed"));
         return;
       }
       const payload = (await res.json()) as { proposals: ProposalSummary[] };
       setProposals(payload.proposals || []);
     } catch {
-      setMessage("Errore di connessione.");
+      setMessage(t("connectionError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -66,12 +68,11 @@ export default function ProposalHistoryPage() {
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
               <History size={14} aria-hidden />
-              Archivio
+              {t("archive")}
             </div>
-            <h1 className="mt-1 text-3xl font-black tracking-tight">Cronologia preventivi</h1>
+            <h1 className="mt-1 text-3xl font-black tracking-tight">{t("title")}</h1>
             <p className="mt-2 max-w-2xl text-sm font-medium text-[var(--muted)]">
-              Tutti i preventivi generati restano salvati su cloud. Puoi riaprirli in qualsiasi momento e
-              condividere di nuovo il link al cliente.
+              {t("description")}
             </p>
           </div>
           <button
@@ -81,7 +82,7 @@ export default function ProposalHistoryPage() {
             className="btn-secondary shrink-0 flex items-center justify-center gap-2 text-xs font-bold"
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
-            Aggiorna
+            {t("refresh")}
           </button>
         </div>
       </header>
@@ -93,13 +94,13 @@ export default function ProposalHistoryPage() {
       ) : null}
 
       {loading ? (
-        <p className="text-center text-sm text-[var(--muted)] py-12 animate-pulse">Caricamento cronologia...</p>
+        <p className="text-center text-sm text-[var(--muted)] py-12 animate-pulse">{t("loading")}</p>
       ) : proposals.length === 0 ? (
         <div className="glass rounded-2xl p-10 text-center">
           <FileText size={40} className="mx-auto text-[var(--muted)] opacity-50" aria-hidden />
-          <p className="mt-4 text-sm font-semibold text-[var(--muted)]">Nessun preventivo ancora.</p>
+          <p className="mt-4 text-sm font-semibold text-[var(--muted)]">{t("empty")}</p>
           <Link href="/dashboard" className="btn-primary mt-6 inline-flex text-sm font-bold">
-            Crea il primo preventivo
+            {t("createFirst")}
           </Link>
         </div>
       ) : (
@@ -118,12 +119,12 @@ export default function ProposalHistoryPage() {
                       </span>
                       {p.signedAt ? (
                         <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                          Firmato
+                          {t("statusSigned")}
                         </span>
                       ) : null}
                       {expired ? (
                         <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold text-amber-800">
-                          Link scaduto
+                          {t("statusExpired")}
                         </span>
                       ) : null}
                     </div>
@@ -132,8 +133,8 @@ export default function ProposalHistoryPage() {
                       € {Number(p.budget || 0).toLocaleString("it-IT")}
                     </p>
                     <p className="mt-2 text-xs text-[var(--muted)]">
-                      Creato il {formatWhen(p.createdAt)}
-                      {p.expiresAt ? ` · Scade il ${formatWhen(p.expiresAt)}` : null}
+                      {t("createdAt")} {formatWhen(p.createdAt, "it-IT")}
+                      {p.expiresAt ? ` ${t("expiresAt")} ${formatWhen(p.expiresAt, "it-IT")}` : null}
                     </p>
                     <p className="mt-2 flex items-center gap-1.5 text-xs font-mono text-[var(--muted)] break-all">
                       <Link2 size={12} className="shrink-0" aria-hidden />
@@ -147,21 +148,21 @@ export default function ProposalHistoryPage() {
                       className="btn-primary text-xs font-bold flex items-center gap-1.5"
                     >
                       <ExternalLink size={14} aria-hidden />
-                      Anteprima cliente
+                      {t("preview")}
                     </Link>
                     <Link
                       href={`/workspace/proposals/${p.id}`}
                       className="btn-secondary text-xs font-bold flex items-center gap-1.5"
                     >
                       <FileText size={14} aria-hidden />
-                      Gestione
+                      {t("manage")}
                     </Link>
                     <button
                       type="button"
                       className="btn-secondary text-xs font-bold"
                       onClick={() => void navigator.clipboard.writeText(publicUrl)}
                     >
-                      Copia link
+                      {t("copyLink")}
                     </button>
                   </div>
                 </div>

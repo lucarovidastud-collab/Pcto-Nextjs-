@@ -7,13 +7,16 @@ import { planCatalog, type PlanName } from "@/lib/billing/plans";
 import { getStripePublishable } from "@/lib/stripe/client";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { CreditCard, Loader2 } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Suspense, useCallback, useMemo, useState } from "react";
 
 const validPlans = new Set<PlanName>(["starter", "growth", "enterprise"]);
 
 function CheckoutEmbed() {
+  const t = useTranslations("checkout");
+  const common = useTranslations("common");
   const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan");
@@ -24,7 +27,7 @@ function CheckoutEmbed() {
   const copy = plan ? planCheckoutCopy(plan) : null;
 
   const fetchClientSecret = useCallback(async () => {
-    if (!plan) throw new Error("Piano non valido");
+    if (!plan) throw new Error(t("invalidPlan"));
     setError("");
     const response = await fetch("/api/billing/checkout", {
       method: "POST",
@@ -33,23 +36,23 @@ function CheckoutEmbed() {
     });
     const payload = (await response.json()) as { clientSecret?: string; error?: string };
     if (!response.ok || !payload.clientSecret) {
-      const message = payload.error || "Impossibile avviare il pagamento.";
+      const message = payload.error || t("paymentError");
       setError(message);
       throw new Error(message);
     }
     return payload.clientSecret;
-  }, [plan]);
+  }, [plan, t]);
 
   if (!plan || !copy) {
     return (
       <BillingShell
         eyebrow="Checkout"
-        title="Piano non valido"
-        description="Scegli un piano dalla pagina abbonamento per continuare."
+        title={t("invalidPlanTitle")}
+        description={t("invalidPlanDesc")}
         showTrust={false}
       >
         <Link href="/dashboard/subscribe" className="btn-primary w-fit text-sm font-bold">
-          Vedi i piani
+          {t("viewPlans")}
         </Link>
       </BillingShell>
     );
@@ -59,12 +62,12 @@ function CheckoutEmbed() {
     return (
       <BillingShell
         eyebrow="Checkout"
-        title="Pagamento non configurato"
-        description="Manca la chiave pubblica Stripe. Contatta l'amministratore o riprova più tardi."
+        title={t("notConfiguredTitle")}
+        description={t("notConfiguredDesc")}
         showTrust={false}
       >
         <Link href="/dashboard/billing" className="btn-secondary w-fit text-sm font-bold">
-          Torna ai piani
+          {t("backToPlans")}
         </Link>
       </BillingShell>
     );
@@ -72,9 +75,9 @@ function CheckoutEmbed() {
 
   return (
     <BillingShell
-      eyebrow="Pagamento sicuro"
-      title={`Attiva ${copy.productName}`}
-      description={`Completa il pagamento qui sotto. ${formatPlanPriceLabel(plan)} · elaborato da Stripe.`}
+      eyebrow={t("securePayment")}
+      title={`${t("activate")} ${copy.productName}`}
+      description={`${t("completePayment")} ${formatPlanPriceLabel(plan)} · ${t("processedByStripe")}`}
       showTrust={false}
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -93,17 +96,17 @@ function CheckoutEmbed() {
           <div className="glass rounded-2xl p-5">
             <div className="flex items-center gap-2 text-[var(--accent)]">
               <CreditCard size={18} aria-hidden />
-              <span className="text-xs font-black uppercase tracking-wider">Riepilogo</span>
+              <span className="text-xs font-black uppercase tracking-wider">{t("summary")}</span>
             </div>
             <p className="mt-3 text-2xl font-black text-[var(--foreground)]">
               €{planCatalog[plan].monthly}
-              <span className="text-sm font-bold text-[var(--muted)]">/mese</span>
+              <span className="text-sm font-bold text-[var(--muted)]">{common("perMonth")}</span>
             </p>
             <p className="mt-2 text-xs font-medium leading-relaxed text-[var(--muted)]">{copy.description}</p>
             <ul className="mt-4 space-y-2 border-t border-[var(--line)] pt-4 text-[11px] font-semibold text-[var(--muted)]">
-              <li>· {planCatalog[plan].proposalLimit} generazioni incluse</li>
-              <li>· Fino a {planCatalog[plan].memberLimit} membri team</li>
-              <li>· Disdetta dal portale cliente</li>
+              <li>· {planCatalog[plan].proposalLimit} {t("includedGenerations")}</li>
+              <li>· {t("upTo")} {planCatalog[plan].memberLimit} {t("teamMembers")}</li>
+              <li>· {t("cancelAnytime")}</li>
             </ul>
           </div>
           <button
@@ -111,7 +114,7 @@ function CheckoutEmbed() {
             onClick={() => router.push("/dashboard/billing?checkout=cancel")}
             className="btn-secondary w-full text-xs font-bold"
           >
-            Annulla e torna ai piani
+            {t("cancelAndBack")}
           </button>
           <StripeTrust />
         </aside>
@@ -121,12 +124,13 @@ function CheckoutEmbed() {
 }
 
 export default function CheckoutPage() {
+  const t = useTranslations("checkout");
   return (
     <Suspense
       fallback={
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 py-24 text-sm font-medium text-[var(--muted)]">
           <Loader2 size={18} className="animate-spin text-[var(--accent)]" aria-hidden />
-          Preparazione checkout...
+          {t("preparing")}
         </div>
       }
     >

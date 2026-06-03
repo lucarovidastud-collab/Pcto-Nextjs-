@@ -83,7 +83,7 @@ export default function LoginPage() {
       } else if (code === "auth/weak-password") {
         msg = t("errorWeakPassword");
       } else if (code === "auth/operation-not-allowed") {
-        msg = "L'accesso con Email/Password non è abilitato nella console Firebase Auth.";
+        msg = t("errorFirebase");
       }
       
       setError(msg);
@@ -107,33 +107,33 @@ export default function LoginPage() {
 
         <div className="relative z-10 my-auto max-w-lg">
           <span className="rounded-full bg-teal-500/10 border border-teal-500/20 px-3 py-1 text-xs font-bold text-teal-400">
-            Enterprise Track
+            {t("heroTagline")}
           </span>
           <h1 className="mt-6 text-5xl font-black leading-tight tracking-tight text-white">
-            Ottimizza le tue vendite B2B in pochi secondi.
+            {t("heroTitle")}
           </h1>
           <p className="mt-4 text-base text-slate-400 leading-relaxed">
-            Un unico workspace per analizzare brand, calcolare budget preventivi tramite AI, richiedere la firma dei clienti e sincronizzare la fatturazione Stripe.
+            {t("heroDesc")}
           </p>
 
           <ul className="mt-8 space-y-4">
             <li className="flex items-center gap-3 text-sm text-slate-300">
               <Check size={18} className="text-teal-400 shrink-0" />
-              <span>Multi-Tenant avanzato e separazione dei dati</span>
+              <span>{t("feature1")}</span>
             </li>
             <li className="flex items-center gap-3 text-sm text-slate-300">
               <Check size={18} className="text-teal-400 shrink-0" />
-              <span>Analisi Brand intelligente tramite Scraping & AI Vision</span>
+              <span>{t("feature2")}</span>
             </li>
             <li className="flex items-center gap-3 text-sm text-slate-300">
               <Check size={18} className="text-teal-400 shrink-0" />
-              <span>Firma elettronica sicura del preventivo con timestamp</span>
+              <span>{t("feature3")}</span>
             </li>
           </ul>
         </div>
 
         <div className="relative z-10 flex items-center justify-between border-t border-slate-800 pt-6 text-xs text-slate-500">
-          <p>© 2026 QuoteGen Engine. Tutti i diritti riservati.</p>
+          <p>{t("copyright")}</p>
           <div className="flex gap-3">
             <Link href="/terms" className="hover:text-slate-300 transition">{nav("terms")}</Link>
             <Link href="/privacy" className="hover:text-slate-300 transition">{nav("privacy")}</Link>
@@ -194,12 +194,10 @@ export default function LoginPage() {
             </div>
 
             <h2 className="text-2xl font-black tracking-tight text-[var(--foreground)]">
-              {tab === "login" ? "Bentornato" : "Crea il tuo Account"}
+              {tab === "login" ? t("welcomeBack") : t("createAccount")}
             </h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              {tab === "login"
-                ? "Accedi con le tue credenziali o con i provider social."
-                : "Inizia subito a generare preventivi brandizzati gratis."}
+              {tab === "login" ? t("subtitleLogin") : t("subtitleRegister")}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
@@ -211,7 +209,7 @@ export default function LoginPage() {
                     type="email"
                     required
                     className="input input-with-icon"
-                    placeholder="nome@azienda.it"
+                    placeholder={t("emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
@@ -254,7 +252,7 @@ export default function LoginPage() {
                 className="btn-primary mt-2 flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <span className="inline-block animate-pulse">Caricamento in corso...</span>
+                  <span className="inline-block animate-pulse">{t("loadingBtn")}</span>
                 ) : (
                   <>
                     <span>{tab === "login" ? t("submitLogin") : t("submitRegister")}</span>
@@ -275,7 +273,7 @@ export default function LoginPage() {
 
             {/* OAuth buttons wrapper */}
             <OAuthButtons
-              onSuccess={() => setSuccess("Login social riuscito! Avvio...")}
+              onSuccess={() => setSuccess(t("oauthSuccess"))}
               onError={(msg) => setError(msg)}
             />
           </div>

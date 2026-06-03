@@ -1,0 +1,29 @@
+{
+  "fileKey": "iZjVEcBg4G0Nq1VLaSimzo",
+  "captures": [
+    { "captureId": "29df2032-8961-49ef-9ae1-d3f6994e579b", "path": "/figma-boards/hifi/01-landing.html", "title": "01 — Landing" },
+    { "captureId": "d20b20ea-f475-421c-989d-ba5ef7a32b5c", "path": "/figma-boards/wf/01-landing.html", "title": "WF 01 — Landing" },
+    { "captureId": "190abc44-af6c-4270-9f20-72c4c24e7f85", "path": "/figma-boards/hifi/02-login.html", "title": "02 — Login" },
+    { "captureId": "ee193639-2f3b-4d1a-9efb-4908f177254d", "path": "/figma-boards/wf/02-login.html", "title": "WF 02 — Login" },
+    { "captureId": "1b3c8f85-7431-47ab-9850-5cfbf647dae5", "path": "/figma-boards/hifi/03-workspace.html", "title": "03 — Workspace" },
+    { "captureId": "fd915173-2ae9-465d-b3bf-eff6aa05ec77", "path": "/figma-boards/wf/03-workspace.html", "title": "WF 03 — Workspace" },
+    { "captureId": "c6dc4649-74fd-414b-87be-5985e2f12600", "path": "/figma-boards/hifi/04-subscribe.html", "title": "04 — Subscribe" },
+    { "captureId": "a17bff9d-6c0e-4bee-b00d-1754de5821d6", "path": "/figma-boards/wf/04-subscribe.html", "title": "WF 04 — Subscribe" },
+    { "captureId": "f9b7c464-2492-418d-bb4f-c4a91cc2a5ad", "path": "/figma-boards/hifi/05-billing.html", "title": "05 — Billing" },
+    { "captureId": "0cc3a66b-8119-4ebd-bd74-d0f00eabaf56", "path": "/figma-boards/wf/05-billing.html", "title": "WF 05 — Billing" },
+    { "captureId": "bdaa0148-ce12-458b-827a-86051102151f", "path": "/figma-boards/hifi/06-checkout.html", "title": "06 — Checkout" },
+    { "captureId": "f19511b4-e53c-442f-a385-6bedaf205800", "path": "/figma-boards/wf/06-checkout.html", "title": "WF 06 — Checkout" },
+    { "captureId": "9fc59e06-a24b-4374-a9ce-53c777a9f9f0", "path": "/figma-boards/hifi/07-proposta-cliente.html", "title": "07 — Proposta cliente" },
+    { "captureId": "3b64e62b-03c2-4fe2-b097-e3b62b37e6d6", "path": "/figma-boards/wf/07-proposta-cliente.html", "title": "WF 07 — Proposta cliente" },
+    { "captureId": "72b6db5c-14ed-4eb1-8235-688ffd9aec39", "path": "/figma-boards/hifi/08-dettaglio-proposta.html", "title": "08 — Dettaglio proposta" },
+    { "captureId": "96e2d7d4-7e09-4e09-b538-eab031ac6417", "path": "/figma-boards/wf/08-dettaglio-proposta.html", "title": "WF 08 — Dettaglio proposta" },
+    { "captureId": "5f7c7182-dc3b-471f-b6e3-d06e8ca2d8b8", "path": "/figma-boards/hifi/09-termini.html", "title": "09 — Termini" },
+    { "captureId": "3d5d14e3-3f99-45ef-b7a7-abe3bb5af7e9", "path": "/figma-boards/wf/09-termini.html", "title": "WF 09 — Termini" },
+    { "captureId": "12742c00-1d8c-42e2-aedd-b85c110442e3", "path": "/figma-boards/hifi/10-privacy.html", "title": "10 — Privacy" },
+    { "captureId": "08495169-fd26-42d6-94f6-d29123d60268", "path": "/figma-boards/wf/10-privacy.html", "title": "WF 10 — Privacy" },
+    { "captureId": "da8ba64e-3aa6-477f-9729-6dd7f5487f78", "path": "/figma-boards/hifi/11-admin-login.html", "title": "11 — Admin login" },
+    { "captureId": "a966fece-e9b0-438c-ae8e-c82bb5890a5e", "path": "/figma-boards/wf/11-admin-login.html", "title": "WF 11 — Admin login" },
+    { "captureId": "c5cae14b-c080-4768-91af-cf77e104ebce", "path": "/figma-boards/hifi/12-backoffice.html", "title": "12 — Backoffice" },
+    { "captureId": "f87093fb-8741-4001-96e1-222fe222cc8b", "path": "/figma-boards/wf/12-backoffice.html", "title": "WF 12 — Backoffice" }
+  ]
+}

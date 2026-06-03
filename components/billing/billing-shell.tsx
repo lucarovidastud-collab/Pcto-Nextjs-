@@ -2,6 +2,7 @@ import { BrandMark } from "@/components/billing/brand-mark";
 import { StripeTrust } from "@/components/billing/stripe-trust";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 type BillingShellProps = {
@@ -16,9 +17,9 @@ type BillingShellProps = {
   showTrust?: boolean;
 };
 
-export function BillingShell({
+export async function BillingShell({
   backHref = "/dashboard",
-  backLabel = "Torna alla dashboard",
+  backLabel,
   eyebrow,
   title,
   description,
@@ -27,6 +28,8 @@ export function BillingShell({
   children,
   showTrust = true
 }: BillingShellProps) {
+  const t = await getTranslations("billing");
+  const resolvedBackLabel = backLabel ?? t("backLabel");
   const subscribe = heroTone === "subscribe";
 
   return (
@@ -46,7 +49,7 @@ export function BillingShell({
           className="inline-flex w-fit items-center gap-1.5 text-xs font-bold text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
         >
           <ArrowLeft size={14} aria-hidden />
-          {backLabel}
+          {resolvedBackLabel}
         </Link>
         <BrandMark size="sm" />
       </div>

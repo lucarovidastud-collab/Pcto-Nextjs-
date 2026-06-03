@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [sector, setSector] = useState("");
   const [quoteFiles, setQuoteFiles] = useState<File[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
-  const [budgetNote, setBudgetNote] = useState("Il budget verrà calcolato dall'AI sulla base del preventivo caricato.");
+  const [budgetNote, setBudgetNote] = useState<string | null>(null);
   const [palette, setPalette] = useState<string[]>(["#0D9488", "#8B5CF6", "#F59E0B"]);
   const [brandMessage, setBrandMessage] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -80,9 +80,9 @@ export default function DashboardPage() {
     const res = await fetch(`/api/proposals/check-slug?slug=${encodeURIComponent(normalized)}`);
     const payload = (await res.json()) as { available?: boolean; error?: string | null; slug?: string };
     if (payload.available) {
-      setSlugHint(`Link disponibile: /p/${payload.slug || normalized}`);
+      setSlugHint(t("slugAvailable", { slug: payload.slug || normalized }));
     } else {
-      setSlugHint(payload.error || "Link non disponibile");
+      setSlugHint(payload.error || t("slugUnavailable"));
     }
   }
 
@@ -104,7 +104,7 @@ export default function DashboardPage() {
 
   async function analyzeBrand() {
     if (!website.trim()) {
-      setBrandMessage("Inserisci prima il sito web del cliente.");
+      setBrandMessage(t("enterWebsite"));
       return;
     }
     setIsAnalyzing(true);
@@ -136,18 +136,18 @@ export default function DashboardPage() {
             return;
           }
         }
-        setBrandMessage("Analisi brand non riuscita. Puoi comunque inserire la palette manualmente.");
+        setBrandMessage(t("brandFailed"));
         return;
       }
       if (payload.palette?.length) setPalette(payload.palette);
       if (payload.estimatedBudget) {
         setBudget(payload.estimatedBudget);
-        setBudgetNote(payload.budgetRationale || "Budget stimato dall'AI sulla base dello scope analizzato.");
+        setBudgetNote(payload.budgetRationale || t("budgetFromAI"));
       }
       if (payload.sectorSummary) setSector(payload.sectorSummary);
-      setBrandMessage(payload.message || "Palette brand e informazioni cliente estratte con successo.");
+      setBrandMessage(payload.message || t("brandSuccess"));
     } catch {
-      setBrandMessage("Errore durante l'analisi. Riprova.");
+      setBrandMessage(t("brandError"));
     } finally {
       setIsAnalyzing(false);
     }
@@ -155,12 +155,12 @@ export default function DashboardPage() {
 
   async function generateProposal() {
     if (!company.trim() || quoteFiles.length === 0) {
-      setApiMessage("Compila i campi obbligatori: azienda e carica almeno un file di preventivo.");
+      setApiMessage(t("errRequired"));
       return;
     }
     setIsGenerating(true);
     setGenPercent(0);
-    setGenLabel("Avvio generazione...");
+    setGenLabel(t("generationStart"));
     setApiMessage("");
     try {
       if (website.trim() && !brandMessage) {
@@ -186,7 +186,7 @@ export default function DashboardPage() {
           router.push("/dashboard/billing?limit=reached");
           return;
         }
-        setApiMessage(errPayload.error || "Errore nella creazione della proposta.");
+        setApiMessage(errPayload.error || t("errGeneration"));
         return;
       }
 
@@ -217,7 +217,7 @@ export default function DashboardPage() {
 
           if (evt.type === "progress" && typeof evt.percent === "number") {
             setGenPercent(evt.percent);
-            setGenLabel(evt.label || "Elaborazione...");
+            setGenLabel(evt.label || t("elaborating"));
           }
           if (evt.type === "error") {
             if (evt.error === "subscription_required") {
@@ -228,7 +228,7 @@ export default function DashboardPage() {
               router.push("/dashboard/billing?limit=reached");
               return;
             }
-            setApiMessage(evt.error || "Generazione non riuscita.");
+            setApiMessage(evt.error || t("errGeneration"));
             return;
           }
           if (evt.type === "complete") {
@@ -237,16 +237,16 @@ export default function DashboardPage() {
             if (evt.budget) setBudget(evt.budget);
             setShareLink(`${window.location.origin}${evt.link}`);
             setProposalId(evt.id || null);
-            setApiMessage(evt.deployMessage || "Proposta generata con successo.");
+            setApiMessage(evt.deployMessage || t("successShare"));
           }
         }
       }
 
       if (!completed) {
-        setApiMessage("Generazione interrotta. Riprova.");
+        setApiMessage(t("errGenerationAborted"));
       }
     } catch {
-      setApiMessage("Impossibile connettersi al server per la generazione. Verifica la configurazione.");
+      setApiMessage(t("errConnection"));
     } finally {
       setIsGenerating(false);
       setGenPercent(0);
@@ -293,7 +293,7 @@ export default function DashboardPage() {
     <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
       {portalReturn ? (
         <p className="glass-premium rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3.5 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-          Modifiche salvate nel portale Stripe — l&apos;abbonamento si aggiorna entro pochi secondi.
+          {t("portalReturn")}
         </p>
       ) : null}
       {billingNotice ? (
@@ -307,7 +307,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent)] uppercase tracking-widest">
             <Sparkles size={14} />
-            <span>Generatore AI di Preventivi</span>
+            <span>{t("aiGeneratorBadge")}</span>
           </div>
           <h1 className="text-3xl font-black tracking-tight mt-1">{t("createTitle")}</h1>
           <p className="text-sm text-[var(--muted)] mt-1.5 max-w-xl">{t("createSubtitle")}</p>
@@ -331,7 +331,7 @@ export default function DashboardPage() {
             className="btn-secondary w-full flex items-center justify-center gap-2 text-xs min-h-[2.5rem] sm:w-auto"
           >
             <RefreshCw size={14} />
-            Svuota campi
+            {t("clearFields")}
           </button>
         </div>
       </header>
@@ -344,12 +344,12 @@ export default function DashboardPage() {
           <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">1</span>
-              <h2 className="text-lg font-black tracking-tight">Dati del Cliente</h2>
+              <h2 className="text-lg font-black tracking-tight">{t("step1Title")}</h2>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
-                Nome Azienda *
+                {t("fieldCompanyName")}
                 <input
                   className="input"
                   required
@@ -360,7 +360,7 @@ export default function DashboardPage() {
               </label>
 
               <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide sm:col-span-2">
-                Link personalizzato (Vercel)
+                {t("fieldCustomLink")}
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                   <span className="text-[11px] font-mono text-[var(--muted)] shrink-0">…/p/</span>
                   <input
@@ -380,13 +380,13 @@ export default function DashboardPage() {
                   </span>
                 ) : (
                   <span className="text-[10px] font-medium text-[var(--muted)] normal-case tracking-normal">
-                    Es. king-inox → /p/king-inox
+                    {t("slugExample")}
                   </span>
                 )}
               </label>
 
               <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
-                Sito Web (opzionale)
+                {t("fieldWebsite")}
                 <div className="relative">
                   <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)] opacity-60" size={16} />
                   <input
@@ -408,7 +408,7 @@ export default function DashboardPage() {
                   disabled={isAnalyzing}
                 >
                   <Sparkles size={14} className="text-[var(--accent)]" />
-                  {isAnalyzing ? "Analisi brand in corso..." : "Estrai Palette e Dettagli dal Sito"}
+                  {isAnalyzing ? t("analyzingBrand") : t("analyzeBrand")}
                 </button>
                 {brandMessage && (
                   <p className="text-xs font-medium text-[var(--muted)] bg-[var(--panel-strong)] rounded-lg p-2.5 border border-[var(--line)]">
@@ -423,11 +423,11 @@ export default function DashboardPage() {
           <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">2</span>
-              <h2 className="text-lg font-black tracking-tight">Scope del Lavoro & Appunti</h2>
+              <h2 className="text-lg font-black tracking-tight">{t("step2Title")}</h2>
             </div>
 
             <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
-              Settore di Attività
+              {t("fieldSector")}
               <input
                 className="input"
                 placeholder="Es. Ristorazione / Fast Food / Delivery"
@@ -437,7 +437,7 @@ export default function DashboardPage() {
             </label>
 
             <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
-              Preventivo Grezzo (File) *
+              {t("fieldFiles")}
               <div
                 className="input min-h-36 resize-y whitespace-pre-line break-words cursor-pointer"
                 role="button"
@@ -456,8 +456,8 @@ export default function DashboardPage() {
                 }}
               >
                 {quoteFiles.length
-                  ? `File selezionati:\n${quoteFiles.map((f) => f.name).join("\n")}`
-                  : "Clicca per caricare o trascina qui i file del preventivo (PDF, DOCX, TXT)."}
+                  ? `${t("filesSelected")}\n${quoteFiles.map((f) => f.name).join("\n")}`
+                  : t("filesDropHint")}
               </div>
               <input
                 ref={fileInputRef}
@@ -472,7 +472,7 @@ export default function DashboardPage() {
               />
             </label>
             <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-xs text-[var(--muted)]">
-              <span>Clicca o trascina i file per generare un preventivo di qualità.</span>
+              <span>{t("filesHelp")}</span>
               <span className="font-mono">{fileCount} file</span>
             </div>
           </div>
@@ -481,18 +481,18 @@ export default function DashboardPage() {
           <div className="glass w-full rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">3</span>
-              <h2 className="text-lg font-black tracking-tight">Genera & Pubblica</h2>
+              <h2 className="text-lg font-black tracking-tight">{t("step3Title")}</h2>
             </div>
 
             {/* Budget AI Card */}
             <div className="w-full min-w-0 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-4 flex items-center justify-between gap-4 shadow-sm">
               <div className="min-w-0">
-                <span className="text-[10px] font-extrabold text-[var(--muted)] uppercase tracking-wider block">Budget Stimato AI</span>
+                <span className="text-[10px] font-extrabold text-[var(--muted)] uppercase tracking-wider block">{t("budgetLabel")}</span>
                 <p className="text-2xl sm:text-3xl font-black text-[var(--accent)] mt-0.5 break-words leading-tight">
-                  {budget ? `€ ${budget.toLocaleString("it-IT")}` : "In attesa dell'AI..."}
+                  {budget ? `€ ${budget.toLocaleString("it-IT")}` : t("budgetWaiting")}
                 </p>
-                <p className="text-[11px] text-[var(--muted)] mt-1 truncate max-w-md" title={budgetNote}>
-                  {budgetNote}
+                <p className="text-[11px] text-[var(--muted)] mt-1 truncate max-w-md" title={budgetNote ?? undefined}>
+                  {budgetNote ?? t("budgetFromFile")}
                 </p>
               </div>
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-glow)] text-[var(--accent)]">
@@ -513,13 +513,13 @@ export default function DashboardPage() {
                   <>
                     <Laptop className="animate-bounce" size={18} />
                     <span className="text-center leading-tight break-words">
-                      Generazione… {genPercent}%
+                      {t("generatingBtn", { percent: genPercent })}
                     </span>
                   </>
                 ) : (
                   <>
                     <Send size={16} />
-                    <span className="text-center leading-tight break-words">Compila & Genera Proposta Brandizzata</span>
+                    <span className="text-center leading-tight break-words">{t("generateBtn")}</span>
                   </>
                 )}
               </button>
@@ -528,7 +528,7 @@ export default function DashboardPage() {
                 className="btn-secondary w-full sm:w-auto text-sm font-bold flex items-center justify-center gap-2 min-h-[3rem]"
               >
                 <FileText size={16} />
-                Cronologia preventivi
+                {t("historyBtn")}
               </Link>
             </div>
 
@@ -543,7 +543,7 @@ export default function DashboardPage() {
               <div className="rounded-xl border border-teal-500/20 bg-teal-500/5 p-4 grid gap-3 animate-in fade-in duration-300">
                 <div className="flex items-center gap-2 text-teal-700 dark:text-teal-400 font-bold text-xs">
                   <CheckCircle size={15} />
-                  <span>Proposta commercializzata con successo!</span>
+                  <span>{t("successShare")}</span>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -555,10 +555,10 @@ export default function DashboardPage() {
                   <button
                     onClick={copyLink}
                     className="btn-secondary text-xs min-h-[2.25rem] px-3 py-1.5 flex items-center justify-center gap-1.5 font-bold shrink-0"
-                    title="Copia link"
+                    title={t("copyLinkBtn")}
                   >
                     {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                    {copied ? "Copiato!" : "Copia Link"}
+                    {copied ? t("linkCopied") : t("copyLinkBtn")}
                   </button>
                 </div>
                 
@@ -570,14 +570,14 @@ export default function DashboardPage() {
                     className="btn-primary text-xs min-h-[2.25rem] py-1.5 flex-1 flex items-center justify-center gap-1.5 font-bold"
                   >
                     <FileText size={14} />
-                    Apri Proposta Cliente
+                    {t("openProposal")}
                   </a>
                   <button
                     onClick={printProposal}
                     className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
                   >
                     <Download size={14} />
-                    Stampa / Scarica PDF
+                    {t("printPdf")}
                   </button>
                 </div>
               </div>
@@ -593,10 +593,10 @@ export default function DashboardPage() {
           {/* Brand Palette */}
           <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6">
             <h3 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] border-b border-[var(--line)] pb-2 mb-3">
-              Palette del Brand
+              {t("paletteTitle")}
             </h3>
             <p className="text-xs text-[var(--muted)] mb-4">
-              Ispirata al sito web del cliente. Clicca su un cerchio per copiare il codice HEX.
+              {t("paletteDesc")}
             </p>
             <div className="grid grid-cols-3 gap-3">
               {palette.map((color) => (
@@ -609,7 +609,7 @@ export default function DashboardPage() {
                   title={`Copia ${color}`}
                 >
                   <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 text-[10px] font-bold text-white uppercase font-mono">
-                    {copiedColor === color ? <Check size={14} /> : "copia"}
+                    {copiedColor === color ? <Check size={14} /> : t("copy")}
                   </span>
                 </button>
               ))}
@@ -617,7 +617,7 @@ export default function DashboardPage() {
             
             {copiedColor && (
               <p className="text-[10px] text-emerald-600 font-bold mt-3 animate-pulse">
-                HEX {copiedColor} copiato negli appunti!
+                {t("hexCopied", { color: copiedColor })}
               </p>
             )}
           </div>
@@ -625,13 +625,13 @@ export default function DashboardPage() {
           {/* Abbonamento */}
           <div className="glass-premium w-full overflow-x-hidden rounded-2xl p-5 sm:p-6">
             <h3 className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[var(--muted)] border-b border-[var(--line)] pb-2.5 mb-4">
-              Abbonamento
+              {t("subscriptionTitle")}
             </h3>
 
             <div className="flex items-center justify-between gap-2 mb-4">
-              <span className="text-xs font-bold text-[var(--muted)]">Piano</span>
+              <span className="text-xs font-bold text-[var(--muted)]">{t("planLabel")}</span>
               <span className="rounded-full bg-[var(--accent-glow)] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[var(--accent)]">
-                {planName === "none" ? "Nessun piano" : planName}
+                {planName === "none" ? t("noPlan") : planName}
               </span>
             </div>
 
@@ -639,7 +639,7 @@ export default function DashboardPage() {
               <UsageMeter used={proposalsUsed} limit={proposalLimit} compact />
             ) : (
               <p className="text-[11px] font-medium leading-relaxed text-[var(--muted)]">
-                Attiva un piano per sbloccare le generazioni AI e il link cliente.
+                {t("activateHint")}
               </p>
             )}
 
@@ -651,21 +651,21 @@ export default function DashboardPage() {
                 className="btn-secondary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
               >
                 <Laptop size={14} />
-                {openingPortal ? "Apertura portale..." : "Gestisci abbonamento"}
+                {openingPortal ? t("openingPortal") : t("manageSub")}
               </button>
             ) : (
               <Link
                 href="/dashboard/subscribe"
                 className="btn-primary w-full text-xs font-bold py-2 min-h-[2.5rem] mt-5 flex items-center justify-center gap-1.5"
               >
-                Scegli un piano
+                {t("choosePlan")}
               </Link>
             )}
             <Link
               href={hasActiveSubscription ? "/dashboard/billing" : "/dashboard/subscribe"}
               className="mt-2 block text-center text-[10px] font-bold text-[var(--muted)] underline-offset-2 hover:underline hover:text-[var(--foreground)]"
             >
-              {hasActiveSubscription ? "Confronta i piani" : "Vedi prezzi e funzionalità"}
+              {hasActiveSubscription ? t("comparePlans") : t("viewPricing")}
             </Link>
           </div>
 

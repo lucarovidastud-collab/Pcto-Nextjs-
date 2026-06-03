@@ -5,6 +5,7 @@ import { BillingShell } from "@/components/billing/billing-shell";
 import { PricingPlans } from "@/components/billing/pricing-plans";
 import { SiteFooter } from "@/components/site-footer";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Suspense, useEffect, useState } from "react";
 
 type BillingDiagnostics = {
@@ -16,6 +17,7 @@ type BillingDiagnostics = {
 };
 
 function BillingContent() {
+  const t = useTranslations("billing");
   const searchParams = useSearchParams();
   const [planName, setPlanName] = useState("none");
   const [proposalsUsed, setProposalsUsed] = useState(0);
@@ -52,21 +54,19 @@ function BillingContent() {
   const alerts = (
     <>
       {checkoutStatus === "success" ? (
-        <BillingAlert variant="success" title="Pagamento completato">
-          Il piano si aggiornerà automaticamente entro pochi secondi. Puoi tornare alla dashboard e iniziare a
-          generare.
+        <BillingAlert variant="success" title={t("paymentSuccessTitle")}>
+          {t("paymentSuccessDesc")}
         </BillingAlert>
       ) : null}
       {checkoutStatus === "cancel" ? (
-        <BillingAlert variant="warning" title="Checkout annullato">
-          Nessun addebito effettuato. Puoi scegliere un piano quando vuoi.
+        <BillingAlert variant="warning" title={t("cancelTitle")}>
+          {t("cancelDesc")}
         </BillingAlert>
       ) : null}
       {limitReached ? (
-        <BillingAlert variant="warning" title="Limite mensile raggiunto">
-          Hai usato tutte le generazioni incluse nel piano
-          {proposalLimit !== null ? ` (${proposalsUsed}/${proposalLimit})` : ""}. Passa a Growth o Enterprise per
-          continuare.
+        <BillingAlert variant="warning" title={t("limitTitle")}>
+          {t("limitDesc")}
+          {proposalLimit !== null ? ` (${proposalsUsed}/${proposalLimit})` : ""}
         </BillingAlert>
       ) : null}
     </>
@@ -74,9 +74,10 @@ function BillingContent() {
 
   return (
     <BillingShell
-      eyebrow="Abbonamento"
-      title="Piani e pagamenti"
-      description="Gestisci il tuo abbonamento, confronta i piani e aggiorna la fatturazione in pochi clic. I pagamenti sono elaborati in modo sicuro da Stripe."
+      eyebrow={t("eyebrow")}
+      title={t("title")}
+      description={t("description")}
+      backLabel={t("backLabel")}
       alerts={alerts}
     >
       <PricingPlans
@@ -87,8 +88,8 @@ function BillingContent() {
       />
 
       {diagnostics?.configured === false ? (
-        <BillingAlert variant="info" title="Stripe in configurazione">
-          {diagnostics.message || "I pagamenti non sono ancora disponibili su questo ambiente."}
+        <BillingAlert variant="info" title={t("stripeConfigTitle")}>
+          {diagnostics.message || t("stripeConfigDefault")}
         </BillingAlert>
       ) : null}
     </BillingShell>
@@ -96,13 +97,14 @@ function BillingContent() {
 }
 
 export default function BillingPage() {
+  const t = useTranslations("billing");
   return (
     <>
       <Suspense
         fallback={
           <div className="mx-auto max-w-6xl px-2 py-12">
             <p className="animate-pulse text-center text-sm font-medium text-[var(--muted)]">
-              Caricamento piani...
+              {t("loading")}
             </p>
           </div>
         }
