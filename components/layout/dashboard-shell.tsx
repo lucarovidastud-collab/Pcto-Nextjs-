@@ -156,6 +156,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="grid gap-2">
+              <LocaleSwitcher className="w-full justify-between" />
               <button
                 className="btn-secondary w-full flex items-center justify-center gap-2 text-xs py-2 min-h-[2.5rem]"
                 onClick={() => {
