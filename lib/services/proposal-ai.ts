@@ -19,11 +19,10 @@ Palette brand: ${input.palette.join(", ")}
 
 Regole:
 - usa classi: proposal-card, proposal-grid, scope-list, pricing-table, total-row, signature-box, btn-glow
-- applica colori brand inline dove utile: primary ${primary}, secondary ${secondary}, tertiary ${tertiary}
-- titoli h3 con style="color:${primary}"
-- bordi card con style="border-left:4px solid ${primary}"
-- accessibilità: garantisci sempre testo leggibile (no testo bianco su sfondo chiaro, no testo nero su sfondo scuro)
-- non impostare colori testo/sfondo inline su paragrafi e righe tabella; lascia colore di default e usa i colori brand solo per accenti (titoli, bordi, highlight leggeri)
+- applica colori brand SOLO su titoli h3: style="color:${primary}" e bordi card style="border-left:4px solid ${primary}"
+- VIETATO: background, background-color, bgcolor su qualsiasi tag; VIETATO color inline su p, li, td, span, div, section
+- il documento ha sfondo chiaro fisso: non usare box scuri, temi dark, highlight con sfondo colorato o testo chiaro
+- paragrafi e liste senza attributo style (il CSS del sito gestisce leggibilità)
 - includi tabella prezzi (class pricing-table + riga total-row) e sezione firma con button "Accetta Preventivo"
 - le voci della tabella devono essere coerenti e la somma deve corrispondere al budget totale indicato sopra
 - se negli appunti c'è un importo totale, usa quello nella riga totale senza modificarlo

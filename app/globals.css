@@ -353,6 +353,42 @@
 .proposal-document {
   font-size: 0.95rem;
   line-height: 1.6;
+  color: var(--foreground);
+  max-width: 100%;
+}
+
+/* AI HTML: never allow dark boxes or unreadable inline colors */
+.proposal-document :is(p, li, span, div, section, article, a, mark) {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: color-mix(in srgb, var(--foreground) 88%, transparent) !important;
+}
+
+.proposal-document td {
+  color: var(--foreground) !important;
+}
+
+.proposal-document :is(h2, h3)[style*="color"] {
+  color: var(--brand-primary-text, var(--brand-primary)) !important;
+}
+
+.proposal-document .proposal-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .proposal-document .proposal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.proposal-document img,
+.proposal-document table,
+.proposal-document pre {
+  max-width: 100%;
 }
 
 .proposal-document p {
@@ -427,9 +463,26 @@
 }
 
 @media (max-width: 640px) {
+  .proposal-document {
+    font-size: 0.9rem;
+  }
+
+  .proposal-document h2 {
+    font-size: 1.25rem;
+  }
+
+  .proposal-document h3 {
+    font-size: 1.05rem;
+  }
+
   .proposal-document th,
   .proposal-document td {
-    white-space: nowrap;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .proposal-branded .proposal-card {
+    padding: 1rem;
   }
 }
 

@@ -174,11 +174,11 @@ export default function PublicProposalPage() {
   const sectorLabel = truncateText(formatReadableText(proposal.sector), 160);
 
   return (
-    <main className="proposal-branded min-h-screen px-4 py-8 text-[var(--foreground)] sm:px-6 sm:py-12 transition-all" style={{ ...themeVars, ...pageBg }}>
-      <div className="mx-auto max-w-4xl grid gap-8">
+    <main className="proposal-branded min-h-screen w-full min-w-0 px-3 py-6 text-[var(--foreground)] sm:px-6 sm:py-12 transition-all" style={{ ...themeVars, ...pageBg }}>
+      <div className="mx-auto w-full min-w-0 max-w-4xl grid gap-6 sm:gap-8">
         
         {/* Main Proposal Card Container */}
-        <article className="glass overflow-hidden rounded-3xl border border-[color-mix(in_srgb,var(--brand-primary)_25%,var(--line))] shadow-2xl bg-[color-mix(in_srgb,var(--panel-strong)_95%,transparent)]">
+        <article className="glass w-full min-w-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-[color-mix(in_srgb,var(--brand-primary)_25%,var(--line))] shadow-2xl bg-[color-mix(in_srgb,var(--panel-strong)_95%,transparent)]">
           
           {/* Custom Branded Header Banner */}
           <header className="brand-header border-b border-[var(--line)] px-6 py-8 sm:px-12 sm:py-10 flex flex-col gap-6">
@@ -226,8 +226,8 @@ export default function PublicProposalPage() {
           </header>
 
           {/* Proposal HTML Document Content */}
-          <div className="proposal-document px-6 py-10 sm:px-12 prose max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)] overflow-x-auto break-words">
-            <div dangerouslySetInnerHTML={{ __html: documentHtml }} />
+          <div className="proposal-document min-w-0 px-4 py-8 sm:px-12 sm:py-10 max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)] overflow-x-hidden break-words [overflow-wrap:anywhere]">
+            <div className="min-w-0 max-w-full" dangerouslySetInnerHTML={{ __html: documentHtml }} />
           </div>
 
           {/* Official Sign/Contract Panel */}

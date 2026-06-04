@@ -3,36 +3,63 @@ import { normalizeItalianTypography, unwrapInlineEmphasis } from "@/lib/proposal
 const STYLE_SECTION_RE =
   /<(?:section|div|article)[^>]*>(?:\s*<(?:h[1-6])[^>]*>\s*(?:direzione\s+stile|stile|style\s+direction)[^<]*<\/h[1-6]>)[\s\S]*?<\/(?:section|div|article)>/gi;
 
+const READABLE_PAGE_BG: Rgba = { r: 255, g: 255, b: 255, a: 1 };
+
+const BLOCKED_STYLE_PROPS = new Set([
+  "background",
+  "background-color",
+  "background-image",
+  "bgcolor"
+]);
+
+const COLOR_ALLOWED_TAGS = new Set(["h1", "h2", "h3", "h4", "th"]);
+
 /**
  * Strips all dangerous HTML that could lead to XSS or content injection.
  * Applied as the first pass before any other sanitization.
  */
-function stripDangerousHtml(html: string): string {
-  // Remove script blocks (including content)
+function stripDangerousHtml(html: string) {
   let safe = html.replace(/<script\b[\s\S]*?<\/script>/gi, "");
 
-  // Remove dangerous singleton/block tags entirely
   safe = safe.replace(
     /<\/?(iframe|object|embed|form|input|button|select|textarea|base|link|meta|applet|canvas|audio|video|source|track|svg|math)\b[^>]*>/gi,
     ""
   );
 
-  // Remove event handlers (on*)
   safe = safe.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
 
-  // Remove javascript: and data: URIs from href/src/action/formaction attributes
   safe = safe.replace(
     /(\s(?:href|src|action|formaction|xlink:href)\s*=\s*["'])\s*(?:javascript|data|vbscript):[^"']*/gi,
     "$1#"
   );
 
-  // Remove srcdoc (can inject HTML into iframes even if iframe removed)
   safe = safe.replace(/\s+srcdoc\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
-
-  // Remove <style> blocks (can contain expression() / url() XSS in IE)
   safe = safe.replace(/<style\b[\s\S]*?<\/style>/gi, "");
 
   return safe;
+}
+
+function stripBgcolorAttributes(html: string) {
+  return html.replace(/\sbgcolor\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+}
+
+/** Remove inline color on body text tags; AI often sets dark color + dark bg on parents. */
+function stripColorOnBodyTags(html: string) {
+  return html.replace(
+    /<(p|li|td|span|div|section|article|a|label|mark)(\b[^>]*)>/gi,
+    (match, _tag: string, attrs: string) => {
+      if (!/\bstyle\s*=/i.test(attrs)) return match;
+      const cleanedAttrs = attrs.replace(
+        /\bstyle\s*=\s*"([^"]*)"/i,
+        (_, styleText: string) => {
+          const sanitized = sanitizeInlineStyle(styleText, { allowColor: false });
+          if (!sanitized) return "";
+          return ` style="${sanitized}"`;
+        }
+      );
+      return match.replace(attrs, cleanedAttrs.replace(/\s{2,}/g, " ").trim());
+    }
+  );
 }
 
 export function sanitizeProposalHtml(html: string) {
@@ -46,26 +73,39 @@ export function sanitizeProposalHtml(html: string) {
     .replace(/<button\b[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/button>/gi, "")
     .replace(/<a\b[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi, "");
 
-  // Wrap bare <table> tags in a scroll container so they fill 100% width
   const wrappedTables = cleanedButtons.replace(
     /(?<!<div[^>]*class="[^"]*table-scroll[^"]*"[^>]*>\s*)(<table\b[\s\S]*?<\/table>)/gi,
     '<div class="table-scroll">$1</div>'
   );
 
-  const cleanedStyles = wrappedTables.replace(/style="([^"]*)"/gi, (_, styleText: string) => {
-    const sanitized = sanitizeInlineStyle(styleText);
-    if (!sanitized) return "";
-    return `style="${sanitized}"`;
-  });
+  const noBgcolor = stripBgcolorAttributes(wrappedTables);
 
-  const withoutEmphasis = unwrapInlineEmphasis(cleanedStyles);
+  const cleanedStyles = noBgcolor.replace(
+    /<(h[1-4]|th|td|p|li|span|div|section|article|a)(\b[^>]*)>/gi,
+    (match, tag: string, attrs: string) => {
+      if (!/\bstyle\s*=/i.test(attrs)) return match;
+      const tagLower = tag.toLowerCase();
+      const allowColor = COLOR_ALLOWED_TAGS.has(tagLower);
+      const nextAttrs = attrs.replace(/\bstyle\s*=\s*"([^"]*)"/i, (_, styleText: string) => {
+        const sanitized = sanitizeInlineStyle(styleText, {
+          allowColor,
+          minContrast: /^h[1-4]$/.test(tagLower) ? 3 : 4.5
+        });
+        if (!sanitized) return "";
+        return ` style="${sanitized}"`;
+      });
+      return `<${tag}${nextAttrs}>`;
+    }
+  );
 
-  // Fix missing spaces after punctuation before uppercase
+  const withoutBodyColors = stripColorOnBodyTags(cleanedStyles);
+
+  const withoutEmphasis = unwrapInlineEmphasis(withoutBodyColors);
+
   const spaced = withoutEmphasis
     .replace(/\.([A-ZÀ-ÖØ-Þ])/g, ". $1")
     .replace(/\)([A-ZÀ-ÖØ-Þ])/g, ") $1");
 
-  // Fix honorific caps (presentarVi → presentarvi, VostRA → vostra, etc.)
   const fixedCaps = spaced.replace(/\b(presentar|inviar|comunica[rt]|scriver|mostrar|informa[rt])(V[iI])\b/g, "$1vi");
 
   return fixedCaps.replace(/>([^<]+)</g, (_, text: string) => {
@@ -76,7 +116,16 @@ export function sanitizeProposalHtml(html: string) {
 
 type Rgba = { r: number; g: number; b: number; a: number };
 
-function sanitizeInlineStyle(styleText: string) {
+type SanitizeStyleOptions = {
+  allowColor?: boolean;
+  /** WCAG contrast vs light page background (headings may use 3:1). */
+  minContrast?: number;
+};
+
+export function sanitizeInlineStyle(styleText: string, options: SanitizeStyleOptions = {}) {
+  const allowColor = options.allowColor ?? true;
+  const minContrast = options.minContrast ?? 4.5;
+
   const entries = styleText
     .split(";")
     .map((raw) => raw.trim())
@@ -90,38 +139,34 @@ function sanitizeInlineStyle(styleText: string) {
     })
     .filter((v): v is { prop: string; value: string } => Boolean(v));
 
-  const colorEntry = entries.find((e) => e.prop === "color");
-  const bgEntry = entries.find((e) => e.prop === "background-color") || entries.find((e) => e.prop === "background");
+  let dropColor = !allowColor;
 
-  const color = colorEntry ? parseColor(colorEntry.value) : null;
-  const bg = bgEntry ? parseColor(bgEntry.value) : null;
+  for (const entry of entries) {
+    if (BLOCKED_STYLE_PROPS.has(entry.prop)) {
+      continue;
+    }
 
-  const baseBg: Rgba = { r: 255, g: 255, b: 255, a: 1 };
-  const effectiveBg = bg && bg.a > 0.02 ? blend(bg, baseBg) : baseBg;
-
-  let dropColor = false;
-  let dropBackground = false;
-
-  if (color && color.a <= 0.02) dropColor = true;
-  if (bg && bg.a <= 0.02) dropBackground = true;
-
-  if (color && !dropColor) {
-    const c = blend(color, baseBg);
-    const ratio = contrastRatio(c, effectiveBg);
-    if (ratio < 4) dropColor = true;
-  }
-
-  if (color && bg && !dropColor && !dropBackground) {
-    const c = blend(color, baseBg);
-    const b = blend(bg, baseBg);
-    const ratio = contrastRatio(c, b);
-    if (ratio < 3) dropBackground = true;
+    if (entry.prop === "color" && allowColor && !dropColor) {
+      const color = parseColor(entry.value);
+      if (!color || color.a <= 0.02) {
+        dropColor = true;
+        continue;
+      }
+      const c = blend(color, READABLE_PAGE_BG);
+      if (contrastRatio(c, READABLE_PAGE_BG) < minContrast) {
+        dropColor = true;
+      }
+    }
   }
 
   const rebuilt = entries
     .filter((e) => {
+      if (BLOCKED_STYLE_PROPS.has(e.prop)) return false;
       if (dropColor && e.prop === "color") return false;
-      if (dropBackground && (e.prop === "background-color" || e.prop === "background")) return false;
+      if (e.prop === "width" || e.prop === "min-width") {
+        const px = e.value.match(/^(\d+(?:\.\d+)?)px$/i);
+        if (px && Number(px[1]) > 480) return false;
+      }
       return true;
     })
     .map((e) => {
