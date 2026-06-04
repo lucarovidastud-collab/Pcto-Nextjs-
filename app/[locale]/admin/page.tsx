@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Users, Crown, Zap, ShieldCheck } from "lucide-react";
+import { Users, Crown, Zap, ShieldCheck, Gift } from "lucide-react";
+import {
+  adminAssignablePlans,
+  planMonthlyLabel,
+  statusForAdminPlan,
+  type AdminAssignablePlan
+} from "@/lib/admin/subscription-plans";
 
 type TenantData = {
   id: string;
@@ -17,15 +23,30 @@ type TenantData = {
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const [tenants, setTenants] = useState<TenantData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [draftPlans, setDraftPlans] = useState<Record<string, AdminAssignablePlan>>({});
 
   useEffect(() => {
-    fetchTenants();
+    void fetchTenants();
   }, []);
+
+  useEffect(() => {
+    setDraftPlans((prev) => {
+      const next = { ...prev };
+      for (const tenant of tenants) {
+        const plan = adminAssignablePlans.includes(tenant.plan as AdminAssignablePlan)
+          ? (tenant.plan as AdminAssignablePlan)
+          : "none";
+        if (!next[tenant.id]) next[tenant.id] = plan;
+      }
+      return next;
+    });
+  }, [tenants]);
 
   async function fetchTenants() {
     try {
@@ -35,7 +56,7 @@ export default function AdminDashboardPage() {
         return;
       }
       if (!res.ok) throw new Error(t("loadError"));
-      const json = await res.json();
+      const json = (await res.json()) as { tenants?: TenantData[] };
       setTenants(json.tenants || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("error"));
@@ -44,21 +65,36 @@ export default function AdminDashboardPage() {
     }
   }
 
-  async function updatePlan(tenantId: string, newPlan: string, newStatus: string) {
-    if (!confirm(t("confirmChangePlan", { plan: newPlan.toUpperCase() }))) return;
+  function planLabel(plan: AdminAssignablePlan) {
+    if (plan === "none") return t("noPlan");
+    const price = planMonthlyLabel(plan);
+    return price ? `${t(`plan_${plan}`)} (${price}${tCommon("perMonth")})` : t(`plan_${plan}`);
+  }
+
+  async function applyPlan(tenantId: string) {
+    const newPlan = draftPlans[tenantId] ?? "none";
+    const tenant = tenants.find((row) => row.id === tenantId);
+    if (tenant && tenant.plan === newPlan && tenant.status === statusForAdminPlan(newPlan)) {
+      return;
+    }
+
+    if (!confirm(t("confirmAssignPlan", { plan: planLabel(newPlan) }))) return;
 
     setActionLoading(tenantId);
     try {
       const res = await fetch(`/api/admin/tenants/${tenantId}/subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: newPlan, status: newStatus })
+        body: JSON.stringify({ plan: newPlan })
       });
       if (!res.ok) throw new Error(t("updateFailed"));
 
-      setTenants(prev => prev.map(tenant =>
-        tenant.id === tenantId ? { ...tenant, plan: newPlan, status: newStatus } : tenant
-      ));
+      const newStatus = statusForAdminPlan(newPlan);
+      setTenants((prev) =>
+        prev.map((row) =>
+          row.id === tenantId ? { ...row, plan: newPlan, status: newStatus } : row
+        )
+      );
     } catch (err) {
       alert(err instanceof Error ? err.message : t("error"));
     } finally {
@@ -66,15 +102,25 @@ export default function AdminDashboardPage() {
     }
   }
 
-  if (loading) return (
-    <div className="animate-pulse flex gap-2">
-      <div className="h-4 w-4 bg-indigo-500 rounded-full animate-bounce" />
-      {t("loading")}
-    </div>
+  const totalPro = useMemo(
+    () => tenants.filter((tenant) => tenant.plan !== "none" && tenant.status === "active").length,
+    [tenants]
   );
-  if (error) return <div className="text-red-400 bg-red-400/10 p-4 rounded-xl border border-red-400/20">{error}</div>;
 
-  const totalPro = tenants.filter(tenant => tenant.plan !== "none").length;
+  if (loading) {
+    return (
+      <div className="animate-pulse flex gap-2">
+        <div className="h-4 w-4 bg-indigo-500 rounded-full animate-bounce" />
+        {t("loading")}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-400 bg-red-400/10 p-4 rounded-xl border border-red-400/20">{error}</div>
+    );
+  }
 
   return (
     <div className="grid gap-6">
@@ -105,11 +151,15 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-4 border-b border-slate-800 bg-slate-950/30 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-800 bg-slate-950/30 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-bold flex items-center gap-2">
             <ShieldCheck className="text-emerald-500" size={18} />
             {t("workspaceManagement")}
           </h2>
+          <p className="text-xs text-slate-500 flex items-center gap-1.5">
+            <Gift size={14} className="text-indigo-400 shrink-0" />
+            {t("giftHint")}
+          </p>
         </div>
 
         <div className="overflow-x-auto">
@@ -124,52 +174,80 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
-              {tenants.map(tenant => (
-                <tr key={tenant.id} className="hover:bg-slate-800/20 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-slate-200">{tenant.name}</div>
-                    <div className="text-xs text-slate-500 mt-1">{tenant.ownerEmail}</div>
-                  </td>
-                  <td className="px-6 py-4 text-slate-400">
-                    {new Date(tenant.createdAt).toLocaleDateString(locale)}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="inline-flex items-center justify-center min-w-[2rem] h-6 bg-slate-800 rounded-full text-xs font-bold">
-                      {tenant.proposalsCount}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {tenant.plan !== "none" ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold">
-                        <Crown size={12} />
-                        {tenant.plan.toUpperCase()}
+              {tenants.map((tenant) => {
+                const draft = draftPlans[tenant.id] ?? "none";
+                const isActiveGift =
+                  tenant.plan !== "none" &&
+                  (tenant.status === "active" || tenant.status === "trialing");
+
+                return (
+                  <tr key={tenant.id} className="hover:bg-slate-800/20 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-slate-200">{tenant.name}</div>
+                      <div className="text-xs text-slate-500 mt-1">{tenant.ownerEmail}</div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-400">
+                      {new Date(tenant.createdAt).toLocaleDateString(locale)}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="inline-flex items-center justify-center min-w-[2rem] h-6 bg-slate-800 rounded-full text-xs font-bold">
+                        {tenant.proposalsCount}
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-xs font-bold">
-                        {t("noPlan")}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        disabled={actionLoading === tenant.id}
-                        onClick={() => updatePlan(tenant.id, "starter", "active")}
-                        className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-bold transition disabled:opacity-50"
-                      >
-                        {t("givePro")}
-                      </button>
-                      <button
-                        disabled={actionLoading === tenant.id}
-                        onClick={() => updatePlan(tenant.id, "none", "canceled")}
-                        className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg font-bold transition disabled:opacity-50"
-                      >
-                        {t("revoke")}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4">
+                      {isActiveGift ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold">
+                          <Crown size={12} />
+                          {adminAssignablePlans.includes(tenant.plan as AdminAssignablePlan)
+                            ? t(`plan_${tenant.plan as AdminAssignablePlan}`)
+                            : tenant.plan}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-xs font-bold">
+                          {t("noPlan")}
+                        </span>
+                      )}
+                      {tenant.status && tenant.plan !== "none" && (
+                        <p className="text-[10px] text-slate-500 mt-1 uppercase">{tenant.status}</p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end items-center gap-2 flex-wrap">
+                        <label className="sr-only" htmlFor={`plan-${tenant.id}`}>
+                          {t("selectPlan")}
+                        </label>
+                        <select
+                          id={`plan-${tenant.id}`}
+                          value={draft}
+                          disabled={actionLoading === tenant.id}
+                          onChange={(e) =>
+                            setDraftPlans((prev) => ({
+                              ...prev,
+                              [tenant.id]: e.target.value as AdminAssignablePlan
+                            }))
+                          }
+                          className="text-xs bg-slate-950 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 font-semibold min-w-[10rem]"
+                        >
+                          {adminAssignablePlans.map((plan) => (
+                            <option key={plan} value={plan}>
+                              {planLabel(plan)}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={actionLoading === tenant.id}
+                          onClick={() => void applyPlan(tenant.id)}
+                          className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-bold transition disabled:opacity-50 inline-flex items-center gap-1.5"
+                        >
+                          <Gift size={12} />
+                          {actionLoading === tenant.id ? t("saving") : t("applyGift")}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {tenants.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">

@@ -1,26 +1,35 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAdminSession } from "@/lib/security/admin-guard";
+import {
+  isAdminAssignablePlan,
+  statusForAdminPlan
+} from "@/lib/admin/subscription-plans";
 import { setSubscriptionForTenant, getSubscriptionForTenant } from "@/lib/db/repositories";
+
+const schema = z.object({
+  plan: z.string().min(1)
+});
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // 1. Authenticate Admin
     await requireAdminSession();
-    const { id } = await params;
-    
-    // 2. Parse payload
-    const body = await req.json().catch(() => null);
-    const { plan, status } = body || {};
+    const { id: tenantId } = await params;
 
-    if (!plan || !status) {
-      return NextResponse.json({ error: "Piano e stato sono obbligatori." }, { status: 400 });
+    const body = await req.json().catch(() => null);
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Piano non valido." }, { status: 400 });
     }
 
-    const tenantId = id;
-    
-    // 3. Update subscription
+    const plan = parsed.data.plan.trim().toLowerCase();
+    if (!isAdminAssignablePlan(plan)) {
+      return NextResponse.json({ error: "Piano non supportato." }, { status: 400 });
+    }
+
+    const status = statusForAdminPlan(plan);
     const current = await getSubscriptionForTenant(tenantId);
-    
+
     await setSubscriptionForTenant(tenantId, {
       plan,
       status,
@@ -28,8 +37,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       stripeSubscriptionId: current.stripeSubscriptionId
     });
 
-    return NextResponse.json({ ok: true });
-  } catch (err) {
+    return NextResponse.json({ ok: true, plan, status });
+  } catch {
     return NextResponse.json({ error: "Unauthorized or failed." }, { status: 401 });
   }
 }
