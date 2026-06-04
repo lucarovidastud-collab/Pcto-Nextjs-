@@ -15,9 +15,15 @@ export type ProposalRecord = {
   internalNotes: string;
   status: ProposalStatus;
   shareToken: string;
+  password: string;
+  viewCount: number;
+  clientComment: string;
   expiresAt: string;
   signedAt: string;
   signedBy: string;
+  webhookUrl: string;
+  isTemplate: boolean;
+  templateName: string;
   createdAt: string;
   updatedAt: string;
 };

@@ -234,6 +234,63 @@ export function createFirestoreRepository(): DatabaseRepository {
       return { ok: true as const, id: proposal.id };
     },
 
+    async cloneProposal(id, tenantId) {
+      const original = await this.getProposalById(id, tenantId);
+      if (!original) return null;
+      const db = getFirestoreDb();
+      const newId = makeId("prop");
+      const newToken = makeId("share");
+      const now = new Date().toISOString();
+      const clone = {
+        ...original,
+        id: newId,
+        shareToken: newToken,
+        status: "draft" as ProposalStatus,
+        signedAt: "",
+        signedBy: "",
+        clientComment: "",
+        viewCount: 0,
+        internalNotes: "",
+        expiresAt: defaultShareExpiry(30),
+        createdAt: now,
+        updatedAt: now
+      };
+      const { id: _id, ...cloneData } = clone;
+      await db.collection("proposals").doc(newId).set(cloneData);
+      return { ...cloneData, id: newId } as ProposalRecord;
+    },
+
+    async incrementProposalViewCount(shareToken) {
+      const db = getFirestoreDb();
+      const snap = await db.collection("proposals").where("shareToken", "==", shareToken).limit(1).get();
+      if (!snap.empty) {
+        const current = (snap.docs[0].data().viewCount as number) || 0;
+        await snap.docs[0].ref.update({ viewCount: current + 1 });
+      }
+    },
+
+    async listProposalTemplates(tenantId) {
+      const db = getFirestoreDb();
+      const snap = await db.collection("proposals")
+        .where("tenantId", "==", tenantId)
+        .where("isTemplate", "==", true)
+        .get();
+      return snap.docs
+        .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ProposalRecord, "id">) }) as ProposalRecord)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    },
+
+    async getWorkspaceWebhookUrl(tenantId) {
+      const db = getFirestoreDb();
+      const doc = await db.collection("tenants").doc(tenantId).get();
+      return (doc.data()?.webhookUrl as string) || "";
+    },
+
+    async setWorkspaceWebhookUrl(tenantId, url) {
+      const db = getFirestoreDb();
+      await db.collection("tenants").doc(tenantId).set({ webhookUrl: url }, { merge: true });
+    },
+
     async listWorkspaceMembers(tenantId) {
       const db = getFirestoreDb();
       const memberships = await db.collection("memberships").where("tenantId", "==", tenantId).get();

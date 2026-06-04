@@ -1,13 +1,14 @@
 "use client";
 
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft, ExternalLink, FileText, CheckCircle, Send,
-  Eye, PenLine, Clock, Save, Loader2, AlertTriangle, BadgeEuro
+  Eye, PenLine, Clock, Save, Loader2, AlertTriangle, BadgeEuro,
+  Copy, QrCode, Lock, Webhook, BookTemplate, Star
 } from "lucide-react";
 
 type Proposal = {
@@ -24,6 +25,11 @@ type Proposal = {
   createdAt?: string;
   updatedAt?: string;
   internalNotes?: string;
+  password?: string;
+  viewCount?: number;
+  clientComment?: string;
+  isTemplate?: boolean;
+  templateName?: string;
 };
 
 const STATUS_CONFIG = {
@@ -53,6 +59,17 @@ export default function WorkspaceProposalPage() {
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
+  const [password, setPassword] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [savingWebhook, setSavingWebhook] = useState(false);
+  const [webhookSaved, setWebhookSaved] = useState(false);
+  const [cloning, setCloning] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const router = useRouter();
 
   const load = async () => {
     const response = await fetch(`/api/proposals/${id}`, { credentials: "include" });
@@ -64,6 +81,23 @@ export default function WorkspaceProposalPage() {
     const payload = (await response.json()) as { proposal: Proposal };
     setProposal(payload.proposal);
     setNotes(payload.proposal.internalNotes ?? "");
+    setPassword(payload.proposal.password ?? "");
+
+    // Load webhook URL
+    const wRes = await fetch("/api/workspaces/webhook");
+    if (wRes.ok) {
+      const wData = (await wRes.json()) as { url?: string };
+      setWebhookUrl(wData.url ?? "");
+    }
+
+    // Generate QR code for share link
+    if (payload.proposal.shareToken) {
+      const origin = window.location.origin;
+      const shareLink = `${origin}/p/${payload.proposal.shareToken}`;
+      const QRCode = (await import("qrcode")).default;
+      const dataUrl = await QRCode.toDataURL(shareLink, { width: 200, margin: 2 });
+      setQrDataUrl(dataUrl);
+    }
   };
 
   useEffect(() => { void load(); }, [id]);
@@ -97,6 +131,63 @@ export default function WorkspaceProposalPage() {
     setSavingNotes(false);
     setNotesSaved(true);
     setTimeout(() => setNotesSaved(false), 2000);
+  }
+
+  async function savePassword() {
+    setSavingPassword(true);
+    await fetch(`/api/proposals/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ password })
+    });
+    setSavingPassword(false);
+    setPasswordSaved(true);
+    setTimeout(() => setPasswordSaved(false), 2000);
+  }
+
+  async function saveWebhook() {
+    setSavingWebhook(true);
+    await fetch("/api/workspaces/webhook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: webhookUrl })
+    });
+    setSavingWebhook(false);
+    setWebhookSaved(true);
+    setTimeout(() => setWebhookSaved(false), 2000);
+  }
+
+  async function cloneProposal() {
+    setCloning(true);
+    const res = await fetch(`/api/proposals/${id}/clone`, { method: "POST" });
+    setCloning(false);
+    if (res.ok) {
+      const data = (await res.json()) as { proposal: { id: string } };
+      router.push(`/workspace/proposals/${data.proposal.id}`);
+    }
+  }
+
+  async function toggleTemplate() {
+    setSavingTemplate(true);
+    const isTemplate = !proposal?.isTemplate;
+    const templateName = isTemplate ? (proposal?.company || "Template") : "";
+    await fetch(`/api/proposals/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ isTemplate, templateName })
+    });
+    await load();
+    setSavingTemplate(false);
+  }
+
+  async function copyShareLink() {
+    if (!proposal?.shareToken) return;
+    const origin = window.location.origin;
+    await navigator.clipboard.writeText(`${origin}/p/${proposal.shareToken}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   const statusKeys = ["draft", "review", "approved", "sent"] as const;
@@ -157,6 +248,14 @@ export default function WorkspaceProposalPage() {
                       {t("openClientLink")}
                     </a>
                   )}
+                  <button
+                    type="button"
+                    onClick={copyShareLink}
+                    className="btn-secondary text-xs flex items-center gap-1.5"
+                  >
+                    {copied ? <CheckCircle size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                    {copied ? t("copied") : t("copyLink")}
+                  </button>
                   <a
                     href={`/api/proposals/${id}/pdf`}
                     className="btn-secondary text-xs flex items-center gap-1.5"
@@ -164,7 +263,31 @@ export default function WorkspaceProposalPage() {
                     <FileText size={14} />
                     {t("exportPdf")}
                   </a>
+                  <button
+                    type="button"
+                    onClick={cloneProposal}
+                    disabled={cloning}
+                    className="btn-secondary text-xs flex items-center gap-1.5"
+                  >
+                    {cloning ? <Loader2 size={13} className="animate-spin" /> : <Copy size={13} />}
+                    {t("clone")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleTemplate}
+                    disabled={savingTemplate}
+                    className={`btn-secondary text-xs flex items-center gap-1.5 ${proposal.isTemplate ? "border-amber-500/40 text-amber-600" : ""}`}
+                  >
+                    {savingTemplate ? <Loader2 size={13} className="animate-spin" /> : <Star size={13} />}
+                    {proposal.isTemplate ? t("removeTemplate") : t("saveAsTemplate")}
+                  </button>
                 </div>
+                {proposal.viewCount !== undefined && proposal.viewCount > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs text-[var(--muted)] mt-2">
+                    <Eye size={13} />
+                    {t("viewCount", { count: proposal.viewCount })}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -237,6 +360,101 @@ export default function WorkspaceProposalPage() {
                 >
                   {savingNotes ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   {t("saveNotes")}
+                </button>
+              </div>
+            </div>
+
+            {/* Client comment (read-only) */}
+            {proposal.clientComment && (
+              <div className="glass rounded-2xl p-6">
+                <h2 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] mb-3 flex items-center gap-2">
+                  <Eye size={14} />
+                  {t("clientComment")}
+                </h2>
+                <p className="text-sm text-[var(--foreground)] bg-[var(--panel-strong)] rounded-xl p-3 border border-[var(--line)]">
+                  {proposal.clientComment}
+                </p>
+              </div>
+            )}
+
+            {/* Password protection */}
+            <div className="glass rounded-2xl p-6">
+              <h2 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] mb-3 flex items-center gap-2">
+                <Lock size={14} />
+                {t("passwordSection")}
+              </h2>
+              <p className="text-xs text-[var(--muted)] mb-3">{t("passwordHint")}</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t("passwordPlaceholder")}
+                  className="input text-sm flex-1"
+                  maxLength={100}
+                />
+                <button
+                  type="button"
+                  onClick={() => void savePassword()}
+                  disabled={savingPassword}
+                  className="btn-secondary text-xs flex items-center gap-1.5 shrink-0"
+                >
+                  {savingPassword ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                  {passwordSaved ? t("saved") : t("save")}
+                </button>
+              </div>
+              {password && (
+                <p className="text-[10px] text-amber-600 mt-1">{t("passwordActive")}</p>
+              )}
+            </div>
+
+            {/* QR Code */}
+            {qrDataUrl && proposal.shareToken && (
+              <div className="glass rounded-2xl p-6">
+                <h2 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] mb-3 flex items-center gap-2">
+                  <QrCode size={14} />
+                  {t("qrCode")}
+                </h2>
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <img src={qrDataUrl} alt="QR code" className="rounded-xl border border-[var(--line)] w-[120px] h-[120px]" />
+                  <div>
+                    <p className="text-xs text-[var(--muted)] mb-2">{t("qrHint")}</p>
+                    <a
+                      href={qrDataUrl}
+                      download={`qr-${proposal.shareToken}.png`}
+                      className="btn-secondary text-xs inline-flex items-center gap-1.5"
+                    >
+                      <FileText size={13} />
+                      {t("downloadQr")}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Webhook */}
+            <div className="glass rounded-2xl p-6">
+              <h2 className="text-sm font-black uppercase tracking-wider text-[var(--muted)] mb-3 flex items-center gap-2">
+                <Webhook size={14} />
+                {t("webhookSection")}
+              </h2>
+              <p className="text-xs text-[var(--muted)] mb-3">{t("webhookHint")}</p>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                  placeholder="https://hooks.zapier.com/..."
+                  className="input text-sm flex-1 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => void saveWebhook()}
+                  disabled={savingWebhook}
+                  className="btn-secondary text-xs flex items-center gap-1.5 shrink-0"
+                >
+                  {savingWebhook ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                  {webhookSaved ? t("saved") : t("save")}
                 </button>
               </div>
             </div>

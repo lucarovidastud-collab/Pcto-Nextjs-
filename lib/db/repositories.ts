@@ -55,6 +55,21 @@ export const signProposalByToken: Repo["signProposalByToken"] = (shareToken, sig
 export const listAllTenantsWithDetails: Repo["listAllTenantsWithDetails"] = () =>
   getRepository().listAllTenantsWithDetails();
 
+export const cloneProposal: Repo["cloneProposal"] = (id, tenantId) =>
+  getRepository().cloneProposal(id, tenantId);
+
+export const incrementProposalViewCount: Repo["incrementProposalViewCount"] = (shareToken) =>
+  getRepository().incrementProposalViewCount(shareToken);
+
+export const listProposalTemplates: Repo["listProposalTemplates"] = (tenantId) =>
+  getRepository().listProposalTemplates(tenantId);
+
+export const getWorkspaceWebhookUrl: Repo["getWorkspaceWebhookUrl"] = (tenantId) =>
+  getRepository().getWorkspaceWebhookUrl(tenantId);
+
+export const setWorkspaceWebhookUrl: Repo["setWorkspaceWebhookUrl"] = (tenantId, url) =>
+  getRepository().setWorkspaceWebhookUrl(tenantId, url);
+
 export const listWorkspaceMembers: Repo["listWorkspaceMembers"] = (tenantId) =>
   getRepository().listWorkspaceMembers(tenantId);
 

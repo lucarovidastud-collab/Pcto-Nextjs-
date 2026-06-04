@@ -151,7 +151,8 @@
     "archive": "Archiv",
     "title": "Angebotsverlauf",
     "description": "Alle generierten Angebote werden in der Cloud gespeichert. Sie können diese jederzeit wieder öffnen und den Link erneut teilen.",
-    "refresh": "Aktualisieren",
+    "refresh": "",
+    "exportCsv": "CSV exportieren",
     "loading": "Verlauf wird geladen...",
     "loadFailed": "Verlauf konnte nicht geladen werden.",
     "connectionError": "Verbindungsfehler.",
@@ -292,7 +293,15 @@
     "timeline": "Zeitachse",
     "created": "Angebot erstellt",
     "lastUpdated": "Zuletzt aktualisiert",
-    "signedBy": "Unterzeichnet von"
+    "signedBy": "Unterzeichnet von",
+    "copied": "Kopiert!", "copyLink": "Link kopieren", "clone": "Duplizieren",
+    "saveAsTemplate": "Als Vorlage speichern", "removeTemplate": "Aus Vorlagen entfernen",
+    "viewCount": "{count} Aufrufe", "clientComment": "Kundenkommentar",
+    "passwordSection": "Passwortschutz", "passwordHint": "Passwort setzen. Leer lassen zum Entfernen.",
+    "passwordPlaceholder": "Angebot-Passwort", "passwordActive": "⚠️ Passwort aktiv.",
+    "save": "Speichern", "saved": "Gespeichert ✓", "qrCode": "QR-Code",
+    "qrHint": "QR-Code scannen oder herunterladen.", "downloadQr": "QR herunterladen",
+    "webhookSection": "Webhook bei Unterzeichnung", "webhookHint": "URL wird automatisch aufgerufen wenn Kunde unterschreibt."
   },
   "checkout": {
     "invalidPlan": "Ungültiger Plan",
@@ -343,7 +352,8 @@
     "eyebrow": "Team",
     "title": "Mitgliederverwaltung",
     "description": "Laden Sie Mitarbeiter in Ihren Workspace ein und verwalten Sie deren Rollen.",
-    "refresh": "Aktualisieren",
+    "refresh": "",
+    "exportCsv": "CSV exportieren",
     "inviteTitle": "Neues Mitglied einladen",
     "inviteDesc": "Einladungslink generieren zum Teilen. 7 Tage gültig, Einmalnutzung.",
     "generateLink": "Einladungslink generieren",
@@ -380,6 +390,10 @@
     "signNameRequired": "Geben Sie Ihren vollständigen Namen für die Signatur ein.",
     "signFailed": "Signatur fehlgeschlagen. Erneut versuchen oder Administrator kontaktieren.",
     "signSuccess": "Angebot erfolgreich angenommen und elektronisch signiert.",
-    "signNetworkError": "Netzwerkfehler. Verbindung prüfen."
+    "signNetworkError": "Netzwerkfehler. Verbindung prüfen.",
+    "passwordTitle": "Geschütztes Angebot", "passwordDesc": "Dieses Angebot ist passwortgeschützt.",
+    "passwordWrong": "Ungültiges Passwort.", "passwordSubmit": "Angebot öffnen",
+    "clientCommentLabel": "Kommentar (optional)", "clientCommentPlaceholder": "Fragen oder Änderungswünsche vor der Unterzeichnung?"
   }
 }
+

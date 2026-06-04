@@ -1,7 +1,7 @@
 "use client";
 
 import { SiteFooter } from "@/components/site-footer";
-import { ExternalLink, FileText, History, Link2, RefreshCw } from "lucide-react";
+import { ExternalLink, FileText, History, Link2, RefreshCw, Download } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
@@ -76,15 +76,25 @@ export default function ProposalHistoryPage() {
               {t("description")}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => void load()}
-            disabled={loading}
-            className="btn-secondary shrink-0 flex items-center justify-center gap-2 text-xs font-bold"
-          >
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
-            {t("refresh")}
-          </button>
+          <div className="flex gap-2">
+            <a
+              href="/api/proposals/export"
+              download
+              className="btn-secondary shrink-0 flex items-center gap-2 text-xs font-bold"
+            >
+              <Download size={14} />
+              {t("exportCsv")}
+            </a>
+            <button
+              type="button"
+              onClick={() => void load()}
+              disabled={loading}
+              className="btn-secondary shrink-0 flex items-center justify-center gap-2 text-xs font-bold"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
+              {t("refresh")}
+            </button>
+          </div>
         </div>
       </header>
 

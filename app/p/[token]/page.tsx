@@ -21,6 +21,8 @@ type ProposalView = {
   signedAt?: string;
   signedBy?: string;
   expiresAt?: string;
+  passwordRequired?: boolean;
+  clientComment?: string;
 };
 
 function formatDate(value: string | undefined, locale: string) {
@@ -58,22 +60,31 @@ export default function PublicProposalPage() {
   const token = params.token;
   const [proposal, setProposal] = useState<ProposalView | null>(null);
   const [signedBy, setSignedBy] = useState("");
+  const [clientComment, setClientComment] = useState("");
   const [message, setMessage] = useState("");
   const [loadingSign, setLoadingSign] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
 
-  useEffect(() => {
-    void (async () => {
-      setMessage("");
-      const response = await fetch(`/api/public/proposals/${token}`);
-      if (!response.ok) {
-        setMessage("invalid");
+  async function loadProposal(pwd?: string) {
+    setMessage("");
+    const url = pwd ? `/api/public/proposals/${token}?pwd=${encodeURIComponent(pwd)}` : `/api/public/proposals/${token}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      const payload = (await response.json()) as { error?: string; passwordRequired?: boolean };
+      if (payload.passwordRequired) {
+        setProposal({ company: "", sector: "", budget: 0, passwordRequired: true });
         return;
       }
-      const payload = (await response.json()) as { proposal: ProposalView };
-      setProposal(payload.proposal);
-      setMessage("");
-    })();
-  }, [token]);
+      setMessage("invalid");
+      return;
+    }
+    const payload = (await response.json()) as { proposal: ProposalView };
+    setProposal(payload.proposal);
+    setMessage("");
+  }
+
+  useEffect(() => { void loadProposal(); }, [token]);
 
   const palette = proposal?.palette?.length ? proposal.palette : ["#0D9488", "#8B5CF6", "#F59E0B"];
   const documentHtml = useMemo(() => (proposal ? resolveHtml(proposal) : ""), [proposal]);
@@ -90,7 +101,7 @@ export default function PublicProposalPage() {
       const response = await fetch(`/api/public/proposals/${token}/sign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ signedBy: signedBy.trim() })
+        body: JSON.stringify({ signedBy: signedBy.trim(), clientComment: clientComment.trim() || undefined })
       });
       setLoadingSign(false);
       if (!response.ok) {
@@ -115,6 +126,40 @@ export default function PublicProposalPage() {
           <p className="text-sm font-semibold leading-relaxed">
             {message === "invalid" ? t("invalid") : message || t("loading")}
           </p>
+        </div>
+      </main>
+    );
+  }
+
+  // Password gate
+  if (proposal.passwordRequired) {
+    return (
+      <main className="flex min-h-screen items-center justify-center px-4 py-8 bg-[var(--background)]">
+        <div className="glass rounded-2xl p-8 max-w-sm w-full shadow-xl border border-[var(--line)] text-center">
+          <ShieldCheck size={36} className="mx-auto text-[var(--accent)] mb-4" />
+          <h1 className="text-xl font-black mb-1">{t("passwordTitle")}</h1>
+          <p className="text-sm text-[var(--muted)] mb-5">{t("passwordDesc")}</p>
+          <input
+            type="password"
+            className="input w-full text-sm mb-3"
+            placeholder="••••••••"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void loadProposal(passwordInput); }}
+          />
+          {passwordError && (
+            <p className="text-xs text-red-600 mb-2">{t("passwordWrong")}</p>
+          )}
+          <button
+            type="button"
+            className="btn-primary w-full"
+            onClick={async () => {
+              await loadProposal(passwordInput);
+              setPasswordError(!proposal || !!proposal.passwordRequired);
+            }}
+          >
+            {t("passwordSubmit")}
+          </button>
         </div>
       </main>
     );
@@ -224,6 +269,18 @@ export default function PublicProposalPage() {
               /* Beautiful active signing input form */
               <div className="grid gap-4 max-w-lg">
                 <p className="text-xs text-[var(--muted)] leading-relaxed">{t("signHint")}</p>
+
+                <label className="grid gap-1 text-xs font-bold text-[var(--muted)] uppercase tracking-wide">
+                  {t("clientCommentLabel")}
+                  <textarea
+                    className="input text-sm resize-y"
+                    rows={3}
+                    placeholder={t("clientCommentPlaceholder")}
+                    value={clientComment}
+                    onChange={(e) => setClientComment(e.target.value)}
+                    maxLength={2000}
+                  />
+                </label>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">

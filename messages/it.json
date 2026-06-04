@@ -166,7 +166,8 @@
     "archive": "Archivio",
     "title": "Cronologia preventivi",
     "description": "Tutti i preventivi generati restano salvati su cloud. Puoi riaprirli in qualsiasi momento e condividere di nuovo il link al cliente.",
-    "refresh": "Aggiorna",
+    "refresh": "",
+    "exportCsv": "Esporta CSV",
     "loading": "Caricamento cronologia...",
     "loadFailed": "Impossibile caricare la cronologia.",
     "connectionError": "Errore di connessione.",
@@ -307,7 +308,25 @@
     "timeline": "Timeline",
     "created": "Proposta creata",
     "lastUpdated": "Ultima modifica",
-    "signedBy": "Firmata da"
+    "signedBy": "Firmata da",
+    "copied": "Copiato!",
+    "copyLink": "Copia link",
+    "clone": "Duplica",
+    "saveAsTemplate": "Salva come template",
+    "removeTemplate": "Rimuovi da template",
+    "viewCount": "{count} visualizzazioni",
+    "clientComment": "Commento del cliente",
+    "passwordSection": "Proteggi con password",
+    "passwordHint": "Imposta una password per proteggere l'accesso al preventivo. Lascia vuoto per rimuoverla.",
+    "passwordPlaceholder": "password preventivo",
+    "passwordActive": "⚠️ Password attiva — il cliente dovrà inserirla per vedere il preventivo.",
+    "save": "Salva",
+    "saved": "Salvato ✓",
+    "qrCode": "QR Code",
+    "qrHint": "Scansiona o scarica il QR code per condividere il preventivo.",
+    "downloadQr": "Scarica QR",
+    "webhookSection": "Webhook alla firma",
+    "webhookHint": "URL chiamato automaticamente quando il cliente firma (Zapier, Make.com, ecc.)."
   },
   "checkout": {
     "invalidPlan": "Piano non valido",
@@ -358,7 +377,8 @@
     "eyebrow": "Team",
     "title": "Gestione Membri",
     "description": "Invita collaboratori al tuo workspace e gestisci i loro ruoli.",
-    "refresh": "Aggiorna",
+    "refresh": "",
+    "exportCsv": "Esporta CSV",
     "inviteTitle": "Invita un nuovo membro",
     "inviteDesc": "Genera un link di invito da condividere. Valido 7 giorni, utilizzo singolo.",
     "generateLink": "Genera link di invito",
@@ -395,6 +415,13 @@
     "signNameRequired": "Inserisci il tuo nome e cognome completi per validare la firma.",
     "signFailed": "Firma non riuscita. Riprova o contatta l'amministratore.",
     "signSuccess": "Preventivo accettato e firmato elettronicamente con successo.",
-    "signNetworkError": "Errore di rete. Controlla la connessione."
+    "signNetworkError": "Errore di rete. Controlla la connessione.",
+    "passwordTitle": "Preventivo protetto",
+    "passwordDesc": "Questo preventivo è protetto da password. Inseriscila per continuare.",
+    "passwordWrong": "Password non valida.",
+    "passwordSubmit": "Accedi al preventivo",
+    "clientCommentLabel": "Commento (opzionale)",
+    "clientCommentPlaceholder": "Hai domande o richieste di modifica prima di firmare? Scrivile qui..."
   }
 }
+

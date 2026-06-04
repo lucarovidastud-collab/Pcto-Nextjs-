@@ -151,7 +151,8 @@
     "archive": "Archivo",
     "title": "Historial de propuestas",
     "description": "Todas las propuestas generadas se guardan en la nube. Puedes reabrirlas cuando quieras y compartir el enlace con el cliente.",
-    "refresh": "Actualizar",
+    "refresh": "",
+    "exportCsv": "Exportar CSV",
     "loading": "Cargando historial...",
     "loadFailed": "No se pudo cargar el historial.",
     "connectionError": "Error de conexión.",
@@ -292,7 +293,15 @@
     "timeline": "Línea de tiempo",
     "created": "Propuesta creada",
     "lastUpdated": "Última modificación",
-    "signedBy": "Firmado por"
+    "signedBy": "Firmado por",
+    "copied": "¡Copiado!", "copyLink": "Copiar enlace", "clone": "Duplicar",
+    "saveAsTemplate": "Guardar como plantilla", "removeTemplate": "Quitar de plantillas",
+    "viewCount": "{count} vistas", "clientComment": "Comentario del cliente",
+    "passwordSection": "Contraseña", "passwordHint": "Establece una contraseña. Vacío para eliminar.",
+    "passwordPlaceholder": "contraseña", "passwordActive": "⚠️ Contraseña activa.",
+    "save": "Guardar", "saved": "Guardado ✓", "qrCode": "Código QR",
+    "qrHint": "Escanea o descarga el código QR.", "downloadQr": "Descargar QR",
+    "webhookSection": "Webhook en firma", "webhookHint": "URL llamada automáticamente cuando el cliente firma."
   },
   "checkout": {
     "invalidPlan": "Plan no válido",
@@ -343,7 +352,8 @@
     "eyebrow": "Equipo",
     "title": "Gestión de miembros",
     "description": "Invita colaboradores a tu workspace y gestiona sus roles.",
-    "refresh": "Actualizar",
+    "refresh": "",
+    "exportCsv": "Exportar CSV",
     "inviteTitle": "Invitar a un nuevo miembro",
     "inviteDesc": "Genera un enlace de invitación para compartir. Válido 7 días, uso único.",
     "generateLink": "Generar enlace de invitación",
@@ -380,6 +390,10 @@
     "signNameRequired": "Introduce tu nombre completo para validar la firma.",
     "signFailed": "Firma fallida. Inténtalo de nuevo o contacta al administrador.",
     "signSuccess": "Propuesta aceptada y firmada electrónicamente con éxito.",
-    "signNetworkError": "Error de red. Comprueba tu conexión."
+    "signNetworkError": "Error de red. Comprueba tu conexión.",
+    "passwordTitle": "Propuesta protegida", "passwordDesc": "Esta propuesta está protegida con contraseña.",
+    "passwordWrong": "Contraseña no válida.", "passwordSubmit": "Acceder a la propuesta",
+    "clientCommentLabel": "Comentario (opcional)", "clientCommentPlaceholder": "¿Preguntas o cambios antes de firmar?"
   }
 }
+

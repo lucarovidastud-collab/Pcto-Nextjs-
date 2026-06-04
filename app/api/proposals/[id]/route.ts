@@ -7,7 +7,10 @@ import { z } from "zod";
 const patchSchema = z.object({
   status: z.enum(["draft", "review", "approved", "sent"]).optional(),
   expiresAt: z.string().optional(),
-  internalNotes: z.string().max(4000).optional()
+  internalNotes: z.string().max(4000).optional(),
+  password: z.string().max(100).optional(),
+  isTemplate: z.boolean().optional(),
+  templateName: z.string().max(100).optional()
 });
 
 type RouteProps = { params: Promise<{ id: string }> };
@@ -29,7 +32,10 @@ export async function PATCH(request: NextRequest, { params }: RouteProps) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
 
-  if (!parsed.data.status && !parsed.data.expiresAt && parsed.data.internalNotes === undefined) {
+  const hasChange = parsed.data.status || parsed.data.expiresAt ||
+    parsed.data.internalNotes !== undefined || parsed.data.password !== undefined ||
+    parsed.data.isTemplate !== undefined || parsed.data.templateName !== undefined;
+  if (!hasChange) {
     return NextResponse.json({ error: "Nessun campo da aggiornare" }, { status: 400 });
   }
 
@@ -37,7 +43,10 @@ export async function PATCH(request: NextRequest, { params }: RouteProps) {
     const updated = await updateProposal(id, auth.session.tenantId, {
       status: parsed.data.status as ProposalStatus | undefined,
       expiresAt: parsed.data.expiresAt,
-      internalNotes: parsed.data.internalNotes
+      internalNotes: parsed.data.internalNotes,
+      password: parsed.data.password,
+      isTemplate: parsed.data.isTemplate,
+      templateName: parsed.data.templateName
     });
     if (!updated) return NextResponse.json({ error: "Proposta non trovata" }, { status: 404 });
     return NextResponse.json({ proposal: updated });

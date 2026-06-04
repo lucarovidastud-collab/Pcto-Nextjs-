@@ -151,7 +151,8 @@
     "archive": "Archief",
     "title": "Offertegeschiedenis",
     "description": "Alle gegenereerde offertes worden opgeslagen in de cloud. U kunt ze op elk moment opnieuw openen en de link opnieuw delen.",
-    "refresh": "Vernieuwen",
+    "refresh": "",
+    "exportCsv": "Exporteer CSV",
     "loading": "Geschiedenis laden...",
     "loadFailed": "Kan geschiedenis niet laden.",
     "connectionError": "Verbindingsfout.",
@@ -292,7 +293,15 @@
     "timeline": "Tijdlijn",
     "created": "Voorstel aangemaakt",
     "lastUpdated": "Laatste wijziging",
-    "signedBy": "Ondertekend door"
+    "signedBy": "Ondertekend door",
+    "copied": "Gekopieerd!", "copyLink": "Link kopiëren", "clone": "Dupliceren",
+    "saveAsTemplate": "Opslaan als sjabloon", "removeTemplate": "Uit sjablonen verwijderen",
+    "viewCount": "{count} weergaven", "clientComment": "Klantcommentaar",
+    "passwordSection": "Wachtwoord", "passwordHint": "Stel een wachtwoord in. Leeg laten om te verwijderen.",
+    "passwordPlaceholder": "wachtwoord", "passwordActive": "⚠️ Wachtwoord actief.",
+    "save": "Opslaan", "saved": "Opgeslagen ✓", "qrCode": "QR-code",
+    "qrHint": "Scan of download de QR-code.", "downloadQr": "QR downloaden",
+    "webhookSection": "Webhook bij ondertekening", "webhookHint": "URL automatisch aangeroepen wanneer klant tekent."
   },
   "checkout": {
     "invalidPlan": "Ongeldig plan",
@@ -343,7 +352,8 @@
     "eyebrow": "Team",
     "title": "Ledenbeheer",
     "description": "Nodig medewerkers uit voor uw workspace en beheer hun rollen.",
-    "refresh": "Vernieuwen",
+    "refresh": "",
+    "exportCsv": "Exporteer CSV",
     "inviteTitle": "Nieuw lid uitnodigen",
     "inviteDesc": "Genereer een uitnodigingslink om te delen. 7 dagen geldig, eenmalig gebruik.",
     "generateLink": "Uitnodigingslink genereren",
@@ -380,6 +390,10 @@
     "signNameRequired": "Voer uw volledige naam in om de handtekening te valideren.",
     "signFailed": "Handtekening mislukt. Probeer opnieuw of contacteer de beheerder.",
     "signSuccess": "Voorstel geaccepteerd en elektronisch ondertekend.",
-    "signNetworkError": "Netwerkfout. Controleer uw verbinding."
+    "signNetworkError": "Netwerkfout. Controleer uw verbinding.",
+    "passwordTitle": "Beveiligd voorstel", "passwordDesc": "Dit voorstel is beveiligd met een wachtwoord.",
+    "passwordWrong": "Ongeldig wachtwoord.", "passwordSubmit": "Toegang tot voorstel",
+    "clientCommentLabel": "Opmerking (optioneel)", "clientCommentPlaceholder": "Vragen of wijzigingsverzoeken voor ondertekening?"
   }
 }
+

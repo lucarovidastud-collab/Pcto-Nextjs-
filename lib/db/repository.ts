@@ -63,6 +63,11 @@ export interface DatabaseRepository {
       signedAt: string;
       signedBy: string;
       internalNotes: string;
+      password: string;
+      clientComment: string;
+      isTemplate: boolean;
+      templateName: string;
+      webhookUrl: string;
     }>
   ): Promise<ProposalRecord | null>;
   signProposalByToken(
@@ -71,6 +76,12 @@ export interface DatabaseRepository {
   ): Promise<{ ok: true; id: string } | { expired: true } | { alreadySigned: true } | null>;
 
   listAllTenantsWithDetails(): Promise<TenantAdminRow[]>;
+
+  cloneProposal(id: string, tenantId: string): Promise<ProposalRecord | null>;
+  incrementProposalViewCount(shareToken: string): Promise<void>;
+  listProposalTemplates(tenantId: string): Promise<ProposalRecord[]>;
+  getWorkspaceWebhookUrl(tenantId: string): Promise<string>;
+  setWorkspaceWebhookUrl(tenantId: string, url: string): Promise<void>;
 
   // Workspace members
   listWorkspaceMembers(tenantId: string): Promise<WorkspaceMember[]>;

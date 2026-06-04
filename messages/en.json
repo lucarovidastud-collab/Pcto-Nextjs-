@@ -151,7 +151,8 @@
     "archive": "Archive",
     "title": "Proposal history",
     "description": "All generated proposals are saved in the cloud. You can reopen them at any time and share the link again with the client.",
-    "refresh": "Refresh",
+    "refresh": "",
+    "exportCsv": "Export CSV",
     "loading": "Loading history...",
     "loadFailed": "Unable to load history.",
     "connectionError": "Connection error.",
@@ -292,7 +293,25 @@
     "timeline": "Timeline",
     "created": "Proposal created",
     "lastUpdated": "Last updated",
-    "signedBy": "Signed by"
+    "signedBy": "Signed by",
+    "copied": "Copied!",
+    "copyLink": "Copy link",
+    "clone": "Duplicate",
+    "saveAsTemplate": "Save as template",
+    "removeTemplate": "Remove from templates",
+    "viewCount": "{count} views",
+    "clientComment": "Client comment",
+    "passwordSection": "Password protection",
+    "passwordHint": "Set a password to protect access to this proposal. Leave empty to remove it.",
+    "passwordPlaceholder": "proposal password",
+    "passwordActive": "⚠️ Password active — the client will need it to view the proposal.",
+    "save": "Save",
+    "saved": "Saved ✓",
+    "qrCode": "QR Code",
+    "qrHint": "Scan or download the QR code to share this proposal.",
+    "downloadQr": "Download QR",
+    "webhookSection": "Webhook on signature",
+    "webhookHint": "URL called automatically when the client signs (Zapier, Make.com, etc.)."
   },
   "checkout": {
     "invalidPlan": "Invalid plan",
@@ -343,7 +362,8 @@
     "eyebrow": "Team",
     "title": "Member Management",
     "description": "Invite collaborators to your workspace and manage their roles.",
-    "refresh": "Refresh",
+    "refresh": "",
+    "exportCsv": "Export CSV",
     "inviteTitle": "Invite a new member",
     "inviteDesc": "Generate an invite link to share. Valid for 7 days, single use.",
     "generateLink": "Generate invite link",
@@ -380,6 +400,13 @@
     "signNameRequired": "Enter your full name to validate the signature.",
     "signFailed": "Signature failed. Try again or contact the administrator.",
     "signSuccess": "Proposal accepted and electronically signed successfully.",
-    "signNetworkError": "Network error. Check your connection."
+    "signNetworkError": "Network error. Check your connection.",
+    "passwordTitle": "Protected proposal",
+    "passwordDesc": "This proposal is password-protected. Enter the password to continue.",
+    "passwordWrong": "Invalid password.",
+    "passwordSubmit": "Access proposal",
+    "clientCommentLabel": "Comment (optional)",
+    "clientCommentPlaceholder": "Do you have questions or change requests before signing? Write them here..."
   }
 }
+
