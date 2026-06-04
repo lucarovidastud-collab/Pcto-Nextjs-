@@ -62,11 +62,31 @@ function stripColorOnBodyTags(html: string) {
   );
 }
 
+function stripAcceptanceUi(html: string) {
+  let out = html;
+
+  out = out.replace(/<(?:section|div|article)[^>]*\bsignature-box\b[\s\S]*?<\/(?:section|div|article)>/gi, "");
+  out = out.replace(/<[^>]*\bclass\s*=\s*["'][^"']*\bbtn-glow\b[^"']*["'][^>]*>[\s\S]*?<\/[^>]+>/gi, "");
+
+  out = out.replace(
+    /<p[^>]*>[\s\S]*?(?:per\s+accettazione|cliccare\s+sul\s+pulsante|accettazione\s+formale|firma\s+qui)[\s\S]*?<\/p>/gi,
+    ""
+  );
+
+  out = out.replace(
+    /<(?:p|div|span|a|h[1-6]|button)\b[^>]*>\s*accetta\s+preventivo\s*<\/(?:p|div|span|a|h[1-6]|button)>/gi,
+    ""
+  );
+
+  return out;
+}
+
 export function sanitizeProposalHtml(html: string) {
   const stripped = stripDangerousHtml(html);
   const noStyleSections = stripped.replace(STYLE_SECTION_RE, "");
+  const noAcceptance = stripAcceptanceUi(noStyleSections);
 
-  const cleanedButtons = noStyleSections
+  const cleanedButtons = noAcceptance
     .replace(/<button\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/button>/gi, "")
     .replace(/<a\b[\s\S]*?accetta\s+preventivo[\s\S]*?<\/a>/gi, "")
     .replace(/<input\b[^>]*\bvalue\s*=\s*["']\s*accetta\s+preventivo\s*["'][^>]*>/gi, "")

@@ -8,7 +8,11 @@ import {
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
 import { generateProposalHtmlWithAI } from "@/lib/services/proposal-ai";
-import { ensurePricingTableTotal } from "@/lib/proposals/pricing-table";
+import {
+  ensurePricingTableTotal,
+  normalizeProposalPricingTable
+} from "@/lib/proposals/pricing-table";
+import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText } from "@/lib/utils/text";
 
 export type ProposalBuildInput = {
@@ -79,7 +83,10 @@ export async function buildAndSaveProposal(
       palette: resolvedPalette
     });
 
-  const generatedHtml = ensurePricingTableTotal(rawHtml, budget);
+  const generatedHtml = ensurePricingTableTotal(
+    normalizeProposalPricingTable(sanitizeProposalHtml(rawHtml), budget),
+    budget
+  );
 
   onProgress?.(82, "Creazione link personalizzato...");
   const shareToken = await pickShareToken(company, linkSlug);

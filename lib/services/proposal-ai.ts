@@ -18,12 +18,13 @@ Budget totale OBBLIGATORIO: EUR ${input.budget} (la riga "Totale investimento" n
 Palette brand: ${input.palette.join(", ")}
 
 Regole:
-- usa classi: proposal-card, proposal-grid, scope-list, pricing-table, total-row, signature-box, btn-glow
+- usa classi: proposal-card, proposal-grid, scope-list, pricing-table, total-row
 - applica colori brand SOLO su titoli h3: style="color:${primary}" e bordi card style="border-left:4px solid ${primary}"
 - VIETATO: background, background-color, bgcolor su qualsiasi tag; VIETATO color inline su p, li, td, span, div, section
 - il documento ha sfondo chiaro fisso: non usare box scuri, temi dark, highlight con sfondo colorato o testo chiaro
 - paragrafi e liste senza attributo style (il CSS del sito gestisce leggibilità)
-- includi tabella prezzi (class pricing-table + riga total-row) e sezione firma con button "Accetta Preventivo"
+- includi SOLO tabella prezzi HTML valida: <table class="pricing-table"><thead><tr><th>Descrizione servizio</th><th>Importo</th></tr></thead><tbody> con UNA <tr> per ogni voce (due <td>), poi <tr class="total-row"> per il totale
+- NON includere pulsanti, link, signature-box, testo "Accetta Preventivo" o istruzioni di firma (la firma è nel modulo sotto il documento)
 - le voci della tabella devono essere coerenti e la somma deve corrispondere al budget totale indicato sopra
 - se negli appunti c'è un importo totale, usa quello nella riga totale senza modificarlo
 - NON includere sezioni intitolate "Direzione Stile", "Stile", "Style Direction" o simili

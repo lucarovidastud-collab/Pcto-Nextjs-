@@ -16,6 +16,14 @@ describe("sanitizeProposalHtml", () => {
     expect(out).toMatch(/color:\s*#0D9488/i);
   });
 
+  it("removes duplicate acceptance UI", () => {
+    const html =
+      '<section class="signature-box"><button>Accetta Preventivo</button></section><p>per accettazione, cliccare sul pulsante.</p><p>Accetta Preventivo</p>';
+    const out = sanitizeProposalHtml(html);
+    expect(out).not.toMatch(/accetta\s+preventivo/i);
+    expect(out).not.toMatch(/signature-box/i);
+  });
+
   it("strips color on paragraphs", () => {
     const html = '<p style="color:#000;background:#111">Corpo</p>';
     const out = sanitizeProposalHtml(html);

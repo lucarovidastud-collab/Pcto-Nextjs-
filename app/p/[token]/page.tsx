@@ -2,7 +2,10 @@
 
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-theme";
-import { ensurePricingTableTotal } from "@/lib/proposals/pricing-table";
+import {
+  ensurePricingTableTotal,
+  normalizeProposalPricingTable
+} from "@/lib/proposals/pricing-table";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
 import { useParams } from "next/navigation";
@@ -55,7 +58,7 @@ function resolveHtml(proposal: ProposalView) {
             palette
           })
         );
-  return ensurePricingTableTotal(base, budget);
+  return ensurePricingTableTotal(normalizeProposalPricingTable(base, budget), budget);
 }
 
 export default function PublicProposalPage() {

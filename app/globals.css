@@ -438,8 +438,33 @@
   display: table;
 }
 
-.proposal-document .signature-box {
-  text-align: center;
+.proposal-document .signature-box,
+.proposal-document .btn-glow {
+  display: none !important;
+}
+
+.proposal-document .pricing-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.proposal-document .pricing-table thead {
+  display: table-header-group;
+}
+
+.proposal-document .pricing-table tbody {
+  display: table-row-group;
+}
+
+.proposal-document .pricing-table tr {
+  display: table-row;
+}
+
+.proposal-document .pricing-table th,
+.proposal-document .pricing-table td {
+  display: table-cell;
+  vertical-align: top;
+  word-break: break-word;
 }
 
 .proposal-document th,

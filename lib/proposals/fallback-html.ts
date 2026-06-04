@@ -45,11 +45,6 @@ export function buildFallbackProposalHtml(input: {
         </table>
       </div>
     </section>
-    <section class="signature-box" style="border-color:${primary}">
-      <h3 style="color:${primary}">Accettazione formale</h3>
-      <p>Confermando l'accettazione, il cliente autorizza l'avvio del progetto secondo le condizioni indicate.</p>
-      <button class="btn-glow" type="button">Accetta Preventivo</button>
-    </section>
   `;
 }
 
