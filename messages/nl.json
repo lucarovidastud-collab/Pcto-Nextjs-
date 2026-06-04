@@ -284,7 +284,15 @@
     "exportPdf": "PDF exporteren",
     "openClientLink": "Klantlink openen",
     "linkExpiry": "Link vervaldatum",
-    "backToHistory": "Terug naar geschiedenis"
+    "backToHistory": "Terug naar geschiedenis",
+    "internalNotes": "Interne notities",
+    "internalNotesPlaceholder": "Voeg interne notities toe over dit voorstel (alleen zichtbaar voor team)...",
+    "saveNotes": "Notities opslaan",
+    "notesSaved": "Opgeslagen",
+    "timeline": "Tijdlijn",
+    "created": "Voorstel aangemaakt",
+    "lastUpdated": "Laatste wijziging",
+    "signedBy": "Ondertekend door"
   },
   "checkout": {
     "invalidPlan": "Ongeldig plan",

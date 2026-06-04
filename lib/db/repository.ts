@@ -62,6 +62,7 @@ export interface DatabaseRepository {
       expiresAt: string;
       signedAt: string;
       signedBy: string;
+      internalNotes: string;
     }>
   ): Promise<ProposalRecord | null>;
   signProposalByToken(

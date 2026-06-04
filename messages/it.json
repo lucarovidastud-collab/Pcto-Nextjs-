@@ -299,7 +299,15 @@
     "exportPdf": "Esporta PDF",
     "openClientLink": "Apri link cliente",
     "linkExpiry": "Scadenza link",
-    "backToHistory": "Torna alla cronologia"
+    "backToHistory": "Torna alla cronologia",
+    "internalNotes": "Note interne",
+    "internalNotesPlaceholder": "Aggiungi note interne su questa proposta (visibili solo al team)...",
+    "saveNotes": "Salva note",
+    "notesSaved": "Salvato",
+    "timeline": "Timeline",
+    "created": "Proposta creata",
+    "lastUpdated": "Ultima modifica",
+    "signedBy": "Firmata da"
   },
   "checkout": {
     "invalidPlan": "Piano non valido",

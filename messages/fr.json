@@ -284,7 +284,15 @@
     "exportPdf": "Exporter PDF",
     "openClientLink": "Ouvrir lien client",
     "linkExpiry": "Expiration du lien",
-    "backToHistory": "Retour à l'historique"
+    "backToHistory": "Retour à l'historique",
+    "internalNotes": "Notes internes",
+    "internalNotesPlaceholder": "Ajoutez des notes internes sur cette proposition (visibles par l'équipe uniquement)...",
+    "saveNotes": "Enregistrer les notes",
+    "notesSaved": "Enregistré",
+    "timeline": "Chronologie",
+    "created": "Proposition créée",
+    "lastUpdated": "Dernière modification",
+    "signedBy": "Signé par"
   },
   "checkout": {
     "invalidPlan": "Plan invalide",

@@ -284,7 +284,15 @@
     "exportPdf": "PDF exportieren",
     "openClientLink": "Kunden-Link öffnen",
     "linkExpiry": "Link-Ablauf",
-    "backToHistory": "Zurück zum Verlauf"
+    "backToHistory": "Zurück zum Verlauf",
+    "internalNotes": "Interne Notizen",
+    "internalNotesPlaceholder": "Interne Notizen zum Angebot hinzufügen (nur für das Team sichtbar)...",
+    "saveNotes": "Notizen speichern",
+    "notesSaved": "Gespeichert",
+    "timeline": "Zeitachse",
+    "created": "Angebot erstellt",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "signedBy": "Unterzeichnet von"
   },
   "checkout": {
     "invalidPlan": "Ungültiger Plan",

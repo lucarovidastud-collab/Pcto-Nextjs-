@@ -284,7 +284,15 @@
     "exportPdf": "Export PDF",
     "openClientLink": "Open client link",
     "linkExpiry": "Link expiry",
-    "backToHistory": "Back to history"
+    "backToHistory": "Back to history",
+    "internalNotes": "Internal notes",
+    "internalNotesPlaceholder": "Add internal notes about this proposal (visible to team only)...",
+    "saveNotes": "Save notes",
+    "notesSaved": "Saved",
+    "timeline": "Timeline",
+    "created": "Proposal created",
+    "lastUpdated": "Last updated",
+    "signedBy": "Signed by"
   },
   "checkout": {
     "invalidPlan": "Invalid plan",
