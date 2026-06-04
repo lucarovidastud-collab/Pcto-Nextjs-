@@ -54,3 +54,21 @@ export const signProposalByToken: Repo["signProposalByToken"] = (shareToken, sig
 
 export const listAllTenantsWithDetails: Repo["listAllTenantsWithDetails"] = () =>
   getRepository().listAllTenantsWithDetails();
+
+export const listWorkspaceMembers: Repo["listWorkspaceMembers"] = (tenantId) =>
+  getRepository().listWorkspaceMembers(tenantId);
+
+export const countWorkspaceMembers: Repo["countWorkspaceMembers"] = (tenantId) =>
+  getRepository().countWorkspaceMembers(tenantId);
+
+export const removeWorkspaceMember: Repo["removeWorkspaceMember"] = (tenantId, userId) =>
+  getRepository().removeWorkspaceMember(tenantId, userId);
+
+export const createWorkspaceInvite: Repo["createWorkspaceInvite"] = (tenantId, createdBy, role) =>
+  getRepository().createWorkspaceInvite(tenantId, createdBy, role);
+
+export const getWorkspaceInvite: Repo["getWorkspaceInvite"] = (token) =>
+  getRepository().getWorkspaceInvite(token);
+
+export const acceptWorkspaceInvite: Repo["acceptWorkspaceInvite"] = (token, userId, email, displayName) =>
+  getRepository().acceptWorkspaceInvite(token, userId, email, displayName);

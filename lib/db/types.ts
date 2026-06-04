@@ -41,6 +41,27 @@ export type SubscriptionRecord = {
   stripeSubscriptionId?: string;
 };
 
+export type WorkspaceMember = {
+  userId: string;
+  tenantId: string;
+  role: Role;
+  email: string;
+  displayName: string;
+  joinedAt: string;
+};
+
+export type WorkspaceInvite = {
+  id: string;
+  tenantId: string;
+  token: string;
+  role: Role;
+  createdBy: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt?: string;
+  usedBy?: string;
+};
+
 export type TenantAdminRow = {
   id: string;
   name: string;

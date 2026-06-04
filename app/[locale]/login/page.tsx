@@ -69,7 +69,13 @@ export default function LoginPage() {
       }
 
       setTimeout(() => {
-        router.push("/dashboard");
+        const pendingInvite = sessionStorage.getItem("pending_invite");
+        if (pendingInvite) {
+          sessionStorage.removeItem("pending_invite");
+          router.push(`/invite/${pendingInvite}`);
+        } else {
+          router.push("/dashboard");
+        }
       }, 1000);
     } catch (err) {
       setLoading(false);

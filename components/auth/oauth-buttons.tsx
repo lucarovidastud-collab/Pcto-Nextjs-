@@ -50,7 +50,13 @@ export function OAuthButtons({
       await completeServerSession(idToken, t("sessionError"));
       sessionStorage.removeItem(REDIRECT_FLAG);
       onSuccess();
-      window.location.assign("/dashboard");
+      const pendingInvite = sessionStorage.getItem("pending_invite");
+      if (pendingInvite) {
+        sessionStorage.removeItem("pending_invite");
+        window.location.assign(`/invite/${pendingInvite}`);
+      } else {
+        window.location.assign("/dashboard");
+      }
     } catch (error) {
       handledRef.current = false;
       sessionStorage.removeItem(REDIRECT_FLAG);

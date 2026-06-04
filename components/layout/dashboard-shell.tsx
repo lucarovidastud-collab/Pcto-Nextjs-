@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { Building2, CreditCard, History, LayoutDashboard, LogOut, Moon, Sun, Menu, X, Sparkles, User } from "lucide-react";
+import { Building2, CreditCard, History, LayoutDashboard, LogOut, Moon, Sun, Menu, X, Sparkles, User, Users } from "lucide-react";
 import { applyTheme, readStoredTheme, type ThemeMode } from "@/lib/theme";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -15,6 +15,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     () => [
       { href: "/dashboard" as const, label: t("navWorkspace"), icon: LayoutDashboard },
       { href: "/dashboard/history" as const, label: t("navHistory"), icon: History },
+      { href: "/dashboard/members" as const, label: t("navMembers"), icon: Users },
       { href: "/dashboard/billing" as const, label: t("navBilling"), icon: CreditCard }
     ],
     [t]

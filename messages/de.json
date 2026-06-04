@@ -77,6 +77,7 @@
   "dashboard": {
     "navWorkspace": "Workspace",
     "navHistory": "Verlauf",
+    "navMembers": "Mitglieder",
     "navBilling": "Abo",
     "panelTitle": "QuoteGen Panel",
     "consoleTitle": "SaaS-Konsole",
@@ -218,9 +219,9 @@
     "growthF3": "Erweiterte Palette & Brand Styling",
     "growthF4": "Integriertes Stripe-Abrechnungsportal",
     "enterpriseF1": "5000 Angebote pro Monat",
-    "enterpriseF2": "Bis zu 200 Teammitglieder",
-    "enterpriseF3": "Erweiterter Genehmigungsworkflow",
-    "enterpriseF4": "Dedizierter Prioritätssupport",
+    "enterpriseF2": "Bis zu 200 Workspace-Mitglieder",
+    "enterpriseF3": "Erweiterte Rollen- & Einladungsverwaltung",
+    "enterpriseF4": "Prioritätszugang zu neuen Funktionen & Fixes",
     "portalUnavailable": "Stripe-Portal nicht verfügbar."
   },
   "oauth": {
@@ -315,6 +316,40 @@
     "title": "Nutzungsbedingungen",
     "p1": "Die Nutzung von QuoteGen unterliegt den Vertragsbedingungen, den Limits des gebuchten Plans und den geltenden Vorschriften.",
     "p2": "Wiederkehrende Zahlungen werden über Stripe abgewickelt. Bei Zahlungsausfall können Serviceeinschränkungen gelten."
+  },
+  "invite": {
+    "title": "Sie wurden zu einem Workspace eingeladen",
+    "roleDesc": "Zugewiesene Rolle: {role}",
+    "expires": "Läuft ab am",
+    "acceptBtn": "Einladung annehmen",
+    "accepting": "Wird angenommen...",
+    "loginRequired": "Sie müssen sich anmelden oder registrieren, um die Einladung anzunehmen.",
+    "loginToAccept": "Anmelden zum Annehmen",
+    "invalidTitle": "Ungültige Einladung",
+    "invalid": "Einladung nicht gefunden, abgelaufen oder bereits verwendet.",
+    "successTitle": "Willkommen im Workspace!",
+    "successDesc": "Workspace-Zugang gewährt. Weiterleitung...",
+    "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte erneut versuchen."
+  },
+  "members": {
+    "eyebrow": "Team",
+    "title": "Mitgliederverwaltung",
+    "description": "Laden Sie Mitarbeiter in Ihren Workspace ein und verwalten Sie deren Rollen.",
+    "refresh": "Aktualisieren",
+    "inviteTitle": "Neues Mitglied einladen",
+    "inviteDesc": "Einladungslink generieren zum Teilen. 7 Tage gültig, Einmalnutzung.",
+    "generateLink": "Einladungslink generieren",
+    "generating": "Wird generiert...",
+    "copyLink": "Link kopieren",
+    "copied": "Kopiert!",
+    "linkHint": "Teilen Sie diesen Link mit Ihrem Mitarbeiter. Läuft in 7 Tagen ab.",
+    "inviteError": "Link konnte nicht generiert werden. Prüfen Sie aktiven Plan und Mitgliederlimit.",
+    "memberList": "Mitglieder",
+    "loading": "Wird geladen...",
+    "noMembers": "Keine Mitglieder im Workspace.",
+    "remove": "Entfernen",
+    "removeError": "Mitglied konnte nicht entfernt werden.",
+    "confirmRemove": "Möchten Sie dieses Mitglied wirklich aus dem Workspace entfernen?"
   },
   "proposal": {
     "loading": "Kommerzielles Angebot wird geladen...",

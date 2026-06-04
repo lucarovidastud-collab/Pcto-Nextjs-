@@ -1,9 +1,12 @@
 import type {
   ProposalRecord,
   ProposalStatus,
+  Role,
   SubscriptionRecord,
   TenantAdminRow,
   UserSession,
+  WorkspaceInvite,
+  WorkspaceMember,
   WorkspaceSummary
 } from "@/lib/db/types";
 
@@ -67,4 +70,14 @@ export interface DatabaseRepository {
   ): Promise<{ ok: true; id: string } | { expired: true } | { alreadySigned: true } | null>;
 
   listAllTenantsWithDetails(): Promise<TenantAdminRow[]>;
+
+  // Workspace members
+  listWorkspaceMembers(tenantId: string): Promise<WorkspaceMember[]>;
+  countWorkspaceMembers(tenantId: string): Promise<number>;
+  removeWorkspaceMember(tenantId: string, userId: string): Promise<void>;
+
+  // Workspace invites
+  createWorkspaceInvite(tenantId: string, createdBy: string, role: Role): Promise<WorkspaceInvite>;
+  getWorkspaceInvite(token: string): Promise<WorkspaceInvite | null>;
+  acceptWorkspaceInvite(token: string, userId: string, email: string, displayName?: string): Promise<UserSession | { error: "expired" | "already_used" | "member_limit" }>;
 }

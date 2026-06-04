@@ -234,6 +234,107 @@ export function createFirestoreRepository(): DatabaseRepository {
       return { ok: true as const, id: proposal.id };
     },
 
+    async listWorkspaceMembers(tenantId) {
+      const db = getFirestoreDb();
+      const memberships = await db.collection("memberships").where("tenantId", "==", tenantId).get();
+      const members: import("@/lib/db/types").WorkspaceMember[] = [];
+      for (const m of memberships.docs) {
+        const data = m.data();
+        const userDoc = await db.collection("users").doc(data.userId as string).get();
+        const userData = userDoc.data() || {};
+        members.push({
+          userId: data.userId as string,
+          tenantId,
+          role: data.role as Role,
+          email: (userData.email as string) || "",
+          displayName: (userData.displayName as string) || "",
+          joinedAt: (data.createdAt as string) || ""
+        });
+      }
+      return members;
+    },
+
+    async countWorkspaceMembers(tenantId) {
+      const db = getFirestoreDb();
+      const snap = await db.collection("memberships").where("tenantId", "==", tenantId).count().get();
+      return snap.data().count;
+    },
+
+    async removeWorkspaceMember(tenantId, userId) {
+      const db = getFirestoreDb();
+      const snap = await db.collection("memberships")
+        .where("tenantId", "==", tenantId)
+        .where("userId", "==", userId)
+        .get();
+      for (const doc of snap.docs) await doc.ref.delete();
+    },
+
+    async createWorkspaceInvite(tenantId, createdBy, role) {
+      const db = getFirestoreDb();
+      const token = Array.from(crypto.getRandomValues(new Uint8Array(18)))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")
+        .slice(0, 32);
+      const now = new Date().toISOString();
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const id = makeId("inv");
+      const invite = { id, tenantId, token, role, createdBy, createdAt: now, expiresAt };
+      await db.collection("workspace_invites").doc(id).set(invite);
+      return invite;
+    },
+
+    async getWorkspaceInvite(token) {
+      const db = getFirestoreDb();
+      const snap = await db.collection("workspace_invites").where("token", "==", token).limit(1).get();
+      if (snap.empty) return null;
+      const data = snap.docs[0].data();
+      return {
+        id: snap.docs[0].id,
+        tenantId: data.tenantId as string,
+        token: data.token as string,
+        role: data.role as Role,
+        createdBy: data.createdBy as string,
+        createdAt: data.createdAt as string,
+        expiresAt: data.expiresAt as string,
+        usedAt: data.usedAt as string | undefined,
+        usedBy: data.usedBy as string | undefined
+      };
+    },
+
+    async acceptWorkspaceInvite(token, userId, email, displayName) {
+      const db = getFirestoreDb();
+      const invite = await this.getWorkspaceInvite(token);
+      if (!invite) return { error: "expired" as const };
+      if (invite.usedAt) return { error: "already_used" as const };
+      if (new Date(invite.expiresAt) < new Date()) return { error: "expired" as const };
+
+      // Check member limit
+      const subscription = await this.getSubscriptionForTenant(invite.tenantId);
+      const limits = (await import("@/lib/billing/plans")).getPlanLimits(subscription.plan);
+      const memberCount = await this.countWorkspaceMembers(invite.tenantId);
+      if (limits && memberCount >= limits.memberLimit) return { error: "member_limit" as const };
+
+      const now = new Date().toISOString();
+
+      // Add membership
+      const membershipId = makeId("mem");
+      await db.collection("memberships").doc(membershipId).set({
+        userId, tenantId: invite.tenantId, role: invite.role, createdAt: now
+      });
+
+      // Mark invite as used
+      const snap = await db.collection("workspace_invites").where("token", "==", token).limit(1).get();
+      if (!snap.empty) await snap.docs[0].ref.update({ usedAt: now, usedBy: userId });
+
+      // Update user doc
+      await db.collection("users").doc(userId).set(
+        { email, displayName: displayName || "", updatedAt: now },
+        { merge: true }
+      );
+
+      return { userId, tenantId: invite.tenantId, role: invite.role, email };
+    },
+
     async listAllTenantsWithDetails() {
       const db = getFirestoreDb();
 

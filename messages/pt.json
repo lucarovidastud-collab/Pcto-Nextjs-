@@ -77,6 +77,7 @@
   "dashboard": {
     "navWorkspace": "Workspace",
     "navHistory": "Histórico",
+    "navMembers": "Membros",
     "navBilling": "Subscrição",
     "panelTitle": "QuoteGen Panel",
     "consoleTitle": "Consola SaaS",
@@ -218,9 +219,9 @@
     "growthF3": "Extração de paleta e brand styling avançado",
     "growthF4": "Portal de faturação Stripe integrado",
     "enterpriseF1": "5000 propostas comerciais por mês",
-    "enterpriseF2": "Até 200 membros da equipa",
-    "enterpriseF3": "Workflow de aprovação avançado",
-    "enterpriseF4": "Suporte prioritário dedicado",
+    "enterpriseF2": "Até 200 membros do workspace",
+    "enterpriseF3": "Gestão avançada de funções e convites",
+    "enterpriseF4": "Acesso prioritário a novas funcionalidades",
     "portalUnavailable": "Portal Stripe não disponível."
   },
   "oauth": {
@@ -315,6 +316,40 @@
     "title": "Termos de Serviço",
     "p1": "A utilização do QuoteGen está sujeita ao cumprimento das condições contratuais, dos limites do plano subscrito e da regulamentação aplicável.",
     "p2": "Os pagamentos recorrentes são geridos pelo Stripe. Em caso de falta de pagamento podem ser aplicadas restrições ao serviço."
+  },
+  "invite": {
+    "title": "Foi convidado para um Workspace",
+    "roleDesc": "Função atribuída: {role}",
+    "expires": "Expira em",
+    "acceptBtn": "Aceitar convite",
+    "accepting": "A aceitar...",
+    "loginRequired": "Tem de iniciar sessão ou registar-se para aceitar o convite.",
+    "loginToAccept": "Iniciar sessão para aceitar",
+    "invalidTitle": "Convite inválido",
+    "invalid": "Convite não encontrado, expirado ou já utilizado.",
+    "successTitle": "Bem-vindo ao Workspace!",
+    "successDesc": "Acesso ao workspace concedido. A redirecionar...",
+    "acceptFailed": "Não foi possível aceitar o convite. Tente novamente."
+  },
+  "members": {
+    "eyebrow": "Equipa",
+    "title": "Gestão de membros",
+    "description": "Convide colaboradores para o seu workspace e gira os seus papéis.",
+    "refresh": "Atualizar",
+    "inviteTitle": "Convidar novo membro",
+    "inviteDesc": "Gere um link de convite para partilhar. Válido 7 dias, uso único.",
+    "generateLink": "Gerar link de convite",
+    "generating": "A gerar...",
+    "copyLink": "Copiar link",
+    "copied": "Copiado!",
+    "linkHint": "Partilhe este link com o seu colaborador. Expira em 7 dias.",
+    "inviteError": "Não foi possível gerar o link. Verifique o plano ativo e o limite de membros.",
+    "memberList": "Membros",
+    "loading": "A carregar...",
+    "noMembers": "Sem membros no workspace.",
+    "remove": "Remover",
+    "removeError": "Não foi possível remover o membro.",
+    "confirmRemove": "Tem a certeza de que quer remover este membro do workspace?"
   },
   "proposal": {
     "loading": "A carregar proposta comercial...",

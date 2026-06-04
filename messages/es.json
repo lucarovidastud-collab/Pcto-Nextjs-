@@ -77,6 +77,7 @@
   "dashboard": {
     "navWorkspace": "Workspace",
     "navHistory": "Historial",
+    "navMembers": "Miembros",
     "navBilling": "Suscripción",
     "panelTitle": "QuoteGen Panel",
     "consoleTitle": "Consola SaaS",
@@ -218,9 +219,9 @@
     "growthF3": "Extracción de paleta y brand styling avanzado",
     "growthF4": "Portal de facturación Stripe integrado",
     "enterpriseF1": "5000 propuestas comerciales al mes",
-    "enterpriseF2": "Hasta 200 miembros del equipo",
-    "enterpriseF3": "Workflow de aprobación avanzado",
-    "enterpriseF4": "Soporte prioritario dedicado",
+    "enterpriseF2": "Hasta 200 miembros del workspace",
+    "enterpriseF3": "Gestión avanzada de roles e invitaciones",
+    "enterpriseF4": "Acceso prioritario a nuevas funciones y fixes",
     "portalUnavailable": "Portal Stripe no disponible."
   },
   "oauth": {
@@ -315,6 +316,40 @@
     "title": "Términos de servicio",
     "p1": "El uso de QuoteGen está sujeto al cumplimiento de las condiciones contractuales, los límites del plan suscrito y la normativa aplicable.",
     "p2": "Los pagos recurrentes son gestionados por Stripe. En caso de impago se pueden aplicar restricciones al servicio."
+  },
+  "invite": {
+    "title": "Has sido invitado a un Workspace",
+    "roleDesc": "Rol asignado: {role}",
+    "expires": "Expira el",
+    "acceptBtn": "Aceptar invitación",
+    "accepting": "Aceptando...",
+    "loginRequired": "Debes iniciar sesión o registrarte para aceptar la invitación.",
+    "loginToAccept": "Iniciar sesión para aceptar",
+    "invalidTitle": "Invitación no válida",
+    "invalid": "Invitación no encontrada, expirada o ya utilizada.",
+    "successTitle": "¡Bienvenido al Workspace!",
+    "successDesc": "Acceso al workspace concedido. Redirigiendo...",
+    "acceptFailed": "No se pudo aceptar la invitación. Inténtalo de nuevo."
+  },
+  "members": {
+    "eyebrow": "Equipo",
+    "title": "Gestión de miembros",
+    "description": "Invita colaboradores a tu workspace y gestiona sus roles.",
+    "refresh": "Actualizar",
+    "inviteTitle": "Invitar a un nuevo miembro",
+    "inviteDesc": "Genera un enlace de invitación para compartir. Válido 7 días, uso único.",
+    "generateLink": "Generar enlace de invitación",
+    "generating": "Generando...",
+    "copyLink": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "linkHint": "Comparte este enlace con tu colaborador. Expira en 7 días.",
+    "inviteError": "No se pudo generar el enlace. Verifica tu plan activo y el límite de miembros.",
+    "memberList": "Miembros",
+    "loading": "Cargando...",
+    "noMembers": "No hay miembros en el workspace.",
+    "remove": "Eliminar",
+    "removeError": "No se pudo eliminar al miembro.",
+    "confirmRemove": "¿Seguro que quieres eliminar a este miembro del workspace?"
   },
   "proposal": {
     "loading": "Cargando propuesta comercial...",

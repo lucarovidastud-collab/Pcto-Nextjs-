@@ -28,6 +28,12 @@ export function createMongoRepository(): DatabaseRepository {
     getProposalByShareToken: notImplemented,
     updateProposal: notImplemented,
     signProposalByToken: notImplemented,
-    listAllTenantsWithDetails: notImplemented
+    listAllTenantsWithDetails: notImplemented,
+    listWorkspaceMembers: notImplemented,
+    countWorkspaceMembers: notImplemented,
+    removeWorkspaceMember: notImplemented,
+    createWorkspaceInvite: notImplemented,
+    getWorkspaceInvite: notImplemented,
+    acceptWorkspaceInvite: notImplemented
   };
 }

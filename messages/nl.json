@@ -77,6 +77,7 @@
   "dashboard": {
     "navWorkspace": "Workspace",
     "navHistory": "Geschiedenis",
+    "navMembers": "Leden",
     "navBilling": "Abonnement",
     "panelTitle": "QuoteGen Panel",
     "consoleTitle": "SaaS Console",
@@ -218,9 +219,9 @@
     "growthF3": "Geavanceerde palet-extractie & brand styling",
     "growthF4": "Geïntegreerd Stripe-factuurportaal",
     "enterpriseF1": "5000 commerciële offertes per maand",
-    "enterpriseF2": "Tot 200 teamleden",
-    "enterpriseF3": "Geavanceerde goedkeuringsworkflow",
-    "enterpriseF4": "Toegewijd prioriteitsondersteuning",
+    "enterpriseF2": "Tot 200 workspace-leden",
+    "enterpriseF3": "Geavanceerd rollen- en uitnodigingsbeheer",
+    "enterpriseF4": "Prioriteitstoegang tot nieuwe functies & fixes",
     "portalUnavailable": "Stripe-portaal niet beschikbaar."
   },
   "oauth": {
@@ -315,6 +316,40 @@
     "title": "Servicevoorwaarden",
     "p1": "Het gebruik van QuoteGen is onderworpen aan de naleving van contractuele voorwaarden, limieten van het geabonneerde plan en toepasselijke regelgeving.",
     "p2": "Terugkerende betalingen worden beheerd door Stripe. Bij wanbetaling kunnen servicebeperkingen worden toegepast."
+  },
+  "invite": {
+    "title": "U bent uitgenodigd voor een Workspace",
+    "roleDesc": "Toegewezen rol: {role}",
+    "expires": "Verloopt op",
+    "acceptBtn": "Uitnodiging accepteren",
+    "accepting": "Accepteren...",
+    "loginRequired": "U moet inloggen of registreren om de uitnodiging te accepteren.",
+    "loginToAccept": "Inloggen om te accepteren",
+    "invalidTitle": "Ongeldige uitnodiging",
+    "invalid": "Uitnodiging niet gevonden, verlopen of al gebruikt.",
+    "successTitle": "Welkom in de Workspace!",
+    "successDesc": "Workspace-toegang verleend. Omleiden...",
+    "acceptFailed": "Kon uitnodiging niet accepteren. Probeer opnieuw."
+  },
+  "members": {
+    "eyebrow": "Team",
+    "title": "Ledenbeheer",
+    "description": "Nodig medewerkers uit voor uw workspace en beheer hun rollen.",
+    "refresh": "Vernieuwen",
+    "inviteTitle": "Nieuw lid uitnodigen",
+    "inviteDesc": "Genereer een uitnodigingslink om te delen. 7 dagen geldig, eenmalig gebruik.",
+    "generateLink": "Uitnodigingslink genereren",
+    "generating": "Genereren...",
+    "copyLink": "Link kopiëren",
+    "copied": "Gekopieerd!",
+    "linkHint": "Deel deze link met uw medewerker. Verloopt over 7 dagen.",
+    "inviteError": "Kon link niet genereren. Controleer actief plan en ledenlimiet.",
+    "memberList": "Leden",
+    "loading": "Laden...",
+    "noMembers": "Geen leden in workspace.",
+    "remove": "Verwijderen",
+    "removeError": "Kon lid niet verwijderen.",
+    "confirmRemove": "Weet u zeker dat u dit lid uit de workspace wilt verwijderen?"
   },
   "proposal": {
     "loading": "Commercieel voorstel laden...",
