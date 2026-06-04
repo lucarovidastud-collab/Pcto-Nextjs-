@@ -80,7 +80,7 @@ function stripHtmlToText(html: string) {
     .trim();
 }
 
-function truncateForPrompt(value: string, maxChars = 12000) {
+function truncateForPrompt(value: string, maxChars = 32_000) {
   if (value.length <= maxChars) return value;
   return value.slice(0, maxChars).trim();
 }

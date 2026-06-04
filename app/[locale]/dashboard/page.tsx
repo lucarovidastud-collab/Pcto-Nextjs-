@@ -7,7 +7,9 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BrandPaletteEditor } from "@/components/dashboard/brand-palette-editor";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
+import { sanitizePaletteInput } from "@/lib/utils/palette";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 import { slugifyProposalLink } from "@/lib/proposals/slug";
@@ -35,7 +37,6 @@ export default function DashboardPage() {
   const [apiMessage, setApiMessage] = useState("");
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
-  const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const [proposalId, setProposalId] = useState<string | null>(null);
   const [proposalsUsed, setProposalsUsed] = useState(0);
   const [proposalLimit, setProposalLimit] = useState<number | null>(null);
@@ -140,7 +141,7 @@ export default function DashboardPage() {
         setBrandMessage(t("brandFailed"));
         return;
       }
-      if (payload.palette?.length) setPalette(payload.palette);
+      if (payload.palette?.length) setPalette(sanitizePaletteInput(payload.palette));
       if (payload.estimatedBudget) {
         setBudget(payload.estimatedBudget);
         setBudgetNote(payload.budgetRationale || t("budgetFromAI"));
@@ -260,12 +261,6 @@ export default function DashboardPage() {
     await navigator.clipboard.writeText(shareLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function copyColor(color: string) {
-    await navigator.clipboard.writeText(color);
-    setCopiedColor(color);
-    setTimeout(() => setCopiedColor(null), 1500);
   }
 
   function printProposal() {
@@ -599,28 +594,10 @@ export default function DashboardPage() {
             <p className="text-xs text-[var(--muted)] mb-4">
               {t("paletteDesc")}
             </p>
-            <div className="grid grid-cols-3 gap-3">
-              {palette.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => copyColor(color)}
-                  className="group relative aspect-square w-full flex-col items-center justify-center rounded-xl border border-[var(--line)] shadow-sm transition-transform active:scale-95"
-                  style={{ background: color }}
-                  title={`Copia ${color}`}
-                >
-                  <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 text-[10px] font-bold text-white uppercase font-mono">
-                    {copiedColor === color ? <Check size={14} /> : t("copy")}
-                  </span>
-                </button>
-              ))}
-            </div>
-            
-            {copiedColor && (
-              <p className="text-[10px] text-emerald-600 font-bold mt-3 animate-pulse">
-                {t("hexCopied", { color: copiedColor })}
-              </p>
-            )}
+            <BrandPaletteEditor
+              palette={palette}
+              onChange={(next) => setPalette(sanitizePaletteInput(next))}
+            />
           </div>
 
           {/* Abbonamento */}
