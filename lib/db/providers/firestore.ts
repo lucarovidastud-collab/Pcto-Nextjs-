@@ -153,6 +153,7 @@ export function createFirestoreRepository(): DatabaseRepository {
         palette: input.palette,
         generatedHtml: input.generatedHtml || "",
         styleDirection: input.styleDirection || "",
+        style: input.style || "moderno",
         status: "draft" as ProposalStatus,
         shareToken,
         expiresAt: defaultShareExpiry(30),

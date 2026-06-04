@@ -1,3 +1,5 @@
+import { resolveProposalStyle } from "@/lib/proposals/styles";
+
 /** Testo estratto da PDF/DOCX inviato al modello generativo (preventivi lunghi). */
 /** Bilanciato per latenza su Vercel + modelli flash (evita timeout → fallback). */
 export const PROPOSAL_NOTES_MAX_CHARS = 20_000;
@@ -31,12 +33,15 @@ export function buildProposalAiMessages(input: {
   budget: number;
   palette: string[];
   styleDirection?: string;
+  style?: string;
 }) {
   const colors = input.palette.length ? input.palette : ["#0F766E", "#8B5CF6", "#F59E0B"];
   const notesBlock = truncateNotesForProposal(input.notes);
+  const styleDef = resolveProposalStyle(input.style);
   const styleHint = input.styleDirection?.trim()
     ? `Direzione visiva dal sito cliente: ${input.styleDirection.trim()}`
     : "Direzione visiva: premium B2B, pulito, gerarchia chiara, impatto commerciale.";
+  const toneHint = `Stile richiesto dal cliente — ${styleDef.promptHint} Adatta il TONO e il registro del copy a questo stile (l'aspetto grafico è gestito dall'app).`;
 
   const system = `Sei un direttore creativo e strategist B2B che progetta micro-siti di preventivo digitali in italiano.
 Il tuo output è HTML semantico (fragment, senza <html>/<body>/<script>/<style>) che diventa una pagina commerciale premium — non un foglio Word minimalista.
@@ -49,6 +54,7 @@ Settore: ${input.sector}
 Budget totale vincolante: EUR ${input.budget} — riga "Totale investimento" = € ${input.budget.toLocaleString("it-IT")} (non modificare)
 Palette brand (applicata automaticamente dall'app — NON usarla in stili inline): ${colors.join(", ")}
 ${styleHint}
+${toneHint}
 
 --- MATERIALE SORGENTE (PDF/appunti del cliente, può essere molto lungo) ---
 ${notesBlock}

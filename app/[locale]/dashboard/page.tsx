@@ -8,8 +8,10 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { BrandPaletteEditor } from "@/components/dashboard/brand-palette-editor";
+import { ProposalStylePicker } from "@/components/dashboard/proposal-style-picker";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
 import { sanitizePaletteInput } from "@/lib/utils/palette";
+import { DEFAULT_PROPOSAL_STYLE, type ProposalStyleId } from "@/lib/proposals/styles";
 import { broadcastPalette } from "@/lib/proposals/palette-channel";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
@@ -27,6 +29,7 @@ export default function DashboardPage() {
   const [budget, setBudget] = useState<number | null>(null);
   const [budgetNote, setBudgetNote] = useState<string | null>(null);
   const [palette, setPalette] = useState<string[]>(["#0D9488", "#8B5CF6", "#F59E0B"]);
+  const [proposalStyle, setProposalStyle] = useState<ProposalStyleId>(DEFAULT_PROPOSAL_STYLE);
   const [brandMessage, setBrandMessage] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -202,6 +205,7 @@ export default function DashboardPage() {
       form.append("website", website.trim());
       form.append("sector", sector.trim() || "Business");
       form.append("linkSlug", slugifyProposalLink(linkSlug || company));
+      form.append("style", proposalStyle);
       form.append("palette", JSON.stringify(sanitizePaletteInput(paletteForSubmit)));
       for (const file of quoteFiles) form.append("files", file);
 
@@ -516,6 +520,15 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">3</span>
               <h2 className="text-lg font-black tracking-tight">{t("step3Title")}</h2>
+            </div>
+
+            {/* Selettore stile preventivo */}
+            <div className="grid gap-2">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-wide text-[var(--muted)]">{t("styleTitle")}</p>
+                <p className="text-[11px] text-[var(--muted)]">{t("styleSubtitle")}</p>
+              </div>
+              <ProposalStylePicker value={proposalStyle} onChange={setProposalStyle} />
             </div>
 
             {/* Budget AI Card */}

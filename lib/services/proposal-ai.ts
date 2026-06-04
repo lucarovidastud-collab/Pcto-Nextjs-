@@ -27,6 +27,7 @@ export async function generateProposalHtml(input: {
   budget: number;
   palette: string[];
   styleDirection?: string;
+  style?: string;
 }): Promise<ProposalHtmlGeneration> {
   const fallback = () =>
     buildFallbackProposalHtml({

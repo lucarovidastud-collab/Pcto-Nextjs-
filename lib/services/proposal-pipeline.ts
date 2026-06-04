@@ -23,6 +23,7 @@ export type ProposalBuildInput = {
   palette: string[];
   notes: string;
   linkSlug?: string;
+  style?: string;
 };
 
 export type ProposalBuildResult = {
@@ -58,7 +59,7 @@ export async function buildAndSaveProposal(
   onProgress?: ProgressCallback
 ): Promise<ProposalBuildResult> {
   onProgress?.(8, "Lettura e validazione documenti...");
-  const { tenantId, company, website, sector, palette, notes, linkSlug } = input;
+  const { tenantId, company, website, sector, palette, notes, linkSlug, style } = input;
 
   onProgress?.(22, website ? "Analisi brand dal sito web..." : "Preparazione palette brand...");
   const brand = website ? await analyzeWebsitePalette(website) : null;
@@ -77,7 +78,8 @@ export async function buildAndSaveProposal(
     notes,
     budget,
     palette: resolvedPalette,
-    styleDirection: brand?.styleDirection
+    styleDirection: brand?.styleDirection,
+    style
   });
   const rawHtml = generated.html;
 
@@ -103,6 +105,7 @@ export async function buildAndSaveProposal(
     palette: resolvedPalette,
     generatedHtml: generatedHtml || "",
     styleDirection: brand?.styleDirection || "",
+    style,
     shareToken
   });
 

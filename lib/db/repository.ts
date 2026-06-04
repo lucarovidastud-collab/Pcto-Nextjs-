@@ -46,6 +46,7 @@ export interface DatabaseRepository {
     palette: string[];
     generatedHtml?: string;
     styleDirection?: string;
+    style?: string;
     shareToken?: string;
   }): Promise<{ id: string; shareToken: string; createdAt: string; expiresAt: string }>;
 

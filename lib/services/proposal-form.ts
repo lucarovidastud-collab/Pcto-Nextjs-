@@ -1,5 +1,6 @@
 import { resolveNotesFromUploadedFile } from "@/lib/services/source-notes";
 import { createProposalSchema } from "@/lib/validators";
+import { DEFAULT_PROPOSAL_STYLE, isProposalStyleId, type ProposalStyleId } from "@/lib/proposals/styles";
 
 export type ParsedProposalForm = {
   company: string;
@@ -8,7 +9,13 @@ export type ParsedProposalForm = {
   palette: string[];
   notes: string;
   linkSlug: string;
+  style: ProposalStyleId;
 };
+
+function parseStyle(value: string): ProposalStyleId {
+  const trimmed = value.trim();
+  return isProposalStyleId(trimmed) ? trimmed : DEFAULT_PROPOSAL_STYLE;
+}
 
 export function parsePalette(value: string) {
   try {
@@ -34,6 +41,7 @@ export async function parseProposalRequest(request: Request): Promise<
     const website = String(form.get("website") || "").trim();
     const sector = String(form.get("sector") || "").trim();
     const linkSlug = String(form.get("linkSlug") || "").trim();
+    const style = parseStyle(String(form.get("style") || ""));
     const palette = parsePalette(String(form.get("palette") || "[]"));
 
     const files = [...form.getAll("files"), form.get("file")].filter((entry): entry is File => entry instanceof File);
@@ -70,7 +78,7 @@ export async function parseProposalRequest(request: Request): Promise<
       }
     }
 
-    return { ok: true, data: { company, website, sector, palette, notes, linkSlug } };
+    return { ok: true, data: { company, website, sector, palette, notes, linkSlug, style } };
   }
 
   const body = await request.json().catch(() => null);
@@ -82,6 +90,11 @@ export async function parseProposalRequest(request: Request): Promise<
   const linkSlug =
     body && typeof body === "object" && "linkSlug" in body ? String((body as { linkSlug?: string }).linkSlug || "").trim() : "";
 
+  const style =
+    body && typeof body === "object" && "style" in body
+      ? parseStyle(String((body as { style?: string }).style || ""))
+      : DEFAULT_PROPOSAL_STYLE;
+
   return {
     ok: true,
     data: {
@@ -90,7 +103,8 @@ export async function parseProposalRequest(request: Request): Promise<
       sector: parsed.data.sector,
       palette: parsed.data.palette,
       notes: parsed.data.notes.trim(),
-      linkSlug
+      linkSlug,
+      style
     }
   };
 }

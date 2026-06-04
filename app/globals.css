@@ -863,6 +863,199 @@
   color: var(--foreground);
 }
 
+/* ===================== STILI PREVENTIVO (10 varianti) ===================== */
+
+/* — Elegante: serif raffinato, hairline, tracking sui titoli — */
+.proposal-document.proposal-style-elegante {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.78;
+}
+.proposal-document.proposal-style-elegante .proposal-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+.proposal-document.proposal-style-elegante .proposal-card h3,
+.proposal-document.proposal-style-elegante .proposal-hero h2,
+.proposal-document.proposal-style-elegante > h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+.proposal-document.proposal-style-elegante .proposal-card > h3::before {
+  border-radius: 0.4rem;
+}
+
+/* — Minimal: monocromo, niente ombre, hairline, molta aria — */
+.proposal-document.proposal-style-minimal .proposal-card {
+  border-radius: 0.5rem;
+  border-color: var(--line);
+  box-shadow: none;
+}
+.proposal-document.proposal-style-minimal .proposal-card::after {
+  display: none;
+}
+.proposal-document.proposal-style-minimal .proposal-card h3 {
+  border-bottom-color: var(--line);
+}
+.proposal-document.proposal-style-minimal .proposal-card > h3::before,
+.proposal-document.proposal-style-minimal .proposal-timeline li::before {
+  background: var(--foreground);
+  color: var(--panel-strong);
+  border-color: transparent;
+}
+.proposal-document.proposal-style-minimal .scope-list li::before {
+  background: var(--foreground);
+}
+.proposal-document.proposal-style-minimal .proposal-hero {
+  background: var(--panel-strong);
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+/* — Audace: titoli enormi, accenti spessi, maiuscolo — */
+.proposal-document.proposal-style-audace .proposal-card {
+  border-left: 8px solid var(--card-accent, var(--brand-primary));
+  border-radius: 0.6rem;
+}
+.proposal-document.proposal-style-audace .proposal-card::after {
+  height: 6px;
+}
+.proposal-document.proposal-style-audace .proposal-card h3 {
+  font-size: 1.55rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.proposal-document.proposal-style-audace .proposal-hero h2 {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* — Corporate: formale, compatto, squadrato — */
+.proposal-document.proposal-style-corporate {
+  font-size: 0.92rem;
+}
+.proposal-document.proposal-style-corporate .proposal-card {
+  border-radius: 0.4rem;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 7%, transparent);
+}
+.proposal-document.proposal-style-corporate .proposal-card::after {
+  display: none;
+}
+.proposal-document.proposal-style-corporate .proposal-card > h3::before {
+  border-radius: 0.3rem;
+}
+.proposal-document.proposal-style-corporate .proposal-card h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.08rem;
+}
+
+/* — Creativo: forme morbide, card sfumate, vivace — */
+.proposal-document.proposal-style-creativo .proposal-card {
+  border-radius: 1.75rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--card-accent, var(--brand-primary)) 9%, var(--panel-strong)),
+    var(--panel-strong)
+  );
+}
+.proposal-document.proposal-style-creativo .proposal-card > h3::before {
+  border-radius: 999px;
+}
+.proposal-document.proposal-style-creativo .proposal-hero {
+  border-radius: 2rem;
+}
+.proposal-document.proposal-style-creativo .proposal-kpi {
+  border-radius: 1.25rem;
+}
+
+/* — Tech: monospace, spigoli netti, griglia di sfondo — */
+.proposal-document.proposal-style-tech .proposal-card,
+.proposal-document.proposal-style-tech .proposal-kpi,
+.proposal-document.proposal-style-tech .proposal-index,
+.proposal-document.proposal-style-tech .proposal-hero,
+.proposal-document.proposal-style-tech .table-scroll {
+  border-radius: 0.3rem;
+}
+.proposal-document.proposal-style-tech .proposal-card::after {
+  display: none;
+}
+.proposal-document.proposal-style-tech .proposal-card h3,
+.proposal-document.proposal-style-tech .proposal-card > h3::before,
+.proposal-document.proposal-style-tech .proposal-kpi-label {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  text-transform: none;
+}
+.proposal-document.proposal-style-tech.proposal-surface {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--brand-primary) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--brand-primary) 6%, transparent) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* — Caldo: morbido, arrotondato, ombre soffuse — */
+.proposal-document.proposal-style-caldo .proposal-card {
+  border-radius: 1.5rem;
+  box-shadow: 0 14px 36px -20px color-mix(in srgb, var(--card-accent, var(--brand-primary)) 65%, transparent);
+}
+.proposal-document.proposal-style-caldo .proposal-card > h3::before {
+  border-radius: 999px;
+}
+.proposal-document.proposal-style-caldo .proposal-hero {
+  border-radius: 1.85rem;
+}
+
+/* — Lusso: serif maiuscolo, spigoli netti, niente numeri, hairline — */
+.proposal-document.proposal-style-lusso {
+  font-family: Georgia, "Times New Roman", serif;
+}
+.proposal-document.proposal-style-lusso .proposal-card {
+  border-radius: 0;
+  box-shadow: none;
+  border-color: color-mix(in srgb, var(--card-accent, var(--brand-primary)) 28%, var(--line));
+}
+.proposal-document.proposal-style-lusso .proposal-card::after {
+  height: 2px;
+}
+.proposal-document.proposal-style-lusso .proposal-card > h3::before {
+  display: none;
+}
+.proposal-document.proposal-style-lusso .proposal-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.proposal-document.proposal-style-lusso .proposal-hero {
+  border-radius: 0;
+}
+.proposal-document.proposal-style-lusso .proposal-hero h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* — Editoriale: magazine, serif, capolettera — */
+.proposal-document.proposal-style-editoriale {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.82;
+}
+.proposal-document.proposal-style-editoriale .proposal-card h3,
+.proposal-document.proposal-style-editoriale .proposal-hero h2 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+.proposal-document.proposal-style-editoriale .proposal-card > p:first-of-type::first-letter {
+  font-size: 3.1rem;
+  font-weight: 700;
+  float: left;
+  line-height: 0.82;
+  padding: 0.1rem 0.55rem 0 0;
+  color: var(--brand-primary-text, var(--brand-primary));
+}
+
 /* AI HTML: testo sempre leggibile. Gli sfondi inline dell'AI sono già rimossi
    dal sanitizer, quindi NON azzeriamo lo sfondo di section/div (servono alle card).
    Limitiamo a p/li: gli span brandizzati (KPI) restano colorati. */

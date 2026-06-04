@@ -28,6 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
       sector: proposal.sector,
       budget: proposal.budget,
       palette: proposal.palette,
+      style: proposal.style || "moderno",
       generatedHtml: proposal.generatedHtml,
       status: proposal.status,
       signedAt: proposal.signedAt,

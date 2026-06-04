@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ type: "error", error: parsed.error }, { status: parsed.status });
   }
 
-  const { company, website, sector, palette, notes, linkSlug } = parsed.data;
+  const { company, website, sector, palette, notes, linkSlug, style } = parsed.data;
 
   if (notes.trim().length < 10) {
     return Response.json({ type: "error", error: "Documento troppo corto o non leggibile" }, { status: 400 });
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
       try {
         const result = await buildAndSaveProposal(
-          { tenantId, company, website, sector, palette, notes, linkSlug },
+          { tenantId, company, website, sector, palette, notes, linkSlug, style },
           (percent, label, meta) =>
             send({
               type: "progress",

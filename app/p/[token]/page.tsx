@@ -23,6 +23,7 @@ type ProposalView = {
   sector: string;
   budget: number;
   palette?: string[];
+  style?: string;
   generatedHtml?: string;
   notes?: string;
   status?: string;
@@ -293,7 +294,7 @@ export default function PublicProposalPage() {
           </header>
 
           {/* Proposal HTML Document Content */}
-          <div className="proposal-document proposal-surface min-w-0 px-4 py-8 sm:px-12 sm:py-10 max-w-none border-b border-[var(--line)] overflow-x-hidden break-words [overflow-wrap:anywhere]">
+          <div className={`proposal-document proposal-surface proposal-style-${proposal.style || "moderno"} min-w-0 px-4 py-8 sm:px-12 sm:py-10 max-w-none border-b border-[var(--line)] overflow-x-hidden break-words [overflow-wrap:anywhere]`}>
             {sections.length >= 3 ? (
               <nav className="proposal-index no-print" aria-label={t("indexTitle")}>
                 <p className="proposal-index-title">

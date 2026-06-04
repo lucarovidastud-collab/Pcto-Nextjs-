@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error }, { status: parsed.status });
   }
 
-  const { company, website, sector, palette, notes, linkSlug } = parsed.data;
+  const { company, website, sector, palette, notes, linkSlug, style } = parsed.data;
 
   if (notes.trim().length < 10) {
     return NextResponse.json({ error: "Documento troppo corto o non leggibile" }, { status: 400 });
@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
       sector,
       palette,
       notes,
-      linkSlug
+      linkSlug,
+      style
     });
 
     return NextResponse.json(

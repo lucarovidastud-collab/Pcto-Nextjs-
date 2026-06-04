@@ -12,6 +12,7 @@ export type ProposalRecord = {
   palette: string[];
   generatedHtml: string;
   styleDirection: string;
+  style: string;
   internalNotes: string;
   status: ProposalStatus;
   shareToken: string;
