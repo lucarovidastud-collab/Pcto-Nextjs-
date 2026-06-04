@@ -1,10 +1,11 @@
 export function paletteToCssVars(palette: string[]) {
-  const primary = palette[0] || "#0F766E";
-  const secondary = palette[1] || primary;
-  const tertiary = palette[2] || secondary;
-  const proposalBg = "#faf9f6";
+  const colors = palette.length ? palette : ["#0F766E", "#8B5CF6", "#F59E0B"];
+  const primary = colors[0] || "#0F766E";
+  const secondary = colors[1] || primary;
+  const tertiary = colors[2] || secondary;
   const headerSurface = "#ffffff";
-  return {
+
+  const vars: Record<string, string> = {
     "--accent": primary,
     "--accent-2": secondary,
     "--accent-3": tertiary,
@@ -14,17 +15,37 @@ export function paletteToCssVars(palette: string[]) {
     "--brand-primary-text": readableBrandOnSurface(primary, headerSurface),
     "--brand-secondary-text": readableBrandOnSurface(secondary, headerSurface),
     "--brand-primary-ui": readableBrandOnSurface(primary, "#ffffff", 3),
-    "--brand-secondary-ui": readableBrandOnSurface(secondary, "#ffffff", 3)
-  } as Record<string, string>;
+    "--brand-secondary-ui": readableBrandOnSurface(secondary, "#ffffff", 3),
+    "--brand-gradient": buildPaletteGradient(colors)
+  };
+
+  colors.slice(3, 6).forEach((hex, index) => {
+    const key = `--brand-accent-${index + 4}`;
+    vars[key] = hex;
+    vars[`${key}-text`] = readableBrandOnSurface(hex, headerSurface);
+  });
+
+  return vars;
+}
+
+function buildPaletteGradient(colors: string[]) {
+  const stops = colors.slice(0, 6).map((c, i, arr) => {
+    const pct = arr.length === 1 ? 0 : Math.round((i / (arr.length - 1)) * 100);
+    return `${c} ${pct}%`;
+  });
+  return `linear-gradient(90deg, ${stops.join(", ")})`;
 }
 
 export function brandedPageBackground(palette: string[]) {
-  const primary = palette[0] || "#0F766E";
-  const secondary = palette[1] || primary;
+  const colors = palette.length ? palette : ["#0F766E"];
+  const primary = colors[0];
+  const secondary = colors[1] || primary;
+  const tertiary = colors[2] || secondary;
   return {
     background: `
       radial-gradient(circle at 8% 0%, color-mix(in srgb, ${primary} 20%, transparent), transparent 36rem),
       radial-gradient(circle at 92% 8%, color-mix(in srgb, ${secondary} 16%, transparent), transparent 32rem),
+      radial-gradient(circle at 50% 100%, color-mix(in srgb, ${tertiary} 10%, transparent), transparent 28rem),
       var(--background)
     `
   } as Record<string, string>;

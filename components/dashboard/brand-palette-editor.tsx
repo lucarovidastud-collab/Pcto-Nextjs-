@@ -4,6 +4,7 @@ import { Check, Copy, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
+  appendPaletteColor,
   normalizePaletteHex,
   PALETTE_MAX_COLORS,
   PALETTE_MIN_COLORS,
@@ -31,9 +32,7 @@ export function BrandPaletteEditor({ palette, onChange }: Props) {
   }
 
   function addColor() {
-    if (palette.length >= PALETTE_MAX_COLORS) return;
-    const last = palette[palette.length - 1] || "#0D9488";
-    onChange(sanitizePaletteInput([...palette, last]));
+    onChange(appendPaletteColor(palette));
   }
 
   async function copyColor(color: string) {
@@ -46,23 +45,17 @@ export function BrandPaletteEditor({ palette, onChange }: Props) {
     <div className="grid gap-3">
       {palette.map((color, index) => (
         <div
-          key={`${index}-${color}`}
+          key={`palette-row-${index}`}
           className="flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-2"
         >
-          <label className="relative h-10 w-10 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-[var(--line)] shadow-sm">
-            <span
-              className="absolute inset-0"
-              style={{ background: normalizePaletteHex(color) }}
-              aria-hidden
-            />
-            <input
-              type="color"
-              value={normalizePaletteHex(color).toLowerCase()}
-              onChange={(e) => updateColor(index, e.target.value)}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label={t("paletteColorPicker")}
-            />
-          </label>
+          <input
+            type="color"
+            value={normalizePaletteHex(color).toLowerCase()}
+            onInput={(e) => updateColor(index, (e.target as HTMLInputElement).value)}
+            onChange={(e) => updateColor(index, (e.target as HTMLInputElement).value)}
+            className="color-swatch-input h-10 w-14 shrink-0 cursor-pointer rounded-lg border border-[var(--line)] bg-[var(--panel)]"
+            aria-label={t("paletteColorPicker")}
+          />
 
           <input
             type="text"

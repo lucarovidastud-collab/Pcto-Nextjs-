@@ -11,6 +11,7 @@ import {
   ensurePricingTableTotal,
   normalizeProposalPricingTable
 } from "@/lib/proposals/pricing-table";
+import { applyBrandPaletteToHtml } from "@/lib/proposals/apply-brand-palette";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText } from "@/lib/utils/text";
 
@@ -35,7 +36,9 @@ export type ProposalBuildResult = {
   aiError?: string;
 };
 
-export type ProgressCallback = (percent: number, label: string) => void;
+export type ProgressMeta = { palette?: string[] };
+
+export type ProgressCallback = (percent: number, label: string, meta?: ProgressMeta) => void;
 
 async function pickShareToken(company: string, linkSlug?: string) {
   const preferred = linkSlug?.trim() ? slugifyProposalLink(linkSlug) : slugifyProposalLink(company);
@@ -60,6 +63,7 @@ export async function buildAndSaveProposal(
   onProgress?.(22, website ? "Analisi brand dal sito web..." : "Preparazione palette brand...");
   const brand = website ? await analyzeWebsitePalette(website) : null;
   const resolvedPalette = brand?.palette?.length ? brand.palette : palette;
+  onProgress?.(28, "Palette brand pronta", { palette: resolvedPalette });
 
   onProgress?.(40, "Stima budget e settore di attività...");
   const estimate = await estimateBudgetFromNotes({ notes, company, sector, website });
@@ -78,7 +82,10 @@ export async function buildAndSaveProposal(
   const rawHtml = generated.html;
 
   const generatedHtml = ensurePricingTableTotal(
-    normalizeProposalPricingTable(sanitizeProposalHtml(rawHtml), budget),
+    normalizeProposalPricingTable(
+      applyBrandPaletteToHtml(sanitizeProposalHtml(rawHtml), resolvedPalette),
+      budget
+    ),
     budget
   );
 

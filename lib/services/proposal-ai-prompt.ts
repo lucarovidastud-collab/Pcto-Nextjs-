@@ -32,7 +32,8 @@ export function buildProposalAiMessages(input: {
   palette: string[];
   styleDirection?: string;
 }) {
-  const [primary, secondary, tertiary] = input.palette;
+  const colors = input.palette.length ? input.palette : ["#0F766E", "#8B5CF6", "#F59E0B"];
+  const [primary, secondary, tertiary] = colors;
   const notesBlock = truncateNotesForProposal(input.notes);
   const styleHint = input.styleDirection?.trim()
     ? `Direzione visiva dal sito cliente: ${input.styleDirection.trim()}`
@@ -47,7 +48,8 @@ Modelli forti (GPT-4 class): sfrutta capacità di strutturare documenti lunghi i
   const user = `Cliente: ${input.company}
 Settore: ${input.sector}
 Budget totale vincolante: EUR ${input.budget} — riga "Totale investimento" = € ${input.budget.toLocaleString("it-IT")} (non modificare)
-Palette brand: primary ${primary}, secondary ${secondary}, tertiary ${tertiary}
+Palette brand (usa TUTTI i colori in rotazione su card e titoli h3): ${colors.join(", ")}
+Primari: ${primary}, ${secondary}, ${tertiary}${colors.length > 3 ? `; accenti: ${colors.slice(3).join(", ")}` : ""}
 ${styleHint}
 
 --- MATERIALE SORGENTE (PDF/appunti del cliente, può essere molto lungo) ---
@@ -79,7 +81,7 @@ L) Opzionale: Rischi & mitigazioni, KPI di successo, supporto post go-live — s
 
 ESTETICA (senza rompere il tema chiaro del sito):
 - Impatto visivo tramite gerarchia (h2, h3), griglia proposal-grid, hero e KPI — non minimalismo vuoto
-- Accenti brand: h3 style="color:${primary}"; card style="border-left:4px solid ${primary}" (o secondary per variare)
+- Accenti brand: ruota i colori palette su ogni proposal-card (border-left 4px) e h3 (color): 1ª card ${primary}, 2ª ${secondary}, 3ª ${tertiary}, poi ripeti; usa TUTTI i colori forniti
 - VIETATO: background/background-color su p, li, td, div; niente tema dark; niente color inline su paragrafi
 - Niente pulsanti, link CTA, "Accetta Preventivo", signature-box (firma gestita dall'app)
 

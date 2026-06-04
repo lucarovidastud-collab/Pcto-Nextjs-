@@ -136,6 +136,7 @@
     "paletteRemove": "Kleur verwijderen",
     "paletteCopy": "HEX kopiëren",
     "paletteColorPicker": "Kleur kiezen",
+    "paletteLivePreview": "Live voorbeeld offerte",
     "hexCopied": "HEX {color} gekopieerd naar klembord!",
     "copy": "kopiëren",
     "subscriptionTitle": "Abonnement",

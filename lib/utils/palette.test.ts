@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizePaletteHex, sanitizePaletteInput } from "@/lib/utils/palette";
+import { appendPaletteColor, normalizePaletteHex, sanitizePaletteInput } from "@/lib/utils/palette";
 
 describe("palette utils", () => {
   it("normalizes 3 and 6 digit hex", () => {
@@ -12,5 +12,12 @@ describe("palette utils", () => {
       "#0D9488",
       "#8B5CF6"
     ]);
+  });
+
+  it("append adds a new distinct color", () => {
+    const next = appendPaletteColor(["#0D9488", "#0D9488"]);
+    expect(next).toHaveLength(2);
+    expect(next[0]).toBe("#0D9488");
+    expect(next[1]).not.toBe("#0D9488");
   });
 });

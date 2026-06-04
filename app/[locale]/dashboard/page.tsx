@@ -1,12 +1,12 @@
 "use client";
 
-import { paletteToCssVars } from "@/lib/proposals/brand-theme";
+import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { SiteFooter } from "@/components/site-footer";
 import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileText, CheckCircle, Copy, Laptop, RefreshCw } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { BrandPaletteEditor } from "@/components/dashboard/brand-palette-editor";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
 import { sanitizePaletteInput } from "@/lib/utils/palette";
@@ -48,6 +48,30 @@ export default function DashboardPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const portalReturn = searchParams.get("billing") === "portal";
   const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
+  const brandThemeStyle = useMemo(
+    () => ({ ...paletteToCssVars(palette), ...brandedPageBackground(palette) }),
+    [palette]
+  );
+  const [previewRevision, setPreviewRevision] = useState(0);
+
+  const previewFrameKey = useMemo(
+    () => (shareLink ? `${shareLink}|${previewRevision}` : ""),
+    [shareLink, previewRevision]
+  );
+
+  useEffect(() => {
+    if (!proposalId) return;
+    const timer = setTimeout(() => {
+      void fetch(`/api/proposals/${proposalId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ palette: sanitizePaletteInput(palette) })
+      }).then((res) => {
+        if (res.ok) setPreviewRevision((n) => n + 1);
+      });
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [palette, proposalId]);
 
   async function refreshBilling() {
     const response = await fetch("/api/billing/checkout");
@@ -104,10 +128,10 @@ export default function DashboardPage() {
     }
   }
 
-  async function analyzeBrand() {
+  async function analyzeBrand(): Promise<string[] | null> {
     if (!website.trim()) {
       setBrandMessage(t("enterWebsite"));
-      return;
+      return null;
     }
     setIsAnalyzing(true);
     setBrandMessage("");
@@ -131,25 +155,28 @@ export default function DashboardPage() {
         if (payload.error) {
           if (payload.error === "subscription_required") {
             router.push("/dashboard/subscribe");
-            return;
+            return null;
           }
           if (payload.error === "proposal_limit_reached") {
             router.push("/dashboard/billing?limit=reached");
-            return;
+            return null;
           }
         }
         setBrandMessage(t("brandFailed"));
-        return;
+        return null;
       }
-      if (payload.palette?.length) setPalette(sanitizePaletteInput(payload.palette));
+      const resolved = payload.palette?.length ? sanitizePaletteInput(payload.palette) : null;
+      if (resolved?.length) setPalette(resolved);
       if (payload.estimatedBudget) {
         setBudget(payload.estimatedBudget);
         setBudgetNote(payload.budgetRationale || t("budgetFromAI"));
       }
       if (payload.sectorSummary) setSector(payload.sectorSummary);
       setBrandMessage(payload.message || t("brandSuccess"));
+      return resolved;
     } catch {
       setBrandMessage(t("brandError"));
+      return null;
     } finally {
       setIsAnalyzing(false);
     }
@@ -165,8 +192,10 @@ export default function DashboardPage() {
     setGenLabel(t("generationStart"));
     setApiMessage("");
     try {
-      if (website.trim() && !brandMessage) {
-        await analyzeBrand();
+      let paletteForSubmit = palette;
+      if (website.trim()) {
+        const extracted = await analyzeBrand();
+        if (extracted?.length) paletteForSubmit = extracted;
       }
 
       const form = new FormData();
@@ -174,7 +203,7 @@ export default function DashboardPage() {
       form.append("website", website.trim());
       form.append("sector", sector.trim() || "Business");
       form.append("linkSlug", slugifyProposalLink(linkSlug || company));
-      form.append("palette", JSON.stringify(palette.map((color) => color.toUpperCase())));
+      form.append("palette", JSON.stringify(sanitizePaletteInput(paletteForSubmit)));
       for (const file of quoteFiles) form.append("files", file);
 
       const proposalResponse = await fetch("/api/proposals/stream", { method: "POST", body: form });
@@ -217,11 +246,13 @@ export default function DashboardPage() {
             deployMessage?: string;
             contentSource?: "ai" | "fallback";
             aiError?: string;
+            palette?: string[];
           };
 
           if (evt.type === "progress" && typeof evt.percent === "number") {
             setGenPercent(evt.percent);
             setGenLabel(evt.label || t("elaborating"));
+            if (evt.palette?.length) setPalette(sanitizePaletteInput(evt.palette));
           }
           if (evt.type === "error") {
             if (evt.error === "subscription_required") {
@@ -239,8 +270,10 @@ export default function DashboardPage() {
             completed = true;
             void refreshBilling();
             if (evt.budget) setBudget(evt.budget);
+            if (evt.palette?.length) setPalette(sanitizePaletteInput(evt.palette));
             setShareLink(`${window.location.origin}${evt.link}`);
             setProposalId(evt.id || null);
+            setPreviewRevision((n) => n + 1);
             const base = evt.deployMessage || t("successShare");
             setApiMessage(
               evt.contentSource === "fallback"
@@ -293,7 +326,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
+    <div
+      className="proposal-branded flex w-full flex-col gap-5 max-w-6xl mx-auto"
+      style={brandThemeStyle as CSSProperties}
+    >
       {portalReturn ? (
         <p className="glass-premium rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3.5 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
           {t("portalReturn")}
@@ -601,10 +637,28 @@ export default function DashboardPage() {
             <p className="text-xs text-[var(--muted)] mb-4">
               {t("paletteDesc")}
             </p>
+            <div
+              className="mb-4 h-2 w-full rounded-full"
+              style={{ background: "var(--brand-gradient)" }}
+              aria-hidden
+            />
             <BrandPaletteEditor
               palette={palette}
               onChange={(next) => setPalette(sanitizePaletteInput(next))}
             />
+            {shareLink ? (
+              <div className="mt-4 grid gap-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                  {t("paletteLivePreview")}
+                </p>
+                <iframe
+                  key={previewFrameKey}
+                  title={t("paletteLivePreview")}
+                  src={shareLink}
+                  className="h-[min(420px,55vh)] w-full rounded-xl border border-[var(--line)] bg-white shadow-sm"
+                />
+              </div>
+            ) : null}
           </div>
 
           {/* Abbonamento */}

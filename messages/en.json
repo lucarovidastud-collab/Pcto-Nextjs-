@@ -136,6 +136,7 @@
     "paletteRemove": "Remove color",
     "paletteCopy": "Copy HEX",
     "paletteColorPicker": "Pick color",
+    "paletteLivePreview": "Live proposal preview",
     "hexCopied": "HEX {color} copied to clipboard!",
     "copy": "copy",
     "subscriptionTitle": "Subscription",

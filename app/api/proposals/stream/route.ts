@@ -64,7 +64,13 @@ export async function POST(request: NextRequest) {
       try {
         const result = await buildAndSaveProposal(
           { tenantId, company, website, sector, palette, notes, linkSlug },
-          (percent, label) => send({ type: "progress", percent, label })
+          (percent, label, meta) =>
+            send({
+              type: "progress",
+              percent,
+              label,
+              ...(meta?.palette?.length ? { palette: meta.palette } : {})
+            })
         );
 
         send({

@@ -338,6 +338,61 @@
   box-shadow: var(--shadow-sm);
 }
 
+.proposal-document::before {
+  content: "";
+  display: block;
+  height: 5px;
+  border-radius: 999px;
+  margin-bottom: 1.75rem;
+  background: var(--brand-gradient, linear-gradient(90deg, var(--brand-primary), var(--brand-secondary)));
+}
+
+.proposal-document .proposal-card:nth-child(6n + 1),
+.proposal-document .proposal-grid .proposal-card:nth-child(6n + 1) {
+  border-left-color: var(--brand-primary);
+}
+
+.proposal-document .proposal-card:nth-child(6n + 2),
+.proposal-document .proposal-grid .proposal-card:nth-child(6n + 2) {
+  border-left-color: var(--brand-secondary, var(--brand-primary));
+}
+
+.proposal-document .proposal-card:nth-child(6n + 3),
+.proposal-document .proposal-grid .proposal-card:nth-child(6n + 3) {
+  border-left-color: var(--brand-tertiary, var(--brand-secondary));
+}
+
+.proposal-document .proposal-card:nth-child(6n + 4),
+.proposal-document .proposal-grid .proposal-card:nth-child(6n + 4) {
+  border-left-color: var(--brand-accent-4, var(--brand-tertiary));
+}
+
+.proposal-document .proposal-card:nth-child(6n + 5),
+.proposal-document .proposal-grid .proposal-card:nth-child(6n + 5) {
+  border-left-color: var(--brand-accent-5, var(--brand-secondary));
+}
+
+.proposal-document .proposal-card:nth-child(6n + 6),
+.proposal-document .proposal-grid .proposal-card:nth-child(6n + 6) {
+  border-left-color: var(--brand-accent-6, var(--brand-primary));
+}
+
+.color-swatch-input {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.color-swatch-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-swatch-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.4rem;
+}
+
 .proposal-document .proposal-hero {
   margin-bottom: 2rem;
   padding: 1.75rem 1.5rem;
@@ -450,10 +505,56 @@
 
 /* Proposal Documents Typography */
 .proposal-document {
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.98rem;
+  line-height: 1.72;
   color: var(--foreground);
   max-width: 100%;
+  letter-spacing: 0.01em;
+}
+
+.proposal-document .proposal-card + .proposal-card,
+.proposal-document .proposal-hero + .proposal-card,
+.proposal-document .proposal-kpi-grid + .proposal-card {
+  margin-top: 0.25rem;
+}
+
+.proposal-document .proposal-card {
+  margin-bottom: 1.25rem;
+}
+
+.proposal-document .proposal-card h3 {
+  color: var(--card-accent, var(--brand-primary-text, var(--brand-primary)));
+}
+
+.proposal-document .proposal-kpi {
+  border-top: 3px solid var(--brand-primary);
+}
+
+.proposal-document .proposal-kpi:nth-child(2) {
+  border-top-color: var(--brand-secondary, var(--brand-primary));
+}
+
+.proposal-document .proposal-kpi:nth-child(3) {
+  border-top-color: var(--brand-tertiary, var(--brand-secondary));
+}
+
+.proposal-document .proposal-kpi:nth-child(4) {
+  border-top-color: var(--brand-accent-4, var(--brand-tertiary));
+}
+
+.proposal-document .scope-list li {
+  padding-left: 0.25rem;
+  line-height: 1.65;
+}
+
+.proposal-document .pricing-table th {
+  background: color-mix(in srgb, var(--brand-primary) 10%, var(--panel));
+  color: var(--brand-primary-text, var(--foreground));
+}
+
+.proposal-document .total-row td {
+  background: color-mix(in srgb, var(--brand-primary) 8%, var(--panel-strong));
+  font-weight: 800;
 }
 
 /* AI HTML: never allow dark boxes or unreadable inline colors */

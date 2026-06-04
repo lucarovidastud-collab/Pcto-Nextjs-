@@ -6,6 +6,7 @@ import {
   ensurePricingTableTotal,
   normalizeProposalPricingTable
 } from "@/lib/proposals/pricing-table";
+import { applyBrandPaletteToHtml } from "@/lib/proposals/apply-brand-palette";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
 import { useParams } from "next/navigation";
@@ -58,7 +59,10 @@ function resolveHtml(proposal: ProposalView) {
             palette
           })
         );
-  return ensurePricingTableTotal(normalizeProposalPricingTable(base, budget), budget);
+  return ensurePricingTableTotal(
+    normalizeProposalPricingTable(applyBrandPaletteToHtml(base, palette), budget),
+    budget
+  );
 }
 
 export default function PublicProposalPage() {

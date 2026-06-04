@@ -68,6 +68,7 @@ export interface DatabaseRepository {
       isTemplate: boolean;
       templateName: string;
       webhookUrl: string;
+      palette: string[];
     }>
   ): Promise<ProposalRecord | null>;
   signProposalByToken(

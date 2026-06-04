@@ -10,7 +10,8 @@ const patchSchema = z.object({
   internalNotes: z.string().max(4000).optional(),
   password: z.string().max(100).optional(),
   isTemplate: z.boolean().optional(),
-  templateName: z.string().max(100).optional()
+  templateName: z.string().max(100).optional(),
+  palette: z.array(z.string().min(4).max(16)).min(1).max(6).optional()
 });
 
 type RouteProps = { params: Promise<{ id: string }> };
@@ -32,9 +33,14 @@ export async function PATCH(request: NextRequest, { params }: RouteProps) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Payload non valido" }, { status: 400 });
 
-  const hasChange = parsed.data.status || parsed.data.expiresAt ||
-    parsed.data.internalNotes !== undefined || parsed.data.password !== undefined ||
-    parsed.data.isTemplate !== undefined || parsed.data.templateName !== undefined;
+  const hasChange =
+    parsed.data.status ||
+    parsed.data.expiresAt ||
+    parsed.data.internalNotes !== undefined ||
+    parsed.data.password !== undefined ||
+    parsed.data.isTemplate !== undefined ||
+    parsed.data.templateName !== undefined ||
+    parsed.data.palette !== undefined;
   if (!hasChange) {
     return NextResponse.json({ error: "Nessun campo da aggiornare" }, { status: 400 });
   }
@@ -46,7 +52,8 @@ export async function PATCH(request: NextRequest, { params }: RouteProps) {
       internalNotes: parsed.data.internalNotes,
       password: parsed.data.password,
       isTemplate: parsed.data.isTemplate,
-      templateName: parsed.data.templateName
+      templateName: parsed.data.templateName,
+      palette: parsed.data.palette?.map((c) => c.toUpperCase())
     });
     if (!updated) return NextResponse.json({ error: "Proposta non trovata" }, { status: 404 });
     return NextResponse.json({ proposal: updated });
