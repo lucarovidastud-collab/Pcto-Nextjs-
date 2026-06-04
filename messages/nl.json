@@ -137,6 +137,7 @@
     "paletteCopy": "HEX kopiëren",
     "paletteColorPicker": "Kleur kiezen",
     "paletteLivePreview": "Live voorbeeld offerte",
+    "paletteLiveHint": "Pas de kleuren hier aan: elke geopende offertepagina wordt in realtime bijgewerkt.",
     "hexCopied": "HEX {color} gekopieerd naar klembord!",
     "copy": "kopiëren",
     "subscriptionTitle": "Abonnement",

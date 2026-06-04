@@ -331,11 +331,18 @@
 }
 
 .proposal-branded .proposal-card {
-  border-left: 4px solid var(--brand-primary);
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--card-accent, var(--brand-primary)) 14%, var(--line));
+  border-left: 5px solid var(--card-accent, var(--brand-primary));
   background: var(--panel-strong);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  border-radius: 1rem;
+  padding: 1.65rem 1.75rem;
+  box-shadow: var(--shadow-md);
+}
+
+.proposal-document .proposal-grid > .proposal-card {
+  margin-bottom: 0;
+  height: 100%;
 }
 
 .proposal-document::before {
@@ -399,26 +406,30 @@
 }
 
 .proposal-document .proposal-hero {
-  margin-bottom: 2rem;
-  padding: 1.75rem 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid color-mix(in srgb, var(--brand-primary) 22%, var(--line));
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--brand-primary) 10%, var(--panel-strong)),
-    color-mix(in srgb, var(--brand-secondary, var(--brand-primary)) 6%, var(--panel-strong))
-  );
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2.25rem;
+  padding: 2.5rem 2rem;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 25%, var(--line));
+  background:
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--brand-primary) 18%, transparent), transparent 58%),
+    radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--brand-secondary, var(--brand-primary)) 16%, transparent), transparent 52%),
+    var(--panel-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .proposal-document .proposal-hero h2 {
   margin-top: 0;
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  letter-spacing: -0.02em;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--brand-primary-text, var(--brand-primary));
 }
 
 .proposal-document .proposal-lead {
-  font-size: 1.05rem;
-  line-height: 1.75;
+  font-size: 1.1rem;
+  line-height: 1.7;
   margin-bottom: 0;
 }
 
@@ -436,19 +447,22 @@
 }
 
 .proposal-document .proposal-kpi {
-  padding: 1rem 1.1rem;
-  border-radius: 0.85rem;
+  padding: 1.25rem 1.1rem;
+  border-radius: 0.95rem;
   border: 1px solid color-mix(in srgb, var(--brand-primary) 18%, var(--line));
-  background: color-mix(in srgb, var(--brand-primary) 6%, var(--panel-strong));
+  background: color-mix(in srgb, var(--brand-primary) 7%, var(--panel-strong));
   text-align: center;
+  box-shadow: var(--shadow-sm);
 }
 
 .proposal-document .proposal-kpi-value {
   display: block;
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.85rem;
+  font-weight: 900;
+  line-height: 1.1;
   color: var(--brand-primary-text, var(--brand-primary));
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.02em;
 }
 
 .proposal-document .proposal-kpi-label {
@@ -460,17 +474,36 @@
 }
 
 .proposal-document .proposal-highlight {
-  margin: 1.5rem 0;
-  padding: 1.25rem 1.5rem;
-  border-radius: 0.85rem;
-  border: 1px dashed color-mix(in srgb, var(--brand-primary) 35%, var(--line));
-  background: color-mix(in srgb, var(--brand-primary) 5%, var(--panel-strong));
+  margin: 2rem 0;
+  padding: 1.75rem 1.85rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, var(--line));
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--brand-primary) 12%, var(--panel-strong)),
+      color-mix(in srgb, var(--brand-secondary, var(--brand-primary)) 7%, var(--panel-strong))
+    );
+  box-shadow: var(--shadow-md);
 }
 
-.proposal-document .proposal-divider {
+.proposal-document .proposal-highlight h2,
+.proposal-document .proposal-highlight h3 {
+  margin-top: 0;
+}
+
+.proposal-document .proposal-divider,
+.proposal-document hr {
   border: none;
-  border-top: 1px solid var(--line);
-  margin: 2rem 0;
+  height: 2px;
+  margin: 2.5rem 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand-primary) 40%, transparent),
+    color-mix(in srgb, var(--brand-secondary, var(--brand-primary)) 22%, transparent),
+    transparent
+  );
 }
 
 .proposal-document .proposal-timeline {
@@ -497,9 +530,13 @@
   background: var(--brand-primary-ui, var(--brand-primary));
 }
 
-.proposal-branded .proposal-document h2:not([style*="color"]),
-.proposal-branded .proposal-document h3:not([style*="color"]) {
+.proposal-branded .proposal-document h2:not([style*="color"]) {
   color: var(--brand-primary-text, var(--brand-primary));
+  font-weight: 800;
+}
+
+.proposal-branded .proposal-document h3:not([style*="color"]) {
+  color: var(--foreground);
   font-weight: 800;
 }
 
@@ -528,7 +565,25 @@
 }
 
 .proposal-document .proposal-card h3 {
-  color: var(--card-accent, var(--brand-primary-text, var(--brand-primary)));
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+  padding-bottom: 0.7rem;
+  color: var(--foreground);
+  border-bottom: 1px solid color-mix(in srgb, var(--card-accent, var(--brand-primary)) 18%, var(--line));
+}
+
+.proposal-document .proposal-card h3::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.32rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: var(--card-accent, var(--brand-primary));
 }
 
 .proposal-document .proposal-kpi {
@@ -547,23 +602,45 @@
   border-top-color: var(--brand-accent-4, var(--brand-tertiary));
 }
 
+.proposal-document .scope-list {
+  list-style: none;
+  padding-left: 0;
+}
+
 .proposal-document .scope-list li {
-  padding-left: 0.25rem;
+  position: relative;
+  padding-left: 1.6rem;
   line-height: 1.65;
+  margin-bottom: 0.6rem;
+}
+
+.proposal-document .scope-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--card-accent, var(--brand-primary));
 }
 
 .proposal-document .pricing-table th {
-  background: color-mix(in srgb, var(--brand-primary) 10%, var(--panel));
+  background: color-mix(in srgb, var(--brand-primary) 14%, var(--panel-strong));
   color: var(--brand-primary-text, var(--foreground));
-}
-
-.proposal-document .total-row td {
-  background: color-mix(in srgb, var(--brand-primary) 8%, var(--panel-strong));
   font-weight: 800;
 }
 
-/* AI HTML: never allow dark boxes or unreadable inline colors */
-.proposal-document :is(p, li, span, div, section, article, a, mark) {
+.proposal-document .total-row td {
+  background: color-mix(in srgb, var(--brand-primary) 12%, var(--panel-strong));
+  font-weight: 900;
+  font-size: 1.05rem;
+  border-top: 2px solid color-mix(in srgb, var(--brand-primary) 35%, var(--line));
+}
+
+/* AI HTML: testo sempre leggibile. Gli sfondi inline dell'AI sono già rimossi
+   dal sanitizer, quindi NON azzeriamo lo sfondo di section/div (servono alle card). */
+.proposal-document :is(p, li, span, a, mark) {
   background: transparent !important;
   background-color: transparent !important;
   color: color-mix(in srgb, var(--foreground) 88%, transparent) !important;
@@ -573,8 +650,12 @@
   color: var(--foreground) !important;
 }
 
-.proposal-document :is(h2, h3)[style*="color"] {
+.proposal-document h2[style*="color"] {
   color: var(--brand-primary-text, var(--brand-primary)) !important;
+}
+
+.proposal-document h3[style*="color"] {
+  color: var(--foreground) !important;
 }
 
 .proposal-document .proposal-grid {

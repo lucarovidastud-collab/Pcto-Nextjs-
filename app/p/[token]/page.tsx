@@ -8,10 +8,12 @@ import {
 } from "@/lib/proposals/pricing-table";
 import { applyBrandPaletteToHtml } from "@/lib/proposals/apply-brand-palette";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
+import { PALETTE_CHANNEL, paletteStorageKey, type PaletteMessage } from "@/lib/proposals/palette-channel";
+import { sanitizePaletteInput } from "@/lib/utils/palette";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer } from "lucide-react";
 
@@ -78,25 +80,79 @@ export default function PublicProposalPage() {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState(false);
 
-  async function loadProposal(pwd?: string) {
-    setMessage("");
-    const url = pwd ? `/api/public/proposals/${token}?pwd=${encodeURIComponent(pwd)}` : `/api/public/proposals/${token}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      const payload = (await response.json()) as { error?: string; passwordRequired?: boolean };
-      if (payload.passwordRequired) {
-        setProposal({ company: "", sector: "", budget: 0, passwordRequired: true });
+  const lastPwdRef = useRef<string | undefined>(undefined);
+
+  const loadProposal = useCallback(
+    async (pwd?: string) => {
+      setMessage("");
+      const url = pwd
+        ? `/api/public/proposals/${token}?pwd=${encodeURIComponent(pwd)}`
+        : `/api/public/proposals/${token}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string; passwordRequired?: boolean };
+        if (payload.passwordRequired) {
+          setProposal({ company: "", sector: "", budget: 0, passwordRequired: true });
+          return;
+        }
+        setMessage("invalid");
         return;
       }
-      setMessage("invalid");
-      return;
-    }
-    const payload = (await response.json()) as { proposal: ProposalView };
-    setProposal(payload.proposal);
-    setMessage("");
-  }
+      const payload = (await response.json()) as { proposal: ProposalView };
+      lastPwdRef.current = pwd;
+      setProposal(payload.proposal);
+      setMessage("");
+    },
+    [token]
+  );
 
-  useEffect(() => { void loadProposal(); }, [token]);
+  useEffect(() => {
+    void loadProposal();
+  }, [loadProposal]);
+
+  /** Sincronizzazione live: i colori cambiati dalla dashboard si applicano qui in tempo reale. */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const applyPalette = (incoming?: string[]) => {
+      if (!incoming?.length) return;
+      const next = sanitizePaletteInput(incoming);
+      setProposal((cur) => (cur && !cur.passwordRequired ? { ...cur, palette: next } : cur));
+    };
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel(PALETTE_CHANNEL);
+      channel.onmessage = (event) => {
+        const msg = event.data as PaletteMessage | undefined;
+        if (msg && msg.token === token) applyPalette(msg.palette);
+      };
+    } catch {
+      // BroadcastChannel non supportato dal browser
+    }
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== paletteStorageKey(token) || !event.newValue) return;
+      try {
+        const parsed = JSON.parse(event.newValue) as { palette?: string[] };
+        applyPalette(parsed.palette);
+      } catch {
+        // valore storage non valido
+      }
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void loadProposal(lastPwdRef.current);
+    };
+
+    window.addEventListener("storage", onStorage);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      channel?.close();
+      window.removeEventListener("storage", onStorage);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [token, loadProposal]);
 
   const palette = proposal?.palette?.length ? proposal.palette : ["#0D9488", "#8B5CF6", "#F59E0B"];
   const documentHtml = useMemo(() => (proposal ? resolveHtml(proposal) : ""), [proposal]);

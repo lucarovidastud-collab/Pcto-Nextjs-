@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { BrandPaletteEditor } from "@/components/dashboard/brand-palette-editor";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
 import { sanitizePaletteInput } from "@/lib/utils/palette";
+import { broadcastPalette } from "@/lib/proposals/palette-channel";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 import { slugifyProposalLink } from "@/lib/proposals/slug";
@@ -49,26 +50,27 @@ export default function DashboardPage() {
   const portalReturn = searchParams.get("billing") === "portal";
   const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
   const brandCssVars = useMemo(() => paletteToCssVars(palette), [palette]);
-  const [previewRevision, setPreviewRevision] = useState(0);
 
-  const previewFrameKey = useMemo(
-    () => (shareLink ? `${shareLink}|${previewRevision}` : ""),
-    [shareLink, previewRevision]
-  );
+  const shareToken = useMemo(() => {
+    if (!shareLink) return "";
+    const match = shareLink.split("/p/")[1];
+    return match ? match.split(/[?#]/)[0] : "";
+  }, [shareLink]);
 
   useEffect(() => {
-    if (!proposalId) return;
+    if (!proposalId || !shareToken) return;
+    const next = sanitizePaletteInput(palette);
     const timer = setTimeout(() => {
       void fetch(`/api/proposals/${proposalId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ palette: sanitizePaletteInput(palette) })
+        body: JSON.stringify({ palette: next })
       }).then((res) => {
-        if (res.ok) setPreviewRevision((n) => n + 1);
+        if (res.ok) broadcastPalette(shareToken, next);
       });
     }, 450);
     return () => clearTimeout(timer);
-  }, [palette, proposalId]);
+  }, [palette, proposalId, shareToken]);
 
   async function refreshBilling() {
     const response = await fetch("/api/billing/checkout");
@@ -270,7 +272,6 @@ export default function DashboardPage() {
             if (evt.palette?.length) setPalette(sanitizePaletteInput(evt.palette));
             setShareLink(`${window.location.origin}${evt.link}`);
             setProposalId(evt.id || null);
-            setPreviewRevision((n) => n + 1);
             const base = evt.deployMessage || t("successShare");
             setApiMessage(
               evt.contentSource === "fallback"
@@ -641,16 +642,20 @@ export default function DashboardPage() {
               onChange={(next) => setPalette(sanitizePaletteInput(next))}
             />
             {shareLink ? (
-              <div className="mt-4 grid gap-2">
+              <div className="mt-4 grid gap-2 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
                   {t("paletteLivePreview")}
                 </p>
-                <iframe
-                  key={previewFrameKey}
-                  title={t("paletteLivePreview")}
-                  src={shareLink}
-                  className="h-[min(420px,55vh)] w-full rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] shadow-sm"
-                />
+                <p className="text-xs leading-relaxed text-[var(--muted)]">{t("paletteLiveHint")}</p>
+                <a
+                  href={shareLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
+                >
+                  <FileText size={14} />
+                  {t("openProposal")}
+                </a>
               </div>
             ) : null}
           </div>

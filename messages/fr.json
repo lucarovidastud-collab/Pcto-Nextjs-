@@ -137,6 +137,7 @@
     "paletteCopy": "Copier HEX",
     "paletteColorPicker": "Choisir une couleur",
     "paletteLivePreview": "Aperçu live de la proposition",
+    "paletteLiveHint": "Modifiez les couleurs ici : toute page de proposition ouverte se met à jour en temps réel.",
     "hexCopied": "HEX {color} copié dans le presse-papiers !",
     "copy": "copier",
     "subscriptionTitle": "Abonnement",

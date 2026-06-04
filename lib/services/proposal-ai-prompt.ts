@@ -33,7 +33,6 @@ export function buildProposalAiMessages(input: {
   styleDirection?: string;
 }) {
   const colors = input.palette.length ? input.palette : ["#0F766E", "#8B5CF6", "#F59E0B"];
-  const [primary, secondary, tertiary] = colors;
   const notesBlock = truncateNotesForProposal(input.notes);
   const styleHint = input.styleDirection?.trim()
     ? `Direzione visiva dal sito cliente: ${input.styleDirection.trim()}`
@@ -48,8 +47,7 @@ Modelli forti (GPT-4 class): sfrutta capacità di strutturare documenti lunghi i
   const user = `Cliente: ${input.company}
 Settore: ${input.sector}
 Budget totale vincolante: EUR ${input.budget} — riga "Totale investimento" = € ${input.budget.toLocaleString("it-IT")} (non modificare)
-Palette brand (usa TUTTI i colori in rotazione su card e titoli h3): ${colors.join(", ")}
-Primari: ${primary}, ${secondary}, ${tertiary}${colors.length > 3 ? `; accenti: ${colors.slice(3).join(", ")}` : ""}
+Palette brand (applicata automaticamente dall'app — NON usarla in stili inline): ${colors.join(", ")}
 ${styleHint}
 
 --- MATERIALE SORGENTE (PDF/appunti del cliente, può essere molto lungo) ---
@@ -79,19 +77,23 @@ J) <section class="proposal-card"> Condizioni (pagamenti, validità offerta, IP,
 K) <section class="proposal-highlight"> Prossimi passi (3–5 punti concreti)
 L) Opzionale: Rischi & mitigazioni, KPI di successo, supporto post go-live — se pertinenti dal PDF
 
-ESTETICA (senza rompere il tema chiaro del sito):
-- Impatto visivo tramite gerarchia (h2, h3), griglia proposal-grid, hero e KPI — non minimalismo vuoto
-- Accenti brand: ruota i colori palette su ogni proposal-card (border-left 4px) e h3 (color): 1ª card ${primary}, 2ª ${secondary}, 3ª ${tertiary}, poi ripeti; usa TUTTI i colori forniti
-- VIETATO: background/background-color su p, li, td, div; niente tema dark; niente color inline su paragrafi
-- Niente pulsanti, link CTA, "Accetta Preventivo", signature-box (firma gestita dall'app)
+ESTETICA E LEGGIBILITÀ (priorità assoluta: effetto "wow" ma CHIARISSIMO da leggere):
+- NON impostare colori, background o stili inline: pensa solo a struttura e contenuto. Brand e colori sono applicati in automatico dall'app
+- Ogni sezione = una <section class="proposal-card"> con <h3> titolo BREVE (2–4 parole) + contenuto immediatamente scansionabile
+- Paragrafi corti: massimo 2–4 frasi ciascuno. Per qualsiasi elenco di voci/deliverable/vincoli usa SEMPRE <ul class="scope-list"> con <li> sintetici
+- Alterna prosa e liste: VIETATI i muri di testo. Ogni sezione deve essere comprensibile in pochi secondi
+- Sfrutta i blocchi visivi: proposal-kpi-grid (3–4 numeri chiave), proposal-grid (2 colonne), proposal-timeline (fasi), proposal-highlight (prossimi passi)
+- Niente tema dark, niente pulsanti/CTA/"Accetta Preventivo"/signature-box (la firma è gestita dall'app)
+
+DOCUMENTI MOLTO LUNGHI (anche 100+ pagine): non incollare testo grezzo. Sintetizza per TEMI in sezioni nitide, tieni solo ciò che conta (obiettivi, deliverable, costi, tempi, condizioni). Meglio 12 sezioni chiare che 3 muri di testo.
 
 QUALITÀ COPY:
-- Italiano B2B, tono autorevole e caldo; frasi complete; evita generiche vuote ("soluzioni innovative" senza sostanza)
-- Maiuscole corrette (no Title Case su ogni parola); no Lei cerimonioso distorto (presentarvi ok minuscolo)
+- Italiano B2B, autorevole e concreto; niente frasi vuote ("soluzioni innovative" senza sostanza)
+- Maiuscole corrette (no Title Case su ogni parola)
 - No <strong>/<b>/<em>/<i>
 - Non includere sezioni "Direzione stile" o meta-commenti sull'AI
 
-Output: solo HTML del preventivo, minimo 10 sezioni sostanziali se il sorgente lo consente.`;
+Output: solo HTML del preventivo. Punta a 8–12 sezioni nitide e complete, ognuna facile da capire a colpo d'occhio.`;
 
   return {
     messages: [

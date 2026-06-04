@@ -137,6 +137,7 @@
     "paletteCopy": "Copy HEX",
     "paletteColorPicker": "Pick color",
     "paletteLivePreview": "Live proposal preview",
+    "paletteLiveHint": "Edit the colors here: any open proposal page updates in real time.",
     "hexCopied": "HEX {color} copied to clipboard!",
     "copy": "copy",
     "subscriptionTitle": "Subscription",

@@ -152,6 +152,7 @@
     "paletteCopy": "Copia HEX",
     "paletteColorPicker": "Scegli colore",
     "paletteLivePreview": "Anteprima live preventivo",
+    "paletteLiveHint": "Modifica i colori qui: il preventivo già aperto si aggiorna in tempo reale.",
     "hexCopied": "HEX {color} copiato negli appunti!",
     "copy": "copia",
     "subscriptionTitle": "Abbonamento",
