@@ -4,6 +4,7 @@ import {
   parseItalianAmount
 } from "@/lib/services/budget-from-notes";
 import {
+  describeOpenRouterFailure,
   extractJsonFromModelText,
   getOpenRouterConfig,
   openRouterChatCompletion
@@ -122,8 +123,9 @@ export async function estimateBudgetFromNotes(input: {
   });
 
   if (!result.ok) {
+    const configuredModel = getOpenRouterConfig().model;
     logger.warn(
-      { status: result.status, error: result.error, model: getOpenRouterConfig().model },
+      { status: result.status, error: result.error, model: result.model ?? configuredModel },
       "openrouter.budget_estimate.failed"
     );
     return buildFallbackResult(
@@ -131,7 +133,7 @@ export async function estimateBudgetFromNotes(input: {
       fallbackExplicit,
       fallbackExplicit
         ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-        : `Stima di riserva (AI non raggiungibile${result.status ? `, HTTP ${result.status}` : ""})`
+        : describeOpenRouterFailure(result, configuredModel)
     );
   }
 
