@@ -10,6 +10,11 @@ describe("parseItalianAmount", () => {
   it("parses plain integers", () => {
     expect(parseItalianAmount("22875")).toBe(22875);
   });
+
+  it("rejects absurd dot chains from PDF noise", () => {
+    expect(parseItalianAmount("3.905.471.740.020")).toBeNull();
+    expect(parseItalianAmount("3905471740020")).toBeNull();
+  });
 });
 
 describe("extractBudgetFromNotes", () => {
@@ -27,8 +32,16 @@ describe("extractBudgetFromNotes", () => {
     expect(extractBudgetFromNotes("Budget stimato 22.875 EUR IVA esclusa")).toBe(22875);
   });
 
-  it("accepts small and large totals without min/max caps", () => {
+  it("accepts small and large realistic totals", () => {
     expect(extractBudgetFromNotes("Importo totale: 800 €")).toBe(800);
     expect(extractBudgetFromNotes("Totale progetto 1.250.000 euro")).toBe(1250000);
+  });
+
+  it("does not merge PDF digit soup into trillions", () => {
+    const notes =
+      "Importo totale 47.000 €\n" +
+      "codice 3905471740020\n" +
+      "rumore 3.905.471.740.020";
+    expect(extractBudgetFromNotes(notes)).toBe(47000);
   });
 });
