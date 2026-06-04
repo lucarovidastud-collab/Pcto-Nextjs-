@@ -1,6 +1,6 @@
 "use client";
 
-import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-theme";
+import { paletteToCssVars } from "@/lib/proposals/brand-theme";
 import { SiteFooter } from "@/components/site-footer";
 import { BadgeEuro, Check, ClipboardCopy, Download, Globe, Sparkles, Send, FileText, CheckCircle, Copy, Laptop, RefreshCw } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -48,10 +48,7 @@ export default function DashboardPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const portalReturn = searchParams.get("billing") === "portal";
   const fileCount = useMemo(() => quoteFiles.length, [quoteFiles]);
-  const brandThemeStyle = useMemo(
-    () => ({ ...paletteToCssVars(palette), ...brandedPageBackground(palette) }),
-    [palette]
-  );
+  const brandCssVars = useMemo(() => paletteToCssVars(palette), [palette]);
   const [previewRevision, setPreviewRevision] = useState(0);
 
   const previewFrameKey = useMemo(
@@ -326,10 +323,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div
-      className="proposal-branded flex w-full flex-col gap-5 max-w-6xl mx-auto"
-      style={brandThemeStyle as CSSProperties}
-    >
+    <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
       {portalReturn ? (
         <p className="glass-premium rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3.5 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
           {t("portalReturn")}
@@ -639,7 +633,7 @@ export default function DashboardPage() {
             </p>
             <div
               className="mb-4 h-2 w-full rounded-full"
-              style={{ background: "var(--brand-gradient)" }}
+              style={{ ...brandCssVars, background: "var(--brand-gradient)" } as CSSProperties}
               aria-hidden
             />
             <BrandPaletteEditor
@@ -655,7 +649,7 @@ export default function DashboardPage() {
                   key={previewFrameKey}
                   title={t("paletteLivePreview")}
                   src={shareLink}
-                  className="h-[min(420px,55vh)] w-full rounded-xl border border-[var(--line)] bg-white shadow-sm"
+                  className="h-[min(420px,55vh)] w-full rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] shadow-sm"
                 />
               </div>
             ) : null}

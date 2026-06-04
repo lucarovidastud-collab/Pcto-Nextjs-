@@ -382,6 +382,11 @@
   appearance: none;
   padding: 2px;
   cursor: pointer;
+  background: var(--panel);
+}
+
+[data-theme="dark"] .color-swatch-input {
+  color-scheme: dark;
 }
 
 .color-swatch-input::-webkit-color-swatch-wrapper {
