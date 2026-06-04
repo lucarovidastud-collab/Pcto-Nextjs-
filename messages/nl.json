@@ -301,7 +301,8 @@
     "passwordPlaceholder": "wachtwoord", "passwordActive": "⚠️ Wachtwoord actief.",
     "save": "Opslaan", "saved": "Opgeslagen ✓", "qrCode": "QR-code",
     "qrHint": "Scan of download de QR-code.", "downloadQr": "QR downloaden",
-    "webhookSection": "Webhook bij ondertekening", "webhookHint": "URL automatisch aangeroepen wanneer klant tekent."
+    "webhookSection": "Webhook bij ondertekening",
+    "webhookHint": "Je plakt de URL zelf: maak een webhook in Zapier of Make.com, kopieer de URL hier en sla op. Bij ondertekening stuurt QuoteGen de gegevens naar dat adres (optioneel)."
   },
   "checkout": {
     "invalidPlan": "Ongeldig plan",

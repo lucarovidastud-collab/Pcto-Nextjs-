@@ -311,7 +311,7 @@
     "qrHint": "Scan or download the QR code to share this proposal.",
     "downloadQr": "Download QR",
     "webhookSection": "Webhook on signature",
-    "webhookHint": "URL called automatically when the client signs (Zapier, Make.com, etc.)."
+    "webhookHint": "You paste it yourself: create a webhook in Zapier or Make.com, copy the URL here and save. When the client signs, QuoteGen sends the data to that address (optional)."
   },
   "checkout": {
     "invalidPlan": "Invalid plan",

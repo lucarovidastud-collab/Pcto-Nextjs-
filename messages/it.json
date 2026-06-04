@@ -326,7 +326,7 @@
     "qrHint": "Scansiona o scarica il QR code per condividere il preventivo.",
     "downloadQr": "Scarica QR",
     "webhookSection": "Webhook alla firma",
-    "webhookHint": "URL chiamato automaticamente quando il cliente firma (Zapier, Make.com, ecc.)."
+    "webhookHint": "È normale che tu debba incollarlo: crea un webhook su Zapier o Make.com, copia l'URL qui e salva. Quando il cliente firma, QuoteGen invia i dati a quell'indirizzo (opzionale)."
   },
   "checkout": {
     "invalidPlan": "Piano non valido",

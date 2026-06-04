@@ -183,8 +183,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  white-space: normal;
+  flex-wrap: nowrap;
+  white-space: nowrap;
   text-align: center;
   min-height: 2.75rem;
   border-radius: 0.75rem;
@@ -236,8 +236,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  white-space: normal;
+  flex-wrap: nowrap;
+  white-space: nowrap;
   text-align: center;
   min-height: 2.75rem;
   border-radius: 0.75rem;

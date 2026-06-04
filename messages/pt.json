@@ -301,7 +301,8 @@
     "passwordPlaceholder": "senha", "passwordActive": "⚠️ Senha ativa.",
     "save": "Guardar", "saved": "Guardado ✓", "qrCode": "Código QR",
     "qrHint": "Digitalize ou descarregue o código QR.", "downloadQr": "Descarregar QR",
-    "webhookSection": "Webhook na assinatura", "webhookHint": "URL chamada quando o cliente assina."
+    "webhookSection": "Webhook na assinatura",
+    "webhookHint": "Você cola o URL: crie um webhook no Zapier ou Make.com, copie aqui e guarde. Quando o cliente assina, o QuoteGen envia os dados para esse endereço (opcional)."
   },
   "checkout": {
     "invalidPlan": "Plano inválido",

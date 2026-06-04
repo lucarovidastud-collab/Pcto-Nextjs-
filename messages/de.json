@@ -301,7 +301,8 @@
     "passwordPlaceholder": "Angebot-Passwort", "passwordActive": "⚠️ Passwort aktiv.",
     "save": "Speichern", "saved": "Gespeichert ✓", "qrCode": "QR-Code",
     "qrHint": "QR-Code scannen oder herunterladen.", "downloadQr": "QR herunterladen",
-    "webhookSection": "Webhook bei Unterzeichnung", "webhookHint": "URL wird automatisch aufgerufen wenn Kunde unterschreibt."
+    "webhookSection": "Webhook bei Unterzeichnung",
+    "webhookHint": "Sie fügen die URL selbst ein: Webhook in Zapier oder Make.com erstellen, URL hier einfügen und speichern. Bei Unterschrift sendet QuoteGen die Daten dorthin (optional)."
   },
   "checkout": {
     "invalidPlan": "Ungültiger Plan",

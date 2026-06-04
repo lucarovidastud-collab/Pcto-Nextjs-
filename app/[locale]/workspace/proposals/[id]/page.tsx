@@ -219,14 +219,14 @@ export default function WorkspaceProposalPage() {
           <>
             {/* Header card */}
             <div className="glass-premium rounded-3xl p-6 sm:p-8">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)] mb-1">
                     {t("workflow")}
                   </p>
-                  <h1 className="text-3xl font-black tracking-tight">{proposal.company}</h1>
+                  <h1 className="text-3xl font-black tracking-tight break-words">{proposal.company}</h1>
                   {proposal.sector && (
-                    <p className="text-sm text-[var(--muted)] mt-1">{proposal.sector}</p>
+                    <p className="text-sm text-[var(--muted)] mt-1 line-clamp-3 break-words">{proposal.sector}</p>
                   )}
                   {proposal.budget > 0 && (
                     <p className="mt-2 flex items-center gap-1.5 text-xl font-black text-[var(--accent)]">
@@ -234,60 +234,62 @@ export default function WorkspaceProposalPage() {
                       € {Number(proposal.budget).toLocaleString(locale)}
                     </p>
                   )}
+                  {proposal.viewCount !== undefined && proposal.viewCount > 0 && (
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--muted)] mt-2">
+                      <Eye size={13} />
+                      {t("viewCount", { count: proposal.viewCount })}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-wrap gap-2 shrink-0">
-                  {proposal.shareToken && (
-                    <a
-                      href={`/p/${proposal.shareToken}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn-primary text-xs flex items-center gap-1.5"
+                <div className="w-full lg:w-auto lg:max-w-[min(100%,32rem)] shrink-0">
+                  <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
+                    {proposal.shareToken && (
+                      <a
+                        href={`/p/${proposal.shareToken}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn-primary text-xs !min-h-9 !py-2 !px-3 gap-1.5"
+                      >
+                        <ExternalLink size={14} className="shrink-0" />
+                        {t("openClientLink")}
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={copyShareLink}
+                      className="btn-secondary text-xs !min-h-9 !py-2 !px-3 gap-1.5"
                     >
-                      <ExternalLink size={14} />
-                      {t("openClientLink")}
+                      {copied ? <CheckCircle size={14} className="text-emerald-500 shrink-0" /> : <Copy size={14} className="shrink-0" />}
+                      {copied ? t("copied") : t("copyLink")}
+                    </button>
+                    <a
+                      href={`/api/proposals/${id}/pdf`}
+                      className="btn-secondary text-xs !min-h-9 !py-2 !px-3 gap-1.5"
+                    >
+                      <FileText size={14} className="shrink-0" />
+                      {t("exportPdf")}
                     </a>
-                  )}
-                  <button
-                    type="button"
-                    onClick={copyShareLink}
-                    className="btn-secondary text-xs flex items-center gap-1.5"
-                  >
-                    {copied ? <CheckCircle size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                    {copied ? t("copied") : t("copyLink")}
-                  </button>
-                  <a
-                    href={`/api/proposals/${id}/pdf`}
-                    className="btn-secondary text-xs flex items-center gap-1.5"
-                  >
-                    <FileText size={14} />
-                    {t("exportPdf")}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={cloneProposal}
-                    disabled={cloning}
-                    className="btn-secondary text-xs flex items-center gap-1.5"
-                  >
-                    {cloning ? <Loader2 size={13} className="animate-spin" /> : <Copy size={13} />}
-                    {t("clone")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={toggleTemplate}
-                    disabled={savingTemplate}
-                    className={`btn-secondary text-xs flex items-center gap-1.5 ${proposal.isTemplate ? "border-amber-500/40 text-amber-600" : ""}`}
-                  >
-                    {savingTemplate ? <Loader2 size={13} className="animate-spin" /> : <Star size={13} />}
-                    {proposal.isTemplate ? t("removeTemplate") : t("saveAsTemplate")}
-                  </button>
-                </div>
-                {proposal.viewCount !== undefined && proposal.viewCount > 0 && (
-                  <div className="flex items-center gap-1.5 text-xs text-[var(--muted)] mt-2">
-                    <Eye size={13} />
-                    {t("viewCount", { count: proposal.viewCount })}
+                    <button
+                      type="button"
+                      onClick={cloneProposal}
+                      disabled={cloning}
+                      className="btn-secondary text-xs !min-h-9 !py-2 !px-3 gap-1.5"
+                    >
+                      {cloning ? <Loader2 size={13} className="animate-spin shrink-0" /> : <Copy size={13} className="shrink-0" />}
+                      {t("clone")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={toggleTemplate}
+                      disabled={savingTemplate}
+                      className={`btn-secondary text-xs !min-h-9 !py-2 !px-3 gap-1.5 ${proposal.isTemplate ? "border-amber-500/40 text-amber-600" : ""}`}
+                    >
+                      {savingTemplate ? <Loader2 size={13} className="animate-spin shrink-0" /> : <Star size={13} className="shrink-0" />}
+                      {proposal.isTemplate ? t("removeTemplate") : t("saveAsTemplate")}
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
@@ -384,20 +386,20 @@ export default function WorkspaceProposalPage() {
                 {t("passwordSection")}
               </h2>
               <p className="text-xs text-[var(--muted)] mb-3">{t("passwordHint")}</p>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input
                   type="text"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("passwordPlaceholder")}
-                  className="input text-sm flex-1"
+                  className="input text-sm w-full min-w-0 sm:flex-1"
                   maxLength={100}
                 />
                 <button
                   type="button"
                   onClick={() => void savePassword()}
                   disabled={savingPassword}
-                  className="btn-secondary text-xs flex items-center gap-1.5 shrink-0"
+                  className="btn-secondary text-xs !min-h-10 gap-1.5 shrink-0 w-full sm:w-auto"
                 >
                   {savingPassword ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   {passwordSaved ? t("saved") : t("save")}
@@ -438,20 +440,20 @@ export default function WorkspaceProposalPage() {
                 <Webhook size={14} />
                 {t("webhookSection")}
               </h2>
-              <p className="text-xs text-[var(--muted)] mb-3">{t("webhookHint")}</p>
-              <div className="flex gap-2">
+              <p className="text-xs text-[var(--muted)] mb-3 leading-relaxed">{t("webhookHint")}</p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input
                   type="url"
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   placeholder="https://hooks.zapier.com/..."
-                  className="input text-sm flex-1 font-mono"
+                  className="input text-sm w-full min-w-0 font-mono sm:flex-1"
                 />
                 <button
                   type="button"
                   onClick={() => void saveWebhook()}
                   disabled={savingWebhook}
-                  className="btn-secondary text-xs flex items-center gap-1.5 shrink-0"
+                  className="btn-secondary text-xs !min-h-10 gap-1.5 shrink-0 w-full sm:w-auto"
                 >
                   {savingWebhook ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   {webhookSaved ? t("saved") : t("save")}
