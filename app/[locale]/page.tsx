@@ -92,8 +92,8 @@ export default async function LandingPage() {
                 <div className="grid gap-3">
                   <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4">
                     <p className="text-xs font-bold uppercase text-[var(--muted)]">{t("mockClient")}</p>
-                    <p className="mt-1 text-lg font-black">KFC Corporation</p>
-                    <p className="text-xs text-[var(--muted)]">https://www.kfc.it</p>
+                    <p className="mt-1 text-lg font-black">Acme Corporation</p>
+                    <p className="text-xs text-[var(--muted)]">https://www.example.com</p>
                   </div>
 
                   <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4">

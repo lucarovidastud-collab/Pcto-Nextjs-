@@ -46,7 +46,7 @@ export default function AdminLoginPage() {
                 type="email"
                 required
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
-                placeholder="master@quotegen.it"
+                placeholder="nome@dominio.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}

@@ -97,7 +97,7 @@
     "fieldCompanyName": "Bedrijfsnaam *",
     "fieldCustomLink": "Aangepaste link",
     "fieldWebsite": "Website (optioneel)",
-    "slugExample": "bijv. king-inox → /p/king-inox",
+    "slugExample": "bijv. bedrijfsnaam → /p/bedrijfsnaam",
     "analyzeBrand": "Palet & details van website extraheren",
     "analyzingBrand": "Merk analyseren...",
     "brandFailed": "Merkanalyse mislukt. U kunt het palet handmatig invoeren.",

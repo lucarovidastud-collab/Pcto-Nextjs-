@@ -409,7 +409,7 @@ export default function DashboardPage() {
                 <input
                   className="input"
                   required
-                  placeholder="Es. King Inox S.r.l."
+                  placeholder="Es. Azienda S.r.l."
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                 />
@@ -421,7 +421,7 @@ export default function DashboardPage() {
                   <span className="text-[11px] font-mono text-[var(--muted)] shrink-0">…/p/</span>
                   <input
                     className="input font-mono text-sm"
-                    placeholder="king-inox"
+                    placeholder="nome-azienda"
                     value={linkSlug}
                     onChange={(e) => {
                       setLinkSlugTouched(true);
@@ -447,7 +447,7 @@ export default function DashboardPage() {
                   <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)] opacity-60" size={16} />
                   <input
                     className="input input-with-icon"
-                    placeholder="https://www.kfc.it"
+                    placeholder="https://www.esempio.it"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                   />
@@ -486,7 +486,7 @@ export default function DashboardPage() {
               {t("fieldSector")}
               <input
                 className="input"
-                placeholder="Es. Ristorazione / Fast Food / Delivery"
+                placeholder="Es. Servizi / Retail / Tecnologia"
                 value={sector}
                 onChange={(e) => setSector(e.target.value)}
               />

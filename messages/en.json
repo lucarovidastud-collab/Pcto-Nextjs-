@@ -97,7 +97,7 @@
     "fieldCompanyName": "Company Name *",
     "fieldCustomLink": "Custom link",
     "fieldWebsite": "Website (optional)",
-    "slugExample": "e.g. king-inox → /p/king-inox",
+    "slugExample": "e.g. company-name → /p/company-name",
     "analyzeBrand": "Extract Palette & Details from Website",
     "analyzingBrand": "Analysing brand...",
     "brandFailed": "Brand analysis failed. You can still enter the palette manually.",

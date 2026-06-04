@@ -97,7 +97,7 @@
     "fieldCompanyName": "Nombre de empresa *",
     "fieldCustomLink": "Enlace personalizado",
     "fieldWebsite": "Sitio web (opcional)",
-    "slugExample": "ej. king-inox → /p/king-inox",
+    "slugExample": "ej. nombre-empresa → /p/nombre-empresa",
     "analyzeBrand": "Extraer paleta & detalles del sitio",
     "analyzingBrand": "Analizando marca...",
     "brandFailed": "Análisis de marca fallido. Puedes introducir la paleta manualmente.",

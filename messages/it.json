@@ -112,7 +112,7 @@
     "fieldCompanyName": "Nome Azienda *",
     "fieldCustomLink": "Link personalizzato",
     "fieldWebsite": "Sito Web (opzionale)",
-    "slugExample": "Es. king-inox → /p/king-inox",
+    "slugExample": "Es. nome-azienda → /p/nome-azienda",
     "analyzeBrand": "Estrai Palette e Dettagli dal Sito",
     "analyzingBrand": "Analisi brand in corso...",
     "brandFailed": "Analisi brand non riuscita. Puoi comunque inserire la palette manualmente.",

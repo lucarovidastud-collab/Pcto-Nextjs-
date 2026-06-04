@@ -97,7 +97,7 @@
     "fieldCompanyName": "Firmenname *",
     "fieldCustomLink": "Benutzerdefinierter Link",
     "fieldWebsite": "Website (optional)",
-    "slugExample": "z.B. king-inox → /p/king-inox",
+    "slugExample": "z.B. firmenname → /p/firmenname",
     "analyzeBrand": "Palette & Details von Website extrahieren",
     "analyzingBrand": "Marke wird analysiert...",
     "brandFailed": "Markenanalyse fehlgeschlagen. Sie können die Palette manuell eingeben.",
