@@ -1,5 +1,4 @@
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
+import { getOpenRouterConfig, openRouterChatCompletion } from "@/lib/services/openrouter-client";
 
 export async function generateProposalHtmlWithAI(input: {
   company: string;
@@ -9,7 +8,7 @@ export async function generateProposalHtmlWithAI(input: {
   palette: string[];
   styleDirection?: string;
 }) {
-  if (!OPENROUTER_API_KEY) return null;
+  if (!getOpenRouterConfig().apiKey) return null;
 
   const [primary, secondary, tertiary] = input.palette;
   const prompt = `Sei un Senior Commercial Strategist che scrive preventivi B2B in italiano.
@@ -35,32 +34,15 @@ Regole:
 - maiuscole in italiano: solo inizio frase e nomi propri; NON usare Title Case su ogni parola (es. scrivi "gamma prodotti tutti i" non "Gamma Prodotti Tutti I")
 - sintetizza gli appunti in 4-6 frasi brevi per sezione, non elencare cataloghi o liste lunghe copiate dal documento`;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 90_000);
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": process.env.APP_URL || "https://quotegen.app",
-        "X-Title": "QuoteGen Engine"
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        temperature: 0.4,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-    if (!response.ok) return null;
-    const payload = await response.json();
-    let text = payload?.choices?.[0]?.message?.content || "";
-    text = text.replace(/^```html\s*/i, "").replace(/```\s*$/i, "").trim();
-    return text || null;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeout);
-  }
+  const result = await openRouterChatCompletion({
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.4,
+    maxTokens: 4000,
+    timeoutMs: 90_000
+  });
+
+  if (!result.ok) return null;
+
+  const text = result.content.replace(/^```html\s*/i, "").replace(/```\s*$/i, "").trim();
+  return text || null;
 }

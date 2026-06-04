@@ -1,10 +1,15 @@
 import {
   extractExplicitTotalFromNotes,
-  isReasonableBudget
+  isReasonableBudget,
+  parseItalianAmount
 } from "@/lib/services/budget-from-notes";
+import {
+  extractJsonFromModelText,
+  getOpenRouterConfig,
+  openRouterChatCompletion
+} from "@/lib/services/openrouter-client";
+import { logger } from "@/lib/logger";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 const NOTES_FOR_AI_MAX = 12_000;
 
 const BUDGET_SYSTEM_PROMPT = `Sei un analista commerciale. Estrai il TOTALE del preventivo da testo grezzo (spesso PDF convertito male).
@@ -41,18 +46,30 @@ ${notes}
 ---`;
 }
 
+function coerceBudget(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.round(value);
+  }
+  if (typeof value === "string") {
+    const compact = value.trim();
+    const parsed = parseItalianAmount(compact) ?? parseItalianAmount(compact.replace(/\s/g, ""));
+    return parsed === null ? null : Math.round(parsed);
+  }
+  return null;
+}
+
 function parseAiBudgetResponse(text: string) {
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) return null;
+  const jsonText = extractJsonFromModelText(text);
+  if (!jsonText) return null;
 
   try {
-    const parsed = JSON.parse(match[0]) as {
-      budget?: number;
+    const parsed = JSON.parse(jsonText) as {
+      budget?: unknown;
       sectorSummary?: string;
       rationale?: string;
     };
-    const budget = Math.round(Number(parsed.budget));
-    if (!isReasonableBudget(budget)) return null;
+    const budget = coerceBudget(parsed.budget);
+    if (budget === null || !isReasonableBudget(budget)) return null;
     return {
       budget,
       sectorSummary: String(parsed.sectorSummary || "").slice(0, 140),
@@ -63,6 +80,18 @@ function parseAiBudgetResponse(text: string) {
   }
 }
 
+function buildFallbackResult(
+  input: { sector: string },
+  fallbackExplicit: number | null,
+  rationale: string
+) {
+  return {
+    budget: fallbackExplicit ?? 4200,
+    sectorSummary: input.sector,
+    rationale
+  };
+}
+
 export async function estimateBudgetFromNotes(input: {
   notes: string;
   company: string;
@@ -70,48 +99,43 @@ export async function estimateBudgetFromNotes(input: {
   website?: string;
 }) {
   const fallbackExplicit = extractExplicitTotalFromNotes(input.notes);
-  const fallbackBudget = fallbackExplicit ?? 4200;
 
-  if (!OPENROUTER_API_KEY) {
-    return {
-      budget: fallbackBudget,
-      sectorSummary: input.sector,
-      rationale: fallbackExplicit
+  if (!getOpenRouterConfig().apiKey) {
+    return buildFallbackResult(
+      input,
+      fallbackExplicit,
+      fallbackExplicit
         ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-        : "Stima default (AI non configurata)"
-    };
+        : "Stima default (configura OPENROUTER_API_KEY su Vercel)"
+    );
   }
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      temperature: 0.1,
-      messages: [
-        { role: "system", content: BUDGET_SYSTEM_PROMPT },
-        { role: "user", content: buildBudgetUserPrompt(input) }
-      ]
-    })
+  const result = await openRouterChatCompletion({
+    messages: [
+      { role: "system", content: BUDGET_SYSTEM_PROMPT },
+      { role: "user", content: buildBudgetUserPrompt(input) }
+    ],
+    temperature: 0.1,
+    maxTokens: 600,
+    jsonMode: true,
+    timeoutMs: 90_000
   });
 
-  if (!response.ok) {
-    return {
-      budget: fallbackBudget,
-      sectorSummary: input.sector,
-      rationale: fallbackExplicit
+  if (!result.ok) {
+    logger.warn(
+      { status: result.status, error: result.error, model: getOpenRouterConfig().model },
+      "openrouter.budget_estimate.failed"
+    );
+    return buildFallbackResult(
+      input,
+      fallbackExplicit,
+      fallbackExplicit
         ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-        : "Stima di riserva (AI non disponibile)"
-    };
+        : `Stima di riserva (AI non raggiungibile${result.status ? `, HTTP ${result.status}` : ""})`
+    );
   }
 
-  const payload = await response.json();
-  const text = String(payload?.choices?.[0]?.message?.content || "");
-  const ai = parseAiBudgetResponse(text);
-
+  const ai = parseAiBudgetResponse(result.content);
   if (ai) {
     return {
       budget: ai.budget,
@@ -120,11 +144,16 @@ export async function estimateBudgetFromNotes(input: {
     };
   }
 
-  return {
-    budget: fallbackBudget,
-    sectorSummary: input.sector,
-    rationale: fallbackExplicit
+  logger.warn(
+    { preview: result.content.slice(0, 200) },
+    "openrouter.budget_estimate.invalid_json"
+  );
+
+  return buildFallbackResult(
+    input,
+    fallbackExplicit,
+    fallbackExplicit
       ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-      : "Stima di riserva (AI senza risposta valida)"
-  };
+      : "Stima di riserva (risposta AI non valida)"
+  );
 }

@@ -3,8 +3,10 @@
  * Non scansiona tutto il PDF: solo righe con etichetta totale esplicita.
  */
 
-const EXPLICIT_TOTAL_RE =
-  /(?:^|[\n\r])\s*(?:totale\s+(?:generale\s+)?|importo\s+totale|budget\s+totale|totale\s+progetto|ammontare\s+complessivo)\s*[:\s]*(?:eur\.?|€)?\s*(\d{1,3}(?:\.\d{3}){0,3}(?:,\d{1,2})?|\d{1,8}(?:,\d{1,2})?)/i;
+const EXPLICIT_TOTAL_PATTERNS = [
+  /(?:importo\s+totale|totale\s+(?:generale|progetto|offerta)|budget\s+totale|ammontare\s+complessivo)\s*[:\s]*(?:eur\.?|€)?\s*(\d{1,3}(?:\.\d{3}){0,3}(?:,\d{1,2})?|\d{1,8}(?:,\d{1,2})?)/i,
+  /(?:^|[\n\r])\s*totale\s*[:\s]*(?:eur\.?|€)?\s*(\d{1,3}(?:\.\d{3}){0,3}(?:,\d{1,2})?|\d{1,8}(?:,\d{1,2})?)/i
+];
 
 export function parseItalianAmount(raw: string): number | null {
   const compact = raw.replace(/\s/g, "").trim();
@@ -34,10 +36,13 @@ export function isReasonableBudget(value: number): boolean {
 
 /** Solo etichetta totale esplicita — fallback se l'AI non risponde. */
 export function extractExplicitTotalFromNotes(notes: string): number | null {
-  const match = notes.match(EXPLICIT_TOTAL_RE);
-  if (!match?.[1]) return null;
-  const value = parseItalianAmount(match[1]);
-  if (value === null) return null;
-  const rounded = Math.round(value);
-  return isReasonableBudget(rounded) ? rounded : null;
+  for (const pattern of EXPLICIT_TOTAL_PATTERNS) {
+    const match = notes.match(pattern);
+    if (!match?.[1]) continue;
+    const value = parseItalianAmount(match[1]);
+    if (value === null) continue;
+    const rounded = Math.round(value);
+    if (isReasonableBudget(rounded)) return rounded;
+  }
+  return null;
 }
