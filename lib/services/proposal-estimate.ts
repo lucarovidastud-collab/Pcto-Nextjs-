@@ -139,9 +139,10 @@ export async function estimateBudgetFromNotes(input: {
 
   const ai = parseAiBudgetResponse(result.content);
   if (ai) {
+    const sectorSummary = String(ai.sectorSummary || input.sector).slice(0, 120);
     return {
       budget: ai.budget,
-      sectorSummary: ai.sectorSummary || input.sector,
+      sectorSummary,
       rationale: ai.rationale
     };
   }

@@ -1,5 +1,6 @@
 /** Testo estratto da PDF/DOCX inviato al modello generativo (preventivi lunghi). */
-export const PROPOSAL_NOTES_MAX_CHARS = 32_000;
+/** Bilanciato per latenza su Vercel + modelli flash (evita timeout → fallback). */
+export const PROPOSAL_NOTES_MAX_CHARS = 20_000;
 
 const PROPOSAL_HTML_CLASSES = [
   "proposal-hero",

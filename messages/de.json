@@ -125,6 +125,7 @@
     "errGenerationAborted": "Generierung abgebrochen. Bitte erneut versuchen.",
     "errConnection": "Keine Verbindung zum Server. Konfiguration prüfen.",
     "successShare": "Angebot erfolgreich veröffentlicht!",
+    "aiFallbackWarning": "Hinweis: vereinfachtes Layout (KI nicht verfügbar oder Timeout). Erneut versuchen oder OPENROUTER auf Vercel prüfen.",
     "copyLinkBtn": "Link kopieren",
     "linkCopied": "Kopiert!",
     "openProposal": "Kundenangebot öffnen",

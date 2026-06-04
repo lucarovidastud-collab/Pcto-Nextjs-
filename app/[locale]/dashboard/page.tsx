@@ -215,6 +215,8 @@ export default function DashboardPage() {
             id?: string;
             budget?: number;
             deployMessage?: string;
+            contentSource?: "ai" | "fallback";
+            aiError?: string;
           };
 
           if (evt.type === "progress" && typeof evt.percent === "number") {
@@ -239,7 +241,12 @@ export default function DashboardPage() {
             if (evt.budget) setBudget(evt.budget);
             setShareLink(`${window.location.origin}${evt.link}`);
             setProposalId(evt.id || null);
-            setApiMessage(evt.deployMessage || t("successShare"));
+            const base = evt.deployMessage || t("successShare");
+            setApiMessage(
+              evt.contentSource === "fallback"
+                ? `${base} ${t("aiFallbackWarning")}${evt.aiError ? ` (${evt.aiError})` : ""}`
+                : base
+            );
           }
         }
       }

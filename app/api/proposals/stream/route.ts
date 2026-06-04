@@ -7,6 +7,8 @@ import { proposalSlugError, slugifyProposalLink } from "@/lib/proposals/slug";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/** Generazione AI + PDF parsing può superare i 60s default di Vercel. */
+export const maxDuration = 300;
 
 function ndjsonLine(payload: unknown) {
   return `${JSON.stringify(payload)}\n`;
@@ -74,6 +76,8 @@ export async function POST(request: NextRequest) {
           expiresAt: result.expiresAt,
           budget: result.budget,
           palette: result.palette,
+          contentSource: result.contentSource,
+          aiError: result.aiError,
           deployMessage: `Proposta creata. Budget stimato: € ${result.budget.toLocaleString("it-IT")}.`
         });
       } catch (error) {

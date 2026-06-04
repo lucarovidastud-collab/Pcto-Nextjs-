@@ -125,6 +125,7 @@
     "errGenerationAborted": "Generatie afgebroken. Probeer opnieuw.",
     "errConnection": "Kan geen verbinding maken met de server. Controleer de configuratie.",
     "successShare": "Offerte succesvol gepubliceerd!",
+    "aiFallbackWarning": "Let op: vereenvoudigde layout (AI niet beschikbaar of timeout). Probeer opnieuw of controleer OPENROUTER op Vercel.",
     "copyLinkBtn": "Link kopiëren",
     "linkCopied": "Gekopieerd!",
     "openProposal": "Klantofferte openen",

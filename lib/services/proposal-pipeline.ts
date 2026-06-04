@@ -1,5 +1,4 @@
 import { createProposal, isShareTokenTaken } from "@/lib/db/repositories";
-import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import {
   fallbackShareToken,
   isValidProposalSlug,
@@ -7,7 +6,7 @@ import {
 } from "@/lib/proposals/slug";
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
-import { generateProposalHtmlWithAI } from "@/lib/services/proposal-ai";
+import { generateProposalHtml, type ProposalHtmlSource } from "@/lib/services/proposal-ai";
 import {
   ensurePricingTableTotal,
   normalizeProposalPricingTable
@@ -32,6 +31,8 @@ export type ProposalBuildResult = {
   budget: number;
   palette: string[];
   sector: string;
+  contentSource: ProposalHtmlSource;
+  aiError?: string;
 };
 
 export type ProgressCallback = (percent: number, label: string) => void;
@@ -66,22 +67,15 @@ export async function buildAndSaveProposal(
   const resolvedSector = formatReadableText(estimate.sectorSummary || sector);
 
   onProgress?.(58, "Generazione contenuto con intelligenza artificiale...");
-  const rawHtml =
-    (await generateProposalHtmlWithAI({
-      company,
-      sector: resolvedSector,
-      notes,
-      budget,
-      palette: resolvedPalette,
-      styleDirection: brand?.styleDirection
-    })) ||
-    buildFallbackProposalHtml({
-      company,
-      sector: resolvedSector,
-      notes,
-      budget,
-      palette: resolvedPalette
-    });
+  const generated = await generateProposalHtml({
+    company,
+    sector: resolvedSector,
+    notes,
+    budget,
+    palette: resolvedPalette,
+    styleDirection: brand?.styleDirection
+  });
+  const rawHtml = generated.html;
 
   const generatedHtml = ensurePricingTableTotal(
     normalizeProposalPricingTable(sanitizeProposalHtml(rawHtml), budget),
@@ -113,6 +107,8 @@ export async function buildAndSaveProposal(
     expiresAt: proposal.expiresAt,
     budget,
     palette: resolvedPalette,
-    sector: resolvedSector
+    sector: resolvedSector,
+    contentSource: generated.source,
+    aiError: generated.aiError
   };
 }

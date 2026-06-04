@@ -1,27 +1,91 @@
 import { buildProposalAiMessages } from "@/lib/services/proposal-ai-prompt";
+import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { getOpenRouterConfig, openRouterChatCompletion } from "@/lib/services/openrouter-client";
+import { logger } from "@/lib/logger";
 
-export async function generateProposalHtmlWithAI(input: {
+export type ProposalHtmlSource = "ai" | "fallback";
+
+export type ProposalHtmlGeneration = {
+  html: string;
+  source: ProposalHtmlSource;
+  aiError?: string;
+};
+
+function cleanModelHtml(text: string) {
+  return text.replace(/^```html\s*/i, "").replace(/```\s*$/i, "").trim();
+}
+
+function isUsableAiHtml(html: string) {
+  if (html.length < 800) return false;
+  return /proposal-(hero|card)|pricing-table/i.test(html);
+}
+
+export async function generateProposalHtml(input: {
   company: string;
   sector: string;
   notes: string;
   budget: number;
   palette: string[];
   styleDirection?: string;
-}) {
-  if (!getOpenRouterConfig().apiKey) return null;
+}): Promise<ProposalHtmlGeneration> {
+  const fallback = () =>
+    buildFallbackProposalHtml({
+      company: input.company,
+      sector: input.sector,
+      notes: input.notes,
+      budget: input.budget,
+      palette: input.palette
+    });
+
+  if (!getOpenRouterConfig().apiKey) {
+    return { html: fallback(), source: "fallback", aiError: "OPENROUTER_API_KEY mancante" };
+  }
 
   const { messages } = buildProposalAiMessages(input);
+  const attempts = [
+    { maxTokens: 8192, timeoutMs: 90_000, label: "primary" },
+    { maxTokens: 6000, timeoutMs: 75_000, label: "retry" }
+  ] as const;
 
-  const result = await openRouterChatCompletion({
-    messages,
-    temperature: 0.55,
-    maxTokens: 12_000,
-    timeoutMs: 120_000
-  });
+  let lastError = "Risposta AI non valida";
 
-  if (!result.ok) return null;
+  for (const attempt of attempts) {
+    const result = await openRouterChatCompletion({
+      messages,
+      temperature: 0.5,
+      maxTokens: attempt.maxTokens,
+      timeoutMs: attempt.timeoutMs
+    });
 
-  const text = result.content.replace(/^```html\s*/i, "").replace(/```\s*$/i, "").trim();
-  return text || null;
+    if (!result.ok) {
+      lastError = result.error || `HTTP ${result.status ?? "?"}`;
+      logger.warn(
+        { attempt: attempt.label, status: result.status, error: result.error, model: result.model },
+        "proposal_ai.generation_failed"
+      );
+      continue;
+    }
+
+    const html = cleanModelHtml(result.content);
+    if (isUsableAiHtml(html)) {
+      logger.info({ attempt: attempt.label, length: html.length }, "proposal_ai.generation_ok");
+      return { html, source: "ai" };
+    }
+
+    lastError = "HTML troppo corto o senza sezioni";
+    logger.warn(
+      { attempt: attempt.label, length: html.length, preview: html.slice(0, 120) },
+      "proposal_ai.invalid_html"
+    );
+  }
+
+  return { html: fallback(), source: "fallback", aiError: lastError };
+}
+
+/** @deprecated Usa generateProposalHtml */
+export async function generateProposalHtmlWithAI(
+  input: Parameters<typeof generateProposalHtml>[0]
+): Promise<string | null> {
+  const result = await generateProposalHtml(input);
+  return result.source === "ai" ? result.html : null;
 }

@@ -125,6 +125,7 @@
     "errGenerationAborted": "Generation aborted. Please try again.",
     "errConnection": "Cannot connect to server for generation. Check configuration.",
     "successShare": "Proposal published successfully!",
+    "aiFallbackWarning": "Note: simplified layout (AI unavailable or timed out). Retry shortly or check OPENROUTER on Vercel.",
     "copyLinkBtn": "Copy Link",
     "linkCopied": "Copied!",
     "openProposal": "Open Client Proposal",
