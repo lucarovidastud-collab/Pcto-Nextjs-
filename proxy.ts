@@ -3,7 +3,8 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
-import { localizedPath, stripLocaleFromPathname } from "./lib/i18n/path";
+import { LOCALE_COOKIE_NAME, localizedPath, stripLocaleFromPathname } from "./lib/i18n/path";
+import { locales } from "./i18n/routing";
 
 const SESSION_COOKIE = "quotegen_session";
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || "super-secret-admin-fallback-key-2026";
@@ -48,6 +49,22 @@ export async function proxy(request: NextRequest) {
   }
   if (rawPath === "/p" || rawPath.startsWith("/p/")) {
     return applySecurityHeaders(NextResponse.next(), false);
+  }
+
+  // Link cliente con prefisso lingua (es. /en/p/token) → URL canonica /p/token + cookie
+  const prefixedProposal = rawPath.match(
+    new RegExp(`^/(${locales.join("|")})/p(?:/(.*))?$`)
+  );
+  if (prefixedProposal) {
+    const [, loc, tokenPath] = prefixedProposal;
+    const target = tokenPath ? `/p/${tokenPath}` : "/p";
+    const response = NextResponse.redirect(new URL(target, request.url));
+    response.cookies.set(LOCALE_COOKIE_NAME, loc, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax"
+    });
+    return applySecurityHeaders(response, false);
   }
 
   const { locale, pathname } = stripLocaleFromPathname(rawPath);

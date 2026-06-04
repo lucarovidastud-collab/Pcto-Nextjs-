@@ -2,6 +2,8 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname as useNextPathname } from "next/navigation";
+import { isLocaleAgnosticPath, LOCALE_COOKIE_NAME } from "@/lib/i18n/path";
 import { localeLabels, locales, type AppLocale } from "@/i18n/routing";
 import { Globe, ChevronDown, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -16,12 +18,18 @@ export function LocaleSwitcher({ className = "", compact = false }: Props) {
   const locale = useLocale() as AppLocale;
   const router = useRouter();
   const pathname = usePathname();
+  const fullPathname = useNextPathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   function onChange(next: AppLocale) {
-    router.replace(pathname, { locale: next });
     setOpen(false);
+    if (isLocaleAgnosticPath(fullPathname)) {
+      document.cookie = `${LOCALE_COOKIE_NAME}=${next};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
+      window.location.assign(fullPathname);
+      return;
+    }
+    router.replace(pathname, { locale: next });
   }
 
   useEffect(() => {

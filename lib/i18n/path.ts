@@ -18,3 +18,10 @@ export function localizedPath(path: string, locale: AppLocale): string {
   if (locale === routing.defaultLocale) return normalized;
   return `/${locale}${normalized === "/" ? "" : normalized}`;
 }
+
+/** Route pubbliche condivise senza prefisso lingua (es. /p/token). */
+export function isLocaleAgnosticPath(pathname: string): boolean {
+  return pathname === "/p" || pathname.startsWith("/p/");
+}
+
+export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
