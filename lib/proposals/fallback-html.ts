@@ -25,7 +25,7 @@ export function buildFallbackProposalHtml(input: {
   return `
     <section class="proposal-card" style="border-left:4px solid ${primary}">
       <h3 style="color:${primary}">Obiettivo strategico</h3>
-      <p>Supportare <strong>${escapeHtml(input.company)}</strong> nel settore <strong>${escapeHtml(input.sector)}</strong> con una proposta digitale chiara, orientata alla conversione e coerente con l'identita visiva del brand.</p>
+      <p>Supportare ${escapeHtml(input.company)} nel settore ${escapeHtml(input.sector)} con una proposta digitale chiara, orientata alla conversione e coerente con l'identita visiva del brand.</p>
     </section>
     <section class="proposal-card" style="border-left:4px solid ${secondary}">
       <h3 style="color:${primary}">Scope operativo</h3>
@@ -40,7 +40,7 @@ export function buildFallbackProposalHtml(input: {
             <tr><td>Design & Brand</td><td>UI, UX, identita visiva</td><td>€ ${design.toLocaleString("it-IT")}</td></tr>
             <tr><td>Sviluppo & Automazioni</td><td>Implementazione e integrazioni</td><td>€ ${build.toLocaleString("it-IT")}</td></tr>
             <tr><td>QA & Go-live</td><td>Test, sicurezza, rilascio</td><td>€ ${qa.toLocaleString("it-IT")}</td></tr>
-            <tr class="total-row" style="background:color-mix(in srgb, ${primary} 12%, transparent)"><td colspan="2"><strong>Totale investimento</strong></td><td><strong style="color:${primary}">€ ${input.budget.toLocaleString("it-IT")}</strong></td></tr>
+            <tr class="total-row" style="background:color-mix(in srgb, ${primary} 12%, transparent)"><td colspan="2">Totale investimento</td><td style="color:${primary}">€ ${input.budget.toLocaleString("it-IT")}</td></tr>
           </tbody>
         </table>
       </div>

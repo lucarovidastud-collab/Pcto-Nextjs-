@@ -28,7 +28,10 @@ Regole:
 - includi tabella prezzi e sezione firma con button "Accetta Preventivo"
 - NON includere sezioni intitolate "Direzione Stile", "Stile", "Style Direction" o simili
 - tono professionale B2B formale, frasi brevi, spazi dopo i punti
-- usa sempre la forma verbale di terza persona o infinito (es. "siamo lieti di presentare"), MAI il Lei maiuscolo reverenziale (no "presentarVi", "VostRA", "LeI" con maiuscole interne)`;
+- usa sempre la forma verbale di terza persona o infinito (es. "siamo lieti di presentare"), MAI il Lei maiuscolo reverenziale (no "presentarVi", "VostRA", "LeI" con maiuscole interne)
+- NON usare <strong>, <b>, <em> o <i>: tutto il testo deve essere peso normale
+- maiuscole in italiano: solo inizio frase e nomi propri; NON usare Title Case su ogni parola (es. scrivi "gamma prodotti tutti i" non "Gamma Prodotti Tutti I")
+- sintetizza gli appunti in 4-6 frasi brevi per sezione, non elencare cataloghi o liste lunghe copiate dal documento`;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 90_000);

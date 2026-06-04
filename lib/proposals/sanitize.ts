@@ -1,4 +1,4 @@
-import { formatReadableText } from "@/lib/utils/text";
+import { normalizeItalianTypography, unwrapInlineEmphasis } from "@/lib/proposals/normalize-typography";
 
 const STYLE_SECTION_RE =
   /<(?:section|div|article)[^>]*>(?:\s*<(?:h[1-6])[^>]*>\s*(?:direzione\s+stile|stile|style\s+direction)[^<]*<\/h[1-6]>)[\s\S]*?<\/(?:section|div|article)>/gi;
@@ -58,8 +58,10 @@ export function sanitizeProposalHtml(html: string) {
     return `style="${sanitized}"`;
   });
 
+  const withoutEmphasis = unwrapInlineEmphasis(cleanedStyles);
+
   // Fix missing spaces after punctuation before uppercase
-  const spaced = cleanedStyles
+  const spaced = withoutEmphasis
     .replace(/\.([A-ZÀ-ÖØ-Þ])/g, ". $1")
     .replace(/\)([A-ZÀ-ÖØ-Þ])/g, ") $1");
 
@@ -67,7 +69,7 @@ export function sanitizeProposalHtml(html: string) {
   const fixedCaps = spaced.replace(/\b(presentar|inviar|comunica[rt]|scriver|mostrar|informa[rt])(V[iI])\b/g, "$1vi");
 
   return fixedCaps.replace(/>([^<]+)</g, (_, text: string) => {
-    const cleaned = formatReadableText(text);
+    const cleaned = normalizeItalianTypography(text);
     return `>${cleaned}<`;
   });
 }
