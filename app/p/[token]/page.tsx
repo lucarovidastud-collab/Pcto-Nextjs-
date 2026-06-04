@@ -7,6 +7,7 @@ import {
   normalizeProposalPricingTable
 } from "@/lib/proposals/pricing-table";
 import { applyBrandPaletteToHtml } from "@/lib/proposals/apply-brand-palette";
+import { withSectionAnchors } from "@/lib/proposals/sections";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { PALETTE_CHANNEL, paletteStorageKey, type PaletteMessage } from "@/lib/proposals/palette-channel";
 import { sanitizePaletteInput } from "@/lib/utils/palette";
@@ -15,7 +16,7 @@ import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer } from "lucide-react";
+import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer, List } from "lucide-react";
 
 type ProposalView = {
   company: string;
@@ -155,7 +156,10 @@ export default function PublicProposalPage() {
   }, [token, loadProposal]);
 
   const palette = proposal?.palette?.length ? proposal.palette : ["#0D9488", "#8B5CF6", "#F59E0B"];
-  const documentHtml = useMemo(() => (proposal ? resolveHtml(proposal) : ""), [proposal]);
+  const { html: documentHtml, sections } = useMemo(
+    () => (proposal ? withSectionAnchors(resolveHtml(proposal)) : { html: "", sections: [] }),
+    [proposal]
+  );
   const themeVars = useMemo(() => paletteToCssVars(palette), [palette]);
   const pageBg = useMemo(() => brandedPageBackground(palette), [palette]);
 
@@ -238,7 +242,7 @@ export default function PublicProposalPage() {
 
   return (
     <main className="proposal-branded min-h-screen w-full min-w-0 px-3 py-6 text-[var(--foreground)] sm:px-6 sm:py-12 transition-all" style={{ ...themeVars, ...pageBg }}>
-      <div className="mx-auto w-full min-w-0 max-w-4xl grid gap-6 sm:gap-8">
+      <div className="mx-auto w-full min-w-0 max-w-5xl grid gap-6 sm:gap-8">
         
         {/* Main Proposal Card Container */}
         <article className="glass w-full min-w-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-[color-mix(in_srgb,var(--brand-primary)_25%,var(--line))] shadow-2xl bg-[color-mix(in_srgb,var(--panel-strong)_95%,transparent)]">
@@ -289,7 +293,22 @@ export default function PublicProposalPage() {
           </header>
 
           {/* Proposal HTML Document Content */}
-          <div className="proposal-document min-w-0 px-4 py-8 sm:px-12 sm:py-10 max-w-none border-b border-[var(--line)] bg-[var(--panel-strong)] overflow-x-hidden break-words [overflow-wrap:anywhere]">
+          <div className="proposal-document proposal-surface min-w-0 px-4 py-8 sm:px-12 sm:py-10 max-w-none border-b border-[var(--line)] overflow-x-hidden break-words [overflow-wrap:anywhere]">
+            {sections.length >= 3 ? (
+              <nav className="proposal-index no-print" aria-label={t("indexTitle")}>
+                <p className="proposal-index-title">
+                  <List size={15} />
+                  <span>{t("indexTitle")}</span>
+                </p>
+                <ol>
+                  {sections.map((section) => (
+                    <li key={section.id}>
+                      <a href={`#${section.id}`}>{section.title}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            ) : null}
             <div className="min-w-0 max-w-full" dangerouslySetInnerHTML={{ __html: documentHtml }} />
           </div>
 

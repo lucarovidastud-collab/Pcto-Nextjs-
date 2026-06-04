@@ -396,6 +396,7 @@
     "loading": "Loading commercial proposal...",
     "invalid": "This proposal or link is invalid or has expired. Contact the sender for a new link.",
     "officialBadge": "Official Commercial Proposal",
+    "indexTitle": "Proposal contents",
     "budget": "Budget",
     "expires": "Expires",
     "print": "Print / PDF",

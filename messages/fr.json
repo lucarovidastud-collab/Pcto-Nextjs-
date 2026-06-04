@@ -387,6 +387,7 @@
     "loading": "Chargement de la proposition commerciale...",
     "invalid": "Cette proposition ou ce lien est invalide ou expiré. Contactez l'émetteur.",
     "officialBadge": "Proposition commerciale officielle",
+    "indexTitle": "Sommaire de la proposition",
     "budget": "Budget",
     "expires": "Échéance",
     "print": "Imprimer / PDF",

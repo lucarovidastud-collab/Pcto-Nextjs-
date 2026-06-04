@@ -9,6 +9,22 @@ export function unwrapInlineEmphasis(html: string): string {
     .replace(/<\/(?:em|i)>/gi, "");
 }
 
+/**
+ * Converte l'enfasi markdown (** *** __ *) in HTML pulito così non restano
+ * asterischi letterali nel preventivo. Niente lookbehind: compatibile con tutti i browser.
+ */
+export function convertMarkdownEmphasis(html: string): string {
+  let out = html;
+  out = out.replace(/\*\*\*([^*\n]+?)\*\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/___([^_\n]+?)___/g, "<strong>$1</strong>");
+  out = out.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/__([^_\n]+?)__/g, "<strong>$1</strong>");
+  out = out.replace(/\*([^*\n]+?)\*/g, "<em>$1</em>");
+  // marcatori residui orfani (es. asterischi spaiati)
+  out = out.replace(/\*{2,}/g, "");
+  return out;
+}
+
 /** Riduce Title Case spurio: "Gamma Prodotti Tutti" → "Gamma prodotti tutti". */
 export function fixExcessiveTitleCase(text: string): string {
   return text.replace(

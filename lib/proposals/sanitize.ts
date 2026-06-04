@@ -1,4 +1,4 @@
-import { normalizeItalianTypography, unwrapInlineEmphasis } from "@/lib/proposals/normalize-typography";
+import { convertMarkdownEmphasis, normalizeItalianTypography } from "@/lib/proposals/normalize-typography";
 
 const STYLE_SECTION_RE =
   /<(?:section|div|article)[^>]*>(?:\s*<(?:h[1-6])[^>]*>\s*(?:direzione\s+stile|stile|style\s+direction)[^<]*<\/h[1-6]>)[\s\S]*?<\/(?:section|div|article)>/gi;
@@ -120,9 +120,9 @@ export function sanitizeProposalHtml(html: string) {
 
   const withoutBodyColors = stripColorOnBodyTags(cleanedStyles);
 
-  const withoutEmphasis = unwrapInlineEmphasis(withoutBodyColors);
+  const withEmphasis = convertMarkdownEmphasis(withoutBodyColors);
 
-  const spaced = withoutEmphasis
+  const spaced = withEmphasis
     .replace(/\.([A-ZÀ-ÖØ-Þ])/g, ". $1")
     .replace(/\)([A-ZÀ-ÖØ-Þ])/g, ") $1");
 

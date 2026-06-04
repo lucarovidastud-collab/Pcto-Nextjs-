@@ -387,6 +387,7 @@
     "loading": "A carregar proposta comercial...",
     "invalid": "Esta proposta ou link é inválido ou expirou. Contacte o emissor.",
     "officialBadge": "Proposta Comercial Oficial",
+    "indexTitle": "Índice da proposta",
     "budget": "Orçamento",
     "expires": "Validade",
     "print": "Imprimir / PDF",

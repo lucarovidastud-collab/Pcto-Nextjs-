@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  convertMarkdownEmphasis,
   fixExcessiveTitleCase,
   fixItalianParticlesCase,
   normalizeItalianTypography,
@@ -11,6 +12,20 @@ describe("unwrapInlineEmphasis", () => {
     expect(unwrapInlineEmphasis("<p>Testo <strong>grassetto</strong> fine</p>")).toBe(
       "<p>Testo grassetto fine</p>"
     );
+  });
+});
+
+describe("convertMarkdownEmphasis", () => {
+  it("converts markdown bold and bold-italic to strong", () => {
+    expect(convertMarkdownEmphasis("<li>**Termine** descrizione</li>")).toBe(
+      "<li><strong>Termine</strong> descrizione</li>"
+    );
+    expect(convertMarkdownEmphasis("***Forte***")).toBe("<strong>Forte</strong>");
+  });
+
+  it("converts single asterisks to em and removes stray markers", () => {
+    expect(convertMarkdownEmphasis("testo *corsivo* qui")).toBe("testo <em>corsivo</em> qui");
+    expect(convertMarkdownEmphasis("residuo **")).toBe("residuo ");
   });
 });
 

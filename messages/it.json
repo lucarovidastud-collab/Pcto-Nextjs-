@@ -411,6 +411,7 @@
     "loading": "Caricamento proposta commerciale in corso...",
     "invalid": "Questo preventivo o link non è valido, oppure è scaduto. Contatta l'emittente per un nuovo link.",
     "officialBadge": "Proposta Commerciale Ufficiale",
+    "indexTitle": "Indice della proposta",
     "budget": "Budget",
     "expires": "Scadenza",
     "print": "Stampa / PDF",
