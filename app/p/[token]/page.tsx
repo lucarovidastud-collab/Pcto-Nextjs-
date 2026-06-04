@@ -2,6 +2,7 @@
 
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
 import { brandedPageBackground, paletteToCssVars } from "@/lib/proposals/brand-theme";
+import { ensurePricingTableTotal } from "@/lib/proposals/pricing-table";
 import { sanitizeProposalHtml } from "@/lib/proposals/sanitize";
 import { formatReadableText, truncateText } from "@/lib/utils/text";
 import { useParams } from "next/navigation";
@@ -40,17 +41,21 @@ function formatDate(value: string | undefined, locale: string) {
 
 function resolveHtml(proposal: ProposalView) {
   const palette = proposal.palette?.length ? proposal.palette : ["#0D9488", "#8B5CF6", "#F59E0B"];
+  const budget = Number(proposal.budget) || 0;
   const html = proposal.generatedHtml?.trim();
-  if (html && /<[a-z][\s\S]*>/i.test(html)) return sanitizeProposalHtml(html);
-  return sanitizeProposalHtml(
-    buildFallbackProposalHtml({
-      company: proposal.company,
-      sector: formatReadableText(proposal.sector),
-      notes: proposal.notes || "",
-      budget: Number(proposal.budget) || 0,
-      palette
-    })
-  );
+  const base =
+    html && /<[a-z][\s\S]*>/i.test(html)
+      ? sanitizeProposalHtml(html)
+      : sanitizeProposalHtml(
+          buildFallbackProposalHtml({
+            company: proposal.company,
+            sector: formatReadableText(proposal.sector),
+            notes: proposal.notes || "",
+            budget,
+            palette
+          })
+        );
+  return ensurePricingTableTotal(base, budget);
 }
 
 export default function PublicProposalPage() {

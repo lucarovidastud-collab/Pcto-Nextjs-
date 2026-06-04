@@ -15,7 +15,7 @@ export async function generateProposalHtmlWithAI(input: {
   const prompt = `Sei un Senior Commercial Strategist che scrive preventivi B2B in italiano.
 Crea SOLO HTML interno (senza <html>/<body>) per il preventivo di "${input.company}" settore "${input.sector}".
 Appunti (sintetizza, NON copiare paragrafi lunghi): ${input.notes.slice(0, 1200)}
-Budget target: EUR ${input.budget}
+Budget totale OBBLIGATORIO: EUR ${input.budget} (la riga "Totale investimento" nella tabella prezzi deve mostrare esattamente € ${input.budget.toLocaleString("it-IT")})
 Palette brand: ${input.palette.join(", ")}
 
 Regole:
@@ -25,7 +25,9 @@ Regole:
 - bordi card con style="border-left:4px solid ${primary}"
 - accessibilità: garantisci sempre testo leggibile (no testo bianco su sfondo chiaro, no testo nero su sfondo scuro)
 - non impostare colori testo/sfondo inline su paragrafi e righe tabella; lascia colore di default e usa i colori brand solo per accenti (titoli, bordi, highlight leggeri)
-- includi tabella prezzi e sezione firma con button "Accetta Preventivo"
+- includi tabella prezzi (class pricing-table + riga total-row) e sezione firma con button "Accetta Preventivo"
+- le voci della tabella devono essere coerenti e la somma deve corrispondere al budget totale indicato sopra
+- se negli appunti c'è un importo totale, usa quello nella riga totale senza modificarlo
 - NON includere sezioni intitolate "Direzione Stile", "Stile", "Style Direction" o simili
 - tono professionale B2B formale, frasi brevi, spazi dopo i punti
 - usa sempre la forma verbale di terza persona o infinito (es. "siamo lieti di presentare"), MAI il Lei maiuscolo reverenziale (no "presentarVi", "VostRA", "LeI" con maiuscole interne)

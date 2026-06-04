@@ -1,22 +1,7 @@
+import { extractBudgetFromNotes } from "@/lib/services/budget-from-notes";
+
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
-
-function extractBudgetFromNotes(notes: string) {
-  const euroMatch = notes.match(/(?:€|eur(?:o)?)\s*([\d.,]+)/i);
-  if (euroMatch) {
-    const value = Number(euroMatch[1].replace(/\./g, "").replace(",", "."));
-    if (Number.isFinite(value) && value >= 500) return Math.round(value);
-  }
-  const plain = notes.match(/\b([\d]{3,6})\b/g);
-  if (plain?.length) {
-    const currentYear = new Date().getFullYear();
-    const candidates = plain
-      .map((v) => Number(v))
-      .filter((v) => v >= 800 && v <= 250_000 && v !== currentYear && v !== currentYear + 1);
-    if (candidates.length) return Math.round(candidates.sort((a, b) => b - a)[0]);
-  }
-  return null;
-}
 
 export async function estimateBudgetFromNotes(input: {
   notes: string;
@@ -24,12 +9,15 @@ export async function estimateBudgetFromNotes(input: {
   sector: string;
   website?: string;
 }) {
-  const heuristic = extractBudgetFromNotes(input.notes);
+  const explicitBudget = extractBudgetFromNotes(input.notes);
+
   if (!OPENROUTER_API_KEY) {
     return {
-      budget: heuristic || 4200,
+      budget: explicitBudget || 4200,
       sectorSummary: input.sector,
-      rationale: heuristic ? "Budget estratto dagli appunti" : "Stima default"
+      rationale: explicitBudget
+        ? `Importo rilevato negli appunti (€ ${explicitBudget.toLocaleString("it-IT")})`
+        : "Stima default"
     };
   }
 
@@ -59,8 +47,7 @@ ${input.notes}
 
 Regole budget:
 - numero intero EUR, realistico per scope descritto
-- se negli appunti c'è un importo esplicito, usalo
-- range tipico 1500-50000`
+- se negli appunti c'è un importo totale esplicito (es. "totale 47.000", "importo 15000"), usa QUELLO esatto senza limiti minimo/massimo`
         }
       ]
     })
@@ -68,9 +55,11 @@ Regole budget:
 
   if (!response.ok) {
     return {
-      budget: heuristic || 4200,
+      budget: explicitBudget || 4200,
       sectorSummary: input.sector,
-      rationale: "Stima euristica (AI non disponibile)"
+      rationale: explicitBudget
+        ? `Importo rilevato negli appunti (€ ${explicitBudget.toLocaleString("it-IT")})`
+        : "Stima euristica (AI non disponibile)"
     };
   }
 
@@ -79,26 +68,32 @@ Regole budget:
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) {
     return {
-      budget: heuristic || 4200,
+      budget: explicitBudget || 4200,
       sectorSummary: input.sector,
-      rationale: "Stima euristica"
+      rationale: explicitBudget ? "Importo dagli appunti" : "Stima euristica"
     };
   }
 
   try {
     const parsed = JSON.parse(match[0]) as { budget?: number; sectorSummary?: string; rationale?: string };
-    const budget = Math.round(Number(parsed.budget));
-    const safeBudget = Number.isFinite(budget) && budget >= 500 ? budget : heuristic || 4200;
+    const aiBudget = Math.round(Number(parsed.budget));
+    const safeAiBudget = Number.isFinite(aiBudget) && aiBudget > 0 ? aiBudget : null;
+
+    const budget = explicitBudget ?? safeAiBudget ?? 4200;
+    const rationale = explicitBudget
+      ? `Importo rilevato negli appunti (€ ${explicitBudget.toLocaleString("it-IT")})`
+      : String(parsed.rationale || "Stima AI");
+
     return {
-      budget: safeBudget,
+      budget,
       sectorSummary: String(parsed.sectorSummary || input.sector).slice(0, 140),
-      rationale: String(parsed.rationale || "Stima AI")
+      rationale
     };
   } catch {
     return {
-      budget: heuristic || 4200,
+      budget: explicitBudget || 4200,
       sectorSummary: input.sector,
-      rationale: "Stima euristica"
+      rationale: explicitBudget ? "Importo dagli appunti" : "Stima euristica"
     };
   }
 }

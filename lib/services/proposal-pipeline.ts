@@ -8,6 +8,7 @@ import {
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
 import { generateProposalHtmlWithAI } from "@/lib/services/proposal-ai";
+import { ensurePricingTableTotal } from "@/lib/proposals/pricing-table";
 import { formatReadableText } from "@/lib/utils/text";
 
 export type ProposalBuildInput = {
@@ -61,7 +62,7 @@ export async function buildAndSaveProposal(
   const resolvedSector = formatReadableText(estimate.sectorSummary || sector);
 
   onProgress?.(58, "Generazione contenuto con intelligenza artificiale...");
-  const generatedHtml =
+  const rawHtml =
     (await generateProposalHtmlWithAI({
       company,
       sector: resolvedSector,
@@ -77,6 +78,8 @@ export async function buildAndSaveProposal(
       budget,
       palette: resolvedPalette
     });
+
+  const generatedHtml = ensurePricingTableTotal(rawHtml, budget);
 
   onProgress?.(82, "Creazione link personalizzato...");
   const shareToken = await pickShareToken(company, linkSlug);
