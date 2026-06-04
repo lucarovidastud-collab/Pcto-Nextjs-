@@ -9,9 +9,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { BrandPaletteEditor } from "@/components/dashboard/brand-palette-editor";
 import { ProposalStylePicker } from "@/components/dashboard/proposal-style-picker";
+import { TemplateGallery, type TemplateSummary } from "@/components/dashboard/template-gallery";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
 import { sanitizePaletteInput } from "@/lib/utils/palette";
-import { DEFAULT_PROPOSAL_STYLE, type ProposalStyleId } from "@/lib/proposals/styles";
+import { DEFAULT_PROPOSAL_STYLE, isProposalStyleId, type ProposalStyleId } from "@/lib/proposals/styles";
 import { broadcastPalette } from "@/lib/proposals/palette-channel";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
@@ -182,6 +183,20 @@ export default function DashboardPage() {
     } finally {
       setIsAnalyzing(false);
     }
+  }
+
+  function applyTemplate(template: TemplateSummary) {
+    setCompany(template.company || "");
+    setWebsite(template.website || "");
+    setSector(template.sector || "");
+    if (template.palette?.length) setPalette(sanitizePaletteInput(template.palette));
+    if (template.style && isProposalStyleId(template.style)) setProposalStyle(template.style);
+    setShareLink("");
+    setProposalId(null);
+    setBudget(null);
+    setBrandMessage("");
+    setApiMessage(t("templateApplied"));
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function generateProposal() {
@@ -377,7 +392,10 @@ export default function DashboardPage() {
       <div className="grid w-full gap-5 sm:gap-6 lg:grid-cols-[1fr_340px]">
         {/* Main Form Area */}
         <section className="grid w-full gap-5 sm:gap-6">
-          
+
+          {/* I miei template */}
+          <TemplateGallery onUse={applyTemplate} />
+
           {/* Step 1: Info Cliente */}
           <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
             <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
