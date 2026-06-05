@@ -53,22 +53,26 @@ export function TemplateGallery({ onUse }: Props) {
       </div>
       <p className="text-xs text-[var(--muted)]">{t("templatesSubtitle")}</p>
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {templates.map((template) => (
           <div
             key={template.id}
-            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-3"
+            className="flex min-w-0 flex-col gap-3 overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-4"
           >
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold">{template.templateName || template.company}</p>
+            <div className="min-w-0 flex-1">
+              <p className="break-words text-sm font-bold leading-snug">
+                {template.templateName || template.company}
+              </p>
               {template.sector ? (
-                <p className="truncate text-[11px] text-[var(--muted)]">{template.sector}</p>
+                <p className="mt-1 line-clamp-3 break-words text-[11px] leading-relaxed text-[var(--muted)]">
+                  {template.sector}
+                </p>
               ) : null}
-              <div className="mt-1.5 flex gap-1" aria-hidden>
+              <div className="mt-2 flex flex-wrap gap-1" aria-hidden>
                 {(template.palette ?? []).slice(0, 5).map((color, index) => (
                   <span
                     key={`${template.id}-${index}`}
-                    className="h-3 w-3 rounded-full border border-[var(--line)]"
+                    className="h-3 w-3 shrink-0 rounded-full border border-[var(--line)]"
                     style={{ background: color }}
                   />
                 ))}
@@ -77,7 +81,7 @@ export function TemplateGallery({ onUse }: Props) {
             <button
               type="button"
               onClick={() => onUse(template)}
-              className="btn-secondary shrink-0 text-xs font-bold flex items-center gap-1.5"
+              className="btn-secondary flex w-full max-w-full min-w-0 shrink-0 items-center justify-center gap-1.5 text-xs font-bold sm:w-auto"
             >
               <Wand2 size={13} />
               {t("useTemplate")}

@@ -322,7 +322,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-5 max-w-6xl mx-auto">
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-5">
       {portalReturn ? (
         <p className="glass-premium rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3.5 text-sm font-semibold text-emerald-800 dark:text-emerald-300">
           {t("portalReturn")}
@@ -335,17 +335,17 @@ export default function DashboardPage() {
       ) : null}
 
       {/* Premium Dashboard Header */}
-      <header className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent)] uppercase tracking-widest">
-            <Sparkles size={14} />
-            <span>{t("aiGeneratorBadge")}</span>
-          </div>
-          <h1 className="text-3xl font-black tracking-tight mt-1">{t("createTitle")}</h1>
-          <p className="text-sm text-[var(--muted)] mt-1.5 max-w-xl">{t("createSubtitle")}</p>
+      <header className="glass flex w-full min-w-0 flex-col gap-4 overflow-x-hidden rounded-2xl p-4 sm:gap-5 sm:p-6 md:flex-row md:items-start md:justify-between md:p-8">
+        <div className="grid min-w-0 gap-2 sm:gap-3">
+          <p className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wide text-[var(--accent)] sm:text-xs sm:tracking-widest">
+            <Sparkles size={14} className="shrink-0" />
+            <span className="leading-snug">{t("aiGeneratorBadge")}</span>
+          </p>
+          <h1 className="text-2xl font-black leading-tight tracking-tight sm:text-3xl">{t("createTitle")}</h1>
+          <p className="max-w-xl text-sm leading-relaxed text-[var(--muted)]">{t("createSubtitle")}</p>
         </div>
-        
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+
+        <div className="flex w-full min-w-0 shrink-0 flex-col gap-2 sm:w-auto sm:flex-row md:pt-1">
           <button 
             type="button" 
             onClick={() => {
@@ -360,7 +360,7 @@ export default function DashboardPage() {
               setApiMessage("");
               setBrandMessage("");
             }}
-            className="btn-secondary w-full flex items-center justify-center gap-2 text-xs min-h-[2.5rem] sm:w-auto"
+            className="btn-secondary w-full max-w-full min-w-0 flex items-center justify-center gap-2 text-xs min-h-[2.5rem] sm:w-auto"
           >
             <RefreshCw size={14} />
             {t("clearFields")}
@@ -377,9 +377,9 @@ export default function DashboardPage() {
 
           {/* Step 1: Info Cliente */}
           <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
-            <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">1</span>
-              <h2 className="text-lg font-black tracking-tight">{t("step1Title")}</h2>
+            <div className="flex items-start gap-2 border-b border-[var(--line)] pb-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">1</span>
+              <h2 className="min-w-0 text-base font-black leading-snug tracking-tight sm:text-lg">{t("step1Title")}</h2>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -438,7 +438,7 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-2 mt-2">
                 <button
                   type="button"
-                  className="btn-secondary flex items-center justify-center gap-2 text-xs py-2 min-h-[2.25rem] self-start"
+                  className="btn-secondary flex w-full max-w-full min-w-0 items-center justify-center gap-2 text-xs py-2 min-h-[2.25rem] sm:w-auto sm:self-start"
                   onClick={analyzeBrand}
                   disabled={isAnalyzing}
                 >
@@ -456,9 +456,9 @@ export default function DashboardPage() {
 
           {/* Step 2: Dettagli Proposta */}
           <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
-            <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">2</span>
-              <h2 className="text-lg font-black tracking-tight">{t("step2Title")}</h2>
+            <div className="flex items-start gap-2 border-b border-[var(--line)] pb-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">2</span>
+              <h2 className="min-w-0 text-base font-black leading-snug tracking-tight sm:text-lg">{t("step2Title")}</h2>
             </div>
 
             <label className="grid gap-1.5 text-xs font-extrabold text-[var(--muted)] uppercase tracking-wide">
@@ -513,10 +513,10 @@ export default function DashboardPage() {
           </div>
 
           {/* Step 3: Generazione AI & Risultato */}
-          <div className="glass w-full rounded-2xl p-5 sm:p-6 grid gap-4">
-            <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">3</span>
-              <h2 className="text-lg font-black tracking-tight">{t("step3Title")}</h2>
+          <div className="glass w-full overflow-x-hidden rounded-2xl p-5 sm:p-6 grid gap-4">
+            <div className="flex items-start gap-2 border-b border-[var(--line)] pb-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--line)] text-xs font-bold text-[var(--foreground)]">3</span>
+              <h2 className="min-w-0 text-base font-black leading-snug tracking-tight sm:text-lg">{t("step3Title")}</h2>
             </div>
 
             {/* Selettore stile preventivo */}
@@ -598,7 +598,7 @@ export default function DashboardPage() {
                   />
                   <button
                     onClick={copyLink}
-                    className="btn-secondary text-xs min-h-[2.25rem] px-3 py-1.5 flex items-center justify-center gap-1.5 font-bold shrink-0"
+                    className="btn-secondary w-full min-w-0 max-w-full text-xs min-h-[2.25rem] px-3 py-1.5 flex items-center justify-center gap-1.5 font-bold sm:w-auto sm:shrink-0"
                     title={t("copyLinkBtn")}
                   >
                     {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
@@ -606,19 +606,19 @@ export default function DashboardPage() {
                   </button>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                <div className="flex flex-col gap-2 mt-1 sm:flex-row">
                   <a
                     href={shareLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn-primary text-xs min-h-[2.25rem] py-1.5 flex-1 flex items-center justify-center gap-1.5 font-bold"
+                    className="btn-primary w-full min-w-0 max-w-full text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold sm:flex-1"
                   >
                     <FileText size={14} />
                     {t("openProposal")}
                   </a>
                   <button
                     onClick={printProposal}
-                    className="btn-secondary text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold"
+                    className="btn-secondary w-full min-w-0 max-w-full text-xs min-h-[2.25rem] py-1.5 flex items-center justify-center gap-1.5 font-bold sm:w-auto"
                   >
                     <Download size={14} />
                     {t("printPdf")}

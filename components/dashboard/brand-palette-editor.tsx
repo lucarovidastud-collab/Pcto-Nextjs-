@@ -46,7 +46,7 @@ export function BrandPaletteEditor({ palette, onChange }: Props) {
       {palette.map((color, index) => (
         <div
           key={`palette-row-${index}`}
-          className="flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-2"
+          className="grid min-w-0 gap-2 rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] p-2 sm:grid-cols-[auto_1fr_auto_auto] sm:items-center"
         >
           <input
             type="color"
@@ -62,29 +62,31 @@ export function BrandPaletteEditor({ palette, onChange }: Props) {
             value={color}
             onChange={(e) => updateColor(index, e.target.value)}
             onBlur={(e) => updateColor(index, e.target.value)}
-            className="input min-h-0 flex-1 py-1.5 font-mono text-xs uppercase"
+            className="input min-h-0 min-w-0 py-1.5 font-mono text-xs uppercase sm:col-span-1"
             spellCheck={false}
             maxLength={7}
           />
 
-          <button
-            type="button"
-            onClick={() => void copyColor(color)}
-            className="btn-secondary shrink-0 px-2.5 py-1.5 min-h-0"
-            title={t("paletteCopy")}
-          >
-            {copiedColor === color ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-          </button>
+          <div className="flex gap-2 sm:contents">
+            <button
+              type="button"
+              onClick={() => void copyColor(color)}
+              className="btn-secondary min-h-0 flex-1 px-2.5 py-1.5 sm:w-auto sm:flex-none"
+              title={t("paletteCopy")}
+            >
+              {copiedColor === color ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => removeColor(index)}
-            disabled={palette.length <= PALETTE_MIN_COLORS}
-            className="btn-secondary shrink-0 px-2.5 py-1.5 min-h-0 disabled:opacity-40"
-            title={t("paletteRemove")}
-          >
-            <Trash2 size={14} />
-          </button>
+            <button
+              type="button"
+              onClick={() => removeColor(index)}
+              disabled={palette.length <= PALETTE_MIN_COLORS}
+              className="btn-secondary min-h-0 flex-1 px-2.5 py-1.5 disabled:opacity-40 sm:w-auto sm:flex-none"
+              title={t("paletteRemove")}
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
       ))}
 

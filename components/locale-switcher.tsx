@@ -61,7 +61,7 @@ export function LocaleSwitcher({ className = "", compact = false }: Props) {
         {!compact && (
           <span className="text-[var(--muted)] hidden sm:inline">{t("language")}</span>
         )}
-        <span className="flex-1 text-left">{localeLabels[locale]}</span>
+        <span className="min-w-0 flex-1 truncate text-left">{localeLabels[locale]}</span>
         <ChevronDown
           size={12}
           className={`text-[var(--muted)] transition-transform duration-150 ${open ? "rotate-180" : ""}`}

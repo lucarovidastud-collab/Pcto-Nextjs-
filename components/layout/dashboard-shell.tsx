@@ -67,7 +67,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen text-[var(--foreground)] bg-[var(--background)] flex flex-col lg:flex-row">
       
       {/* Mobile Sticky Header */}
-      <header className="glass sticky top-0 z-40 flex items-center justify-between px-6 py-4 lg:hidden border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)]">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--line)] bg-[var(--background)]/95 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--background)]/90 lg:hidden">
         <div className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-white shadow-sm">
             <Sparkles size={14} />
@@ -247,7 +247,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 px-3 py-5 sm:px-4 sm:py-6 md:p-8 lg:p-10">
+      <main className="flex-1 min-w-0 overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 md:p-8 lg:p-10">
         {children}
       </main>
     </div>

@@ -61,7 +61,7 @@ export function ProposalStylePicker({ value, onChange }: Props) {
             type="button"
             onClick={() => onChange(style.id)}
             aria-pressed={active}
-            className={`flex min-h-[2.75rem] items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold transition-all ${
+            className={`flex min-h-[2.75rem] min-w-0 items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-bold transition-all ${
               active
                 ? "border-[var(--accent)] bg-[var(--accent-glow)] text-[var(--accent)] shadow-sm"
                 : "border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] hover:border-[var(--accent)]"

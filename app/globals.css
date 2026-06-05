@@ -91,6 +91,18 @@
   }
 }
 
+/* Mobile layout safety */
+@media (max-width: 639px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  main {
+    max-width: 100%;
+  }
+}
+
 /* Glassmorphism Components */
 .glass {
   background: var(--panel);
@@ -98,6 +110,8 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-md);
+  min-width: 0;
+  overflow: clip;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
 }
 
@@ -111,6 +125,8 @@
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-lg);
+  min-width: 0;
+  overflow: clip;
 }
 
 /* Stripe Embedded Checkout — iframe a tutta larghezza nel layout QuoteGen */
@@ -180,13 +196,16 @@
 
 /* Premium Button Elements */
 .btn-primary {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  white-space: normal;
   text-align: center;
   min-height: 2.75rem;
+  max-width: 100%;
+  box-sizing: border-box;
   border-radius: 0.75rem;
   border: none;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -233,13 +252,16 @@
 }
 
 .btn-secondary {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  white-space: normal;
   text-align: center;
   min-height: 2.75rem;
+  max-width: 100%;
+  box-sizing: border-box;
   border-radius: 0.75rem;
   border: 1px solid var(--line);
   background: var(--panel-strong);
@@ -250,6 +272,29 @@
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: var(--shadow-sm);
+}
+
+/* Bottoni dentro card: su mobile occupano tutta la larghezza utile */
+@media (max-width: 639px) {
+  .glass > .btn-primary,
+  .glass > .btn-secondary,
+  .glass-premium > .btn-primary,
+  .glass-premium > .btn-secondary,
+  .glass > a.btn-primary,
+  .glass > a.btn-secondary,
+  .glass-premium > a.btn-primary,
+  .glass-premium > a.btn-secondary,
+  .glass .btn-primary.w-full,
+  .glass .btn-secondary.w-full,
+  .glass-premium .btn-primary.w-full,
+  .glass-premium .btn-secondary.w-full,
+  .glass a.btn-primary.w-full,
+  .glass a.btn-secondary.w-full,
+  .glass-premium a.btn-primary.w-full,
+  .glass-premium a.btn-secondary.w-full {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .btn-secondary:hover:not(:disabled) {

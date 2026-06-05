@@ -23,13 +23,13 @@ export default async function LandingPage() {
 
   return (
     <main className="min-h-screen text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-white">
-      <header className="glass sticky top-0 z-50 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--background)_80%,transparent)] px-4 py-4 sm:px-6">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-white shadow-md">
+      <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--background)]/95 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--background)]/90 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] text-white shadow-md">
               <Sparkles size={16} />
             </span>
-            <span className="text-base font-black tracking-tight sm:text-lg">
+            <span className="truncate text-sm font-black tracking-tight sm:text-lg">
               QuoteGen{" "}
               <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">
                 Engine
@@ -37,9 +37,12 @@ export default async function LandingPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <LocaleSwitcher compact />
-            <Link href="/login" className="btn-secondary min-h-9 px-4 py-1.5 text-xs font-bold">
+          <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:justify-end sm:gap-3">
+            <LocaleSwitcher compact className="min-w-0 max-w-[11rem] flex-1 sm:max-w-none sm:flex-none" />
+            <Link
+              href="/login"
+              className="btn-secondary min-h-9 shrink-0 whitespace-nowrap px-3 py-1.5 text-[11px] font-bold sm:px-4 sm:text-xs"
+            >
               {nav("workspaceLogin")}
             </Link>
           </div>
@@ -53,7 +56,7 @@ export default async function LandingPage() {
             <span>{t("badge")}</span>
           </div>
 
-          <h1 className="max-w-4xl text-4xl font-black leading-[1.1] tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-4xl text-3xl font-black leading-[1.12] tracking-tight sm:text-6xl lg:text-7xl">
             {t("heroTitle")}{" "}
             <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">
               {t("heroHighlight")}
@@ -167,7 +170,7 @@ export default async function LandingPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <article className="glass rounded-2xl p-6 flex flex-col justify-between">
+            <article className="glass flex min-w-0 flex-col justify-between overflow-x-hidden rounded-2xl p-6">
               <div>
                 <h3 className="text-xl font-black">Starter</h3>
                 <p className="mt-1 text-xs text-[var(--muted)]">{t("planStarterDesc")}</p>
@@ -177,12 +180,12 @@ export default async function LandingPage() {
                 </p>
                 <PlanFeatures raw={t("planStarterFeatures")} />
               </div>
-              <Link href="/login" className="btn-secondary mt-8 w-full font-bold">
+              <Link href="/login" className="btn-secondary mt-8 w-full max-w-full min-w-0 font-bold">
                 {t("planCtaStart")}
               </Link>
             </article>
 
-            <article className="glass rounded-2xl p-6 border-2 border-[var(--accent)] flex flex-col justify-between relative">
+            <article className="glass relative flex min-w-0 flex-col justify-between overflow-x-hidden rounded-2xl border-2 border-[var(--accent)] p-6">
               <span className="absolute -top-3 right-6 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-bold text-white shadow-sm">
                 {t("planRecommended")}
               </span>
@@ -195,12 +198,12 @@ export default async function LandingPage() {
                 </p>
                 <PlanFeatures raw={t("planGrowthFeatures")} />
               </div>
-              <Link href="/login" className="btn-primary mt-8 w-full font-bold">
+              <Link href="/login" className="btn-primary mt-8 w-full max-w-full min-w-0 font-bold">
                 {t("planCtaGrowth")}
               </Link>
             </article>
 
-            <article className="glass rounded-2xl p-6 flex flex-col justify-between">
+            <article className="glass flex min-w-0 flex-col justify-between overflow-x-hidden rounded-2xl p-6">
               <div>
                 <h3 className="text-xl font-black">Enterprise</h3>
                 <p className="mt-1 text-xs text-[var(--muted)]">{t("planEnterpriseDesc")}</p>
@@ -210,7 +213,7 @@ export default async function LandingPage() {
                 </p>
                 <PlanFeatures raw={t("planEnterpriseFeatures")} />
               </div>
-              <Link href="/login" className="btn-secondary mt-8 w-full font-bold">
+              <Link href="/login" className="btn-secondary mt-8 w-full max-w-full min-w-0 font-bold">
                 {t("planCtaExpert")}
               </Link>
             </article>
