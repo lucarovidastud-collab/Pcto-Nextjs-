@@ -1,6 +1,6 @@
 import { buildProposalAiMessages } from "@/lib/services/proposal-ai-prompt";
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
-import { getOpenRouterConfig, openRouterChatCompletion } from "@/lib/services/openrouter-client";
+import { geminiChatCompletion, getGeminiConfig } from "@/lib/services/gemini-client";
 import { logger } from "@/lib/logger";
 
 export type ProposalHtmlSource = "ai" | "fallback";
@@ -38,8 +38,8 @@ export async function generateProposalHtml(input: {
       palette: input.palette
     });
 
-  if (!getOpenRouterConfig().apiKey) {
-    return { html: fallback(), source: "fallback", aiError: "OPENROUTER_API_KEY mancante" };
+  if (!getGeminiConfig().apiKey) {
+    return { html: fallback(), source: "fallback", aiError: "GEMINI_API_KEY mancante" };
   }
 
   const { messages } = buildProposalAiMessages(input);
@@ -51,7 +51,7 @@ export async function generateProposalHtml(input: {
   let lastError = "Risposta AI non valida";
 
   for (const attempt of attempts) {
-    const result = await openRouterChatCompletion({
+    const result = await geminiChatCompletion({
       messages,
       temperature: 0.5,
       maxTokens: attempt.maxTokens,

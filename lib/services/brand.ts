@@ -1,7 +1,10 @@
 import sharp from "sharp";
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
+import {
+  extractJsonFromModelText,
+  GEMINI_FAST_MODEL,
+  geminiChatCompletion,
+  getGeminiConfig
+} from "@/lib/services/gemini-client";
 
 function normalizeHex(color: string) {
   const clean = color.replace("#", "").trim().toUpperCase();
@@ -72,39 +75,43 @@ async function fetchLinkedCss(baseWebsite: string, html: string) {
 }
 
 async function refinePaletteWithAI(website: string, screenshotUrls: string[], fallbackPalette: string[]) {
-  if (!OPENROUTER_API_KEY || !screenshotUrls.length) return null;
-  const blocks = screenshotUrls.slice(0, 4).map((url) => ({ type: "image_url", image_url: { url } }));
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      temperature: 0.1,
-      messages: [
-        {
-          role: "system",
-          content:
-            'Rispondi solo JSON: {"palette":["#RRGGBB"],"styleDirection":"..."}'
-        },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: `Analizza brand UI del sito ${website}. Fallback: ${JSON.stringify(fallbackPalette)}` },
-            ...blocks
-          ]
-        }
-      ]
-    })
+  if (!getGeminiConfig().apiKey || !screenshotUrls.length) return null;
+  const blocks = screenshotUrls.slice(0, 4).map((url) => ({
+    type: "image_url" as const,
+    image_url: { url }
+  }));
+  const result = await geminiChatCompletion({
+    model: GEMINI_FAST_MODEL,
+    temperature: 0.1,
+    maxTokens: 400,
+    jsonMode: true,
+    timeoutMs: 45_000,
+    messages: [
+      {
+        role: "system",
+        content: 'Rispondi solo JSON: {"palette":["#RRGGBB"],"styleDirection":"..."}'
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Analizza brand UI del sito ${website}. Fallback: ${JSON.stringify(fallbackPalette)}`
+          },
+          ...blocks
+        ]
+      }
+    ]
   });
-  if (!response.ok) return null;
-  const payload = await response.json();
-  const text = payload?.choices?.[0]?.message?.content || "";
-  const match = String(text).match(/\{[\s\S]*\}/);
-  if (!match) return null;
-  const parsed = JSON.parse(match[0]) as { palette?: string[]; styleDirection?: string };
+  if (!result.ok) return null;
+  const jsonText = extractJsonFromModelText(result.content);
+  if (!jsonText) return null;
+  let parsed: { palette?: string[]; styleDirection?: string };
+  try {
+    parsed = JSON.parse(jsonText) as { palette?: string[]; styleDirection?: string };
+  } catch {
+    return null;
+  }
   const palette = (parsed.palette || [])
     .map((c) => normalizeHex(String(c)))
     .filter((c) => /^#[0-9A-F]{6}$/.test(c));
@@ -163,7 +170,7 @@ export async function analyzeWebsitePalette(website: string) {
 
     return {
       palette,
-      source: ai?.palette?.length ? "openrouter-visual" : "site+css",
+      source: ai?.palette?.length ? "gemini-visual" : "site+css",
       styleDirection: ai?.styleDirection || "",
       message: ai?.palette?.length ? "Palette AI da screenshot e markup" : "Palette estratta da sito"
     };

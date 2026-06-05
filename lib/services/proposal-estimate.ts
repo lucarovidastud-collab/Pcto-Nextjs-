@@ -4,11 +4,12 @@ import {
   parseItalianAmount
 } from "@/lib/services/budget-from-notes";
 import {
-  describeOpenRouterFailure,
+  describeGeminiFailure,
   extractJsonFromModelText,
-  getOpenRouterConfig,
-  openRouterChatCompletion
-} from "@/lib/services/openrouter-client";
+  GEMINI_FAST_MODEL,
+  geminiChatCompletion,
+  getGeminiConfig
+} from "@/lib/services/gemini-client";
 import { logger } from "@/lib/logger";
 
 const NOTES_FOR_AI_MAX = 12_000;
@@ -101,17 +102,17 @@ export async function estimateBudgetFromNotes(input: {
 }) {
   const fallbackExplicit = extractExplicitTotalFromNotes(input.notes);
 
-  if (!getOpenRouterConfig().apiKey) {
+  if (!getGeminiConfig().apiKey) {
     return buildFallbackResult(
       input,
       fallbackExplicit,
       fallbackExplicit
         ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-        : "Stima default (configura OPENROUTER_API_KEY su Vercel)"
+        : "Stima default (configura GEMINI_API_KEY su Vercel)"
     );
   }
 
-  const result = await openRouterChatCompletion({
+  const result = await geminiChatCompletion({
     messages: [
       { role: "system", content: BUDGET_SYSTEM_PROMPT },
       { role: "user", content: buildBudgetUserPrompt(input) }
@@ -119,21 +120,22 @@ export async function estimateBudgetFromNotes(input: {
     temperature: 0.1,
     maxTokens: 600,
     jsonMode: true,
-    timeoutMs: 90_000
+    timeoutMs: 90_000,
+    model: GEMINI_FAST_MODEL
   });
 
   if (!result.ok) {
-    const configuredModel = getOpenRouterConfig().model;
+    const configuredModel = getGeminiConfig().fastModel;
     logger.warn(
       { status: result.status, error: result.error, model: result.model ?? configuredModel },
-      "openrouter.budget_estimate.failed"
+      "gemini.budget_estimate.failed"
     );
     return buildFallbackResult(
       input,
       fallbackExplicit,
       fallbackExplicit
         ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-        : describeOpenRouterFailure(result, configuredModel)
+        : describeGeminiFailure(result, configuredModel)
     );
   }
 
@@ -149,7 +151,7 @@ export async function estimateBudgetFromNotes(input: {
 
   logger.warn(
     { preview: result.content.slice(0, 200) },
-    "openrouter.budget_estimate.invalid_json"
+    "gemini.budget_estimate.invalid_json"
   );
 
   return buildFallbackResult(

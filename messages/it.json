@@ -140,7 +140,7 @@
     "errGenerationAborted": "Generazione interrotta. Riprova.",
     "errConnection": "Impossibile connettersi al server per la generazione. Verifica la configurazione.",
     "successShare": "Proposta commercializzata con successo!",
-    "aiFallbackWarning": "Attenzione: layout semplificato (AI non disponibile o timeout). Riprova tra poco o controlla OPENROUTER su Vercel.",
+    "aiFallbackWarning": "Attenzione: layout semplificato (AI non disponibile o timeout). Riprova tra poco o controlla GEMINI_API_KEY su Vercel.",
     "copyLinkBtn": "Copia Link",
     "linkCopied": "Copiato!",
     "openProposal": "Apri Proposta Cliente",

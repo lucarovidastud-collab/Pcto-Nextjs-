@@ -16,7 +16,7 @@ Verifica:
 2. Imposta almeno:
    - `JWT_SECRET` (stringa lunga casuale)
    - `APP_URL=http://localhost:3000`
-3. Per test locali puoi lasciare Stripe/OpenRouter in placeholder.
+3. Per test locali puoi lasciare Stripe/Gemini in placeholder.
 
 ## 4) Installa dipendenze
 - `npm install`

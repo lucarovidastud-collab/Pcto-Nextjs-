@@ -125,7 +125,7 @@
     "errGenerationAborted": "Génération interrompue. Veuillez réessayer.",
     "errConnection": "Impossible de se connecter au serveur. Vérifiez la configuration.",
     "successShare": "Proposition publiée avec succès !",
-    "aiFallbackWarning": "Attention : mise en page simplifiée (IA indisponible ou délai dépassé). Réessayez ou vérifiez OPENROUTER sur Vercel.",
+    "aiFallbackWarning": "Attention : mise en page simplifiée (IA indisponible ou délai dépassé). Réessayez ou vérifiez GEMINI_API_KEY sur Vercel.",
     "copyLinkBtn": "Copier le lien",
     "linkCopied": "Copié !",
     "openProposal": "Ouvrir la proposition client",

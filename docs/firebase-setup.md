@@ -58,4 +58,4 @@ service cloud.firestore {
 Le API server usano Admin SDK, quindi le regole client restano chiuse.
 
 ## 7) Deploy env su Vercel
-Carica tutte le variabili Firebase + Stripe + JWT + OpenRouter in Production.
+Carica tutte le variabili Firebase + Stripe + JWT + Gemini in Production.
