@@ -2,21 +2,27 @@
 
 import { RichText } from "@/components/proposal/rich-text";
 import { animate, useInView, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function parseNumericKpi(text: string) {
   const trimmed = text.trim();
-  const match = trimmed.match(/^([^\d]*?)([\d.,]+)([^\d]*)$/);
-  if (!match) return null;
+  const numMatch = trimmed.match(/(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?|\d+(?:,\d{1,2})?)/);
+  if (!numMatch) return null;
 
-  const prefix = match[1] || "";
-  const raw = match[2].replace(/\./g, "").replace(",", ".");
-  const suffix = match[3] || "";
-  const number = Number(raw);
+  const numStr = numMatch[1];
+  const idx = numMatch.index ?? 0;
+  const prefix = trimmed.slice(0, idx);
+  const suffix = trimmed.slice(idx + numStr.length);
+  const normalized = numStr.replace(/\./g, "").replace(",", ".");
+  const number = Number(normalized);
   if (!Number.isFinite(number)) return null;
 
-  const hasDecimals = match[2].includes(",");
-  return { prefix, number, suffix, hasDecimals };
+  return {
+    prefix,
+    number,
+    suffix,
+    hasDecimals: numStr.includes(",")
+  };
 }
 
 function formatItalianNumber(value: number, hasDecimals: boolean) {
@@ -28,36 +34,43 @@ function formatItalianNumber(value: number, hasDecimals: boolean) {
 
 export function AnimatedKpiValue({ text }: { text: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const inView = useInView(ref, { once: true, amount: 0.5 });
   const reduce = useReducedMotion();
-  const parsed = parseNumericKpi(text);
-  const [display, setDisplay] = useState(parsed ? "0" : text);
+  const parsed = useMemo(() => parseNumericKpi(text), [text]);
+  const [display, setDisplay] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!parsed || !inView || reduce) {
-      if (parsed && inView) {
-        setDisplay(formatItalianNumber(parsed.number, parsed.hasDecimals));
-      }
+    const current = parseNumericKpi(text);
+    if (!current) {
+      setDisplay(null);
       return;
     }
 
-    const controls = animate(0, parsed.number, {
-      duration: 1.35,
+    const finalLabel = formatItalianNumber(current.number, current.hasDecimals);
+
+    if (!inView || reduce) {
+      setDisplay(finalLabel);
+      return;
+    }
+
+    setDisplay(formatItalianNumber(0, current.hasDecimals));
+    const controls = animate(0, current.number, {
+      duration: 1.2,
       ease: [0.22, 1, 0.36, 1],
-      onUpdate: (v) => setDisplay(formatItalianNumber(v, parsed.hasDecimals))
+      onUpdate: (v) => setDisplay(formatItalianNumber(v, current.hasDecimals))
     });
 
     return () => controls.stop();
-  }, [inView, parsed, reduce]);
+  }, [inView, reduce, text]);
 
-  if (!parsed || reduce) {
+  if (!parsed) {
     return <RichText text={text} />;
   }
 
   return (
-    <span ref={ref}>
+    <span ref={ref} className="tabular-nums">
       {parsed.prefix}
-      {display}
+      {display ?? formatItalianNumber(parsed.number, parsed.hasDecimals)}
       {parsed.suffix}
     </span>
   );

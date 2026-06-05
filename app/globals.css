@@ -866,9 +866,10 @@
   opacity: 0.65;
 }
 
-.proposal-document .proposal-index li a:hover {
-  background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
-  color: var(--foreground);
+.proposal-document .proposal-index li a:hover,
+.proposal-document .proposal-index .proposal-doc-index-link:hover {
+  background: color-mix(in srgb, var(--brand-primary) 14%, var(--panel-strong));
+  color: var(--brand-primary-text, var(--foreground)) !important;
 }
 
 /* ===================== STILI PREVENTIVO (10 varianti) ===================== */

@@ -363,12 +363,12 @@ export function ProposalDocumentIndex({
   const reduce = useReducedMotion();
   if (sections.length < 3) return null;
 
+  const linkClass =
+    "proposal-doc-index-link block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 hover:translate-x-1";
+
   const links = sections.map((section) => (
     <li key={section.id}>
-      <a
-        href={`#${section.id}`}
-        className="proposal-doc-index-link block rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-all duration-300 hover:translate-x-1 hover:bg-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)] hover:text-[var(--brand-primary)]"
-      >
+      <a href={`#${section.id}`} className={linkClass}>
         {section.title}
       </a>
     </li>
@@ -393,16 +393,13 @@ export function ProposalDocumentIndex({
       <p className="proposal-index-title mb-3 text-xs font-black uppercase tracking-widest text-[var(--muted)]">
         {indexTitle}
       </p>
-      <MotionStagger className="grid gap-1 sm:grid-cols-2" staggerChildren={0.05}>
+      <MotionStagger as="ol" className="grid gap-1 sm:grid-cols-2" staggerChildren={0.05}>
         {sections.map((section) => (
-          <MotionItem key={section.id} variants={fadeIn}>
-            <a
-              href={`#${section.id}`}
-              className="proposal-doc-index-link block rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-all duration-300 hover:translate-x-1 hover:bg-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)] hover:text-[var(--brand-primary)]"
-            >
+          <MotionLi key={section.id} variants={fadeIn}>
+            <a href={`#${section.id}`} className={linkClass}>
               {section.title}
             </a>
-          </MotionItem>
+          </MotionLi>
         ))}
       </MotionStagger>
     </MotionReveal>
