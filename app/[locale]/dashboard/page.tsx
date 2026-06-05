@@ -15,6 +15,7 @@ import { sanitizePaletteInput } from "@/lib/utils/palette";
 import { DEFAULT_PROPOSAL_STYLE, isProposalStyleId, type ProposalStyleId } from "@/lib/proposals/styles";
 import { broadcastPalette } from "@/lib/proposals/palette-channel";
 import { UsageMeter } from "@/components/billing/usage-meter";
+import { useBilling } from "@/lib/billing/use-billing";
 import { openStripeBillingPortal } from "@/lib/billing/open-portal";
 import { slugifyProposalLink } from "@/lib/proposals/slug";
 
@@ -43,10 +44,7 @@ export default function DashboardPage() {
   const [shareLink, setShareLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [proposalId, setProposalId] = useState<string | null>(null);
-  const [proposalsUsed, setProposalsUsed] = useState(0);
-  const [proposalLimit, setProposalLimit] = useState<number | null>(null);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
-  const [planName, setPlanName] = useState("none");
+  const { planName, proposalsUsed, proposalLimit, hasActiveSubscription, refreshBilling } = useBilling();
   const [billingNotice, setBillingNotice] = useState("");
   const [openingPortal, setOpeningPortal] = useState(false);
 
@@ -75,25 +73,6 @@ export default function DashboardPage() {
     }, 450);
     return () => clearTimeout(timer);
   }, [palette, proposalId, shareToken]);
-
-  async function refreshBilling() {
-    const response = await fetch("/api/billing/checkout");
-    if (!response.ok) return;
-    const payload = (await response.json()) as {
-      current: { plan: string };
-      limits: { proposalLimit: number } | null;
-      usage: { proposalsThisMonth: number };
-      hasActiveSubscription: boolean;
-    };
-    setPlanName(payload.current.plan);
-    setProposalsUsed(payload.usage.proposalsThisMonth);
-    setProposalLimit(payload.limits?.proposalLimit ?? null);
-    setHasActiveSubscription(payload.hasActiveSubscription);
-  }
-
-  useEffect(() => {
-    void refreshBilling();
-  }, []);
 
   useEffect(() => {
     if (linkSlugTouched || !company.trim()) return;
