@@ -1258,6 +1258,66 @@
   background: var(--muted);
 }
 
+/* ── Proposal document React animations ───────────────────────────────────── */
+.proposal-doc-hero-glow {
+  background: radial-gradient(
+    circle at 20% 20%,
+    color-mix(in srgb, var(--brand-primary) 22%, transparent),
+    transparent 55%
+  );
+  animation: proposal-hero-glow 8s ease-in-out infinite alternate;
+}
+
+@keyframes proposal-hero-glow {
+  from {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+.proposal-doc-pulse-dot {
+  animation: proposal-dot-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes proposal-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.65;
+  }
+}
+
+.proposal-document .proposal-timeline li {
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.proposal-document .proposal-timeline li:hover {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proposal-doc-hero-glow,
+  .proposal-doc-pulse-dot {
+    animation: none !important;
+  }
+
+  .proposal-document .proposal-timeline li {
+    transition: none;
+  }
+
+  .proposal-document .proposal-timeline li:hover {
+    transform: none;
+  }
+}
+
 /* Print Styles */
 @media print {
   .no-print {
@@ -1273,6 +1333,14 @@
   
   .proposal-document {
     padding: 0 !important;
+  }
+
+  .proposal-doc *,
+  .proposal-doc *::before {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
   
   @page {
