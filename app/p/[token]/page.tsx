@@ -16,6 +16,8 @@ import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ProposalDocumentIndex, ProposalDocumentView } from "@/components/proposal/proposal-document-view";
+import { parseProposalDocumentJson } from "@/lib/proposals/document-schema";
 import { ShieldCheck, Calendar, Wallet, Award, Clock, ArrowRight, Sparkles, User, FileSignature, Printer, List } from "lucide-react";
 
 type ProposalView = {
@@ -25,6 +27,7 @@ type ProposalView = {
   palette?: string[];
   style?: string;
   generatedHtml?: string;
+  generatedDocument?: string;
   notes?: string;
   status?: string;
   signedAt?: string;
@@ -157,9 +160,19 @@ export default function PublicProposalPage() {
   }, [token, loadProposal]);
 
   const palette = proposal?.palette?.length ? proposal.palette : ["#0D9488", "#8B5CF6", "#F59E0B"];
+  const structuredDocument = useMemo(
+    () =>
+      proposal?.generatedDocument?.trim()
+        ? parseProposalDocumentJson(proposal.generatedDocument)
+        : null,
+    [proposal?.generatedDocument]
+  );
   const { html: documentHtml, sections } = useMemo(
-    () => (proposal ? withSectionAnchors(resolveHtml(proposal)) : { html: "", sections: [] }),
-    [proposal]
+    () =>
+      proposal && !structuredDocument
+        ? withSectionAnchors(resolveHtml(proposal))
+        : { html: "", sections: [] },
+    [proposal, structuredDocument]
   );
   const themeVars = useMemo(() => paletteToCssVars(palette), [palette]);
   const pageBg = useMemo(() => brandedPageBackground(palette), [palette]);
@@ -295,22 +308,35 @@ export default function PublicProposalPage() {
 
           {/* Proposal HTML Document Content */}
           <div className={`proposal-document proposal-surface proposal-style-${proposal.style || "moderno"} min-w-0 px-4 py-8 sm:px-12 sm:py-10 max-w-none border-b border-[var(--line)] overflow-x-hidden break-words [overflow-wrap:anywhere]`}>
-            {sections.length >= 3 ? (
-              <nav className="proposal-index no-print" aria-label={t("indexTitle")}>
-                <p className="proposal-index-title">
-                  <List size={15} />
-                  <span>{t("indexTitle")}</span>
-                </p>
-                <ol>
-                  {sections.map((section) => (
-                    <li key={section.id}>
-                      <a href={`#${section.id}`}>{section.title}</a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            ) : null}
-            <div className="min-w-0 max-w-full" dangerouslySetInnerHTML={{ __html: documentHtml }} />
+            {structuredDocument ? (
+              <>
+                <ProposalDocumentIndex document={structuredDocument} indexTitle={t("indexTitle")} />
+                <ProposalDocumentView
+                  document={structuredDocument}
+                  style={proposal.style}
+                  budget={Number(proposal.budget) || 0}
+                />
+              </>
+            ) : (
+              <>
+                {sections.length >= 3 ? (
+                  <nav className="proposal-index no-print" aria-label={t("indexTitle")}>
+                    <p className="proposal-index-title">
+                      <List size={15} />
+                      <span>{t("indexTitle")}</span>
+                    </p>
+                    <ol>
+                      {sections.map((section) => (
+                        <li key={section.id}>
+                          <a href={`#${section.id}`}>{section.title}</a>
+                        </li>
+                      ))}
+                    </ol>
+                  </nav>
+                ) : null}
+                <div className="min-w-0 max-w-full" dangerouslySetInnerHTML={{ __html: documentHtml }} />
+              </>
+            )}
           </div>
 
           {/* Official Sign/Contract Panel */}

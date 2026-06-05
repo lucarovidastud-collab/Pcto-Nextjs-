@@ -6,7 +6,11 @@ import {
 } from "@/lib/proposals/slug";
 import { analyzeWebsitePalette } from "@/lib/services/brand";
 import { estimateBudgetFromNotes } from "@/lib/services/proposal-estimate";
-import { generateProposalHtml, type ProposalHtmlSource } from "@/lib/services/proposal-ai";
+import {
+  generateProposalDocument,
+  type ProposalDocumentSource
+} from "@/lib/services/proposal-ai-document";
+import { documentToHtml } from "@/lib/proposals/document-to-html";
 import {
   ensurePricingTableTotal,
   normalizeProposalPricingTable
@@ -33,7 +37,7 @@ export type ProposalBuildResult = {
   budget: number;
   palette: string[];
   sector: string;
-  contentSource: ProposalHtmlSource;
+  contentSource: ProposalDocumentSource;
   aiError?: string;
 };
 
@@ -72,7 +76,7 @@ export async function buildAndSaveProposal(
   const resolvedSector = formatReadableText(estimate.sectorSummary || sector);
 
   onProgress?.(58, "Generazione contenuto con intelligenza artificiale...");
-  const generated = await generateProposalHtml({
+  const generated = await generateProposalDocument({
     company,
     sector: resolvedSector,
     notes,
@@ -81,7 +85,9 @@ export async function buildAndSaveProposal(
     styleDirection: brand?.styleDirection,
     style
   });
-  const rawHtml = generated.html;
+
+  const generatedDocument = JSON.stringify(generated.document);
+  const rawHtml = documentToHtml(generated.document);
 
   const generatedHtml = ensurePricingTableTotal(
     normalizeProposalPricingTable(
@@ -104,6 +110,7 @@ export async function buildAndSaveProposal(
     budget,
     palette: resolvedPalette,
     generatedHtml: generatedHtml || "",
+    generatedDocument,
     styleDirection: brand?.styleDirection || "",
     style,
     shareToken

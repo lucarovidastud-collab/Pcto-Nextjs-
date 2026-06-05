@@ -45,6 +45,7 @@ export interface DatabaseRepository {
     budget: number;
     palette: string[];
     generatedHtml?: string;
+    generatedDocument?: string;
     styleDirection?: string;
     style?: string;
     shareToken?: string;

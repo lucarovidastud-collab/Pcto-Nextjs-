@@ -152,6 +152,7 @@ export function createFirestoreRepository(): DatabaseRepository {
         budget: input.budget,
         palette: input.palette,
         generatedHtml: input.generatedHtml || "",
+        generatedDocument: input.generatedDocument || "",
         styleDirection: input.styleDirection || "",
         style: input.style || "moderno",
         status: "draft" as ProposalStatus,

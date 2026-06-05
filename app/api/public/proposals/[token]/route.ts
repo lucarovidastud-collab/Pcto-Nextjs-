@@ -30,6 +30,7 @@ export async function GET(request: NextRequest, { params }: RouteProps) {
       palette: proposal.palette,
       style: proposal.style || "moderno",
       generatedHtml: proposal.generatedHtml,
+      generatedDocument: proposal.generatedDocument || "",
       status: proposal.status,
       signedAt: proposal.signedAt,
       signedBy: proposal.signedBy,

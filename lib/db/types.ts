@@ -11,6 +11,8 @@ export type ProposalRecord = {
   budget: number;
   palette: string[];
   generatedHtml: string;
+  /** JSON strutturato (v1) per rendering React; assente sui preventivi legacy. */
+  generatedDocument?: string;
   styleDirection: string;
   style: string;
   internalNotes: string;
