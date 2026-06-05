@@ -185,23 +185,25 @@ export default async function LandingPage() {
               </Link>
             </article>
 
-            <article className="glass relative flex min-w-0 flex-col justify-between overflow-x-hidden rounded-2xl border-2 border-[var(--accent)] p-6">
-              <span className="absolute -top-3 right-6 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-bold text-white shadow-sm">
+            <div className="relative flex h-full flex-col">
+              <span className="absolute -top-3 right-6 z-10 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-bold text-white shadow-sm">
                 {t("planRecommended")}
               </span>
-              <div>
-                <h3 className="text-xl font-black">Growth</h3>
-                <p className="mt-1 text-xs text-[var(--muted)]">{t("planGrowthDesc")}</p>
-                <p className="mt-4 text-3xl font-black">
-                  €{planCatalog.growth.monthly}
-                  <span className="text-xs font-bold text-[var(--muted)]">{common("perMonth")}</span>
-                </p>
-                <PlanFeatures raw={t("planGrowthFeatures")} />
-              </div>
-              <Link href="/login" className="btn-primary mt-8 w-full max-w-full min-w-0 font-bold">
-                {t("planCtaGrowth")}
-              </Link>
-            </article>
+              <article className="glass flex min-w-0 flex-1 flex-col justify-between overflow-x-hidden rounded-2xl border-2 border-[var(--accent)] p-6">
+                <div>
+                  <h3 className="text-xl font-black">Growth</h3>
+                  <p className="mt-1 text-xs text-[var(--muted)]">{t("planGrowthDesc")}</p>
+                  <p className="mt-4 text-3xl font-black">
+                    €{planCatalog.growth.monthly}
+                    <span className="text-xs font-bold text-[var(--muted)]">{common("perMonth")}</span>
+                  </p>
+                  <PlanFeatures raw={t("planGrowthFeatures")} />
+                </div>
+                <Link href="/login" className="btn-primary mt-8 w-full max-w-full min-w-0 font-bold">
+                  {t("planCtaGrowth")}
+                </Link>
+              </article>
+            </div>
 
             <article className="glass flex min-w-0 flex-col justify-between overflow-x-hidden rounded-2xl p-6">
               <div>
