@@ -581,6 +581,14 @@
   box-shadow: 0 0 0 4px var(--panel-strong), 0 4px 10px -2px color-mix(in srgb, var(--card-accent, var(--brand-primary)) 60%, transparent);
 }
 
+.proposal-document .proposal-timeline li span {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 .proposal-branded .proposal-document h2:not([style*="color"]) {
   color: var(--brand-primary-text, var(--brand-primary));
   font-weight: 800;

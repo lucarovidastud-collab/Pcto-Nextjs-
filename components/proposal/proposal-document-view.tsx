@@ -143,18 +143,16 @@ function renderSection(section: ProposalDocumentSection, navIndex: number) {
           <SectionTitle>
             <RichText text={section.title} />
           </SectionTitle>
-          <ol className="relative space-y-0 border-l-2 border-[color-mix(in_srgb,var(--brand-primary)_35%,var(--line))] pl-6">
+          {/* Stessa struttura/CSS della timeline HTML legacy: numeri via ::before */}
+          <ol className="proposal-timeline">
             {section.steps.map((step, i) => (
-              <li key={i} className="relative pb-8 last:pb-0">
-                <span className="absolute -left-[1.65rem] flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-primary)] text-xs font-black text-white shadow-md">
-                  {i + 1}
-                </span>
-                <p className="font-bold text-[var(--foreground)]">
+              <li key={i}>
+                <strong className="block">
                   <RichText text={step.title} />
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+                </strong>
+                <span className="mt-1 block text-sm leading-relaxed text-[var(--muted)]">
                   <RichText text={step.description} />
-                </p>
+                </span>
               </li>
             ))}
           </ol>
