@@ -32,10 +32,10 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-20">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
-        <h1 className="text-2xl font-black mb-1">{t("restrictedAccess")}</h1>
-        <p className="text-sm text-slate-400 mb-6">{t("managementArea")}</p>
+    <div className="mx-auto mt-10 w-full max-w-sm px-1 sm:mt-20">
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-2xl sm:p-8">
+        <h1 className="mb-1 text-xl font-black sm:text-2xl">{t("restrictedAccess")}</h1>
+        <p className="mb-6 text-sm leading-relaxed text-slate-400">{t("managementArea")}</p>
 
         <form onSubmit={handleSubmit} className="grid gap-4">
           <label className="grid gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wide">
