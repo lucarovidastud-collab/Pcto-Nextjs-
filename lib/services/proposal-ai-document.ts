@@ -6,7 +6,7 @@ import {
   type ProposalDocument
 } from "@/lib/proposals/document-schema";
 import { buildProposalDocumentAiMessages } from "@/lib/services/proposal-ai-document-prompt";
-import { geminiChatCompletion, getGeminiConfig } from "@/lib/services/gemini-client";
+import { geminiChatCompletion, getGeminiConfig, isGeminiConfigured } from "@/lib/services/gemini-client";
 import { logger } from "@/lib/logger";
 
 export type ProposalDocumentSource = "ai" | "fallback";
@@ -42,8 +42,8 @@ export async function generateProposalDocument(input: {
       input.budget
     );
 
-  if (!getGeminiConfig().apiKey) {
-    return { document: fallback(), source: "fallback", aiError: "GEMINI_API_KEY mancante" };
+  if (!isGeminiConfigured()) {
+    return { document: fallback(), source: "fallback", aiError: "GOOGLE_API_KEY mancante" };
   }
 
   const { messages } = buildProposalDocumentAiMessages(input);

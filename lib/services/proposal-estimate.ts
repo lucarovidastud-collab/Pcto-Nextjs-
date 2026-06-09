@@ -8,7 +8,8 @@ import {
   extractJsonFromModelText,
   GEMINI_FAST_MODEL,
   geminiChatCompletion,
-  getGeminiConfig
+  getGeminiConfig,
+  isGeminiConfigured
 } from "@/lib/services/gemini-client";
 import { logger } from "@/lib/logger";
 
@@ -102,13 +103,13 @@ export async function estimateBudgetFromNotes(input: {
 }) {
   const fallbackExplicit = extractExplicitTotalFromNotes(input.notes);
 
-  if (!getGeminiConfig().apiKey) {
+  if (!isGeminiConfigured()) {
     return buildFallbackResult(
       input,
       fallbackExplicit,
       fallbackExplicit
         ? `Totale esplicito nel documento (€ ${fallbackExplicit.toLocaleString("it-IT")})`
-        : "Stima default (configura GEMINI_API_KEY su Vercel)"
+        : "Stima default (configura GOOGLE_API_KEY su Vercel)"
     );
   }
 

@@ -3,7 +3,7 @@ import {
   extractJsonFromModelText,
   GEMINI_FAST_MODEL,
   geminiChatCompletion,
-  getGeminiConfig
+  isGeminiConfigured
 } from "@/lib/services/gemini-client";
 
 function normalizeHex(color: string) {
@@ -75,7 +75,7 @@ async function fetchLinkedCss(baseWebsite: string, html: string) {
 }
 
 async function refinePaletteWithAI(website: string, screenshotUrls: string[], fallbackPalette: string[]) {
-  if (!getGeminiConfig().apiKey || !screenshotUrls.length) return null;
+  if (!isGeminiConfigured() || !screenshotUrls.length) return null;
   const blocks = screenshotUrls.slice(0, 4).map((url) => ({
     type: "image_url" as const,
     image_url: { url }

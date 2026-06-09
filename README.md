@@ -7,7 +7,7 @@ Piattaforma SaaS multi-tenant per generazione e gestione di proposte commerciali
 - Firebase Auth (Google, GitHub) + Firestore
 - JWT session (`jose`) cookie HttpOnly
 - Stripe Checkout + Customer Portal + webhook
-- Google AI Studio / Gemini (AI proposte, budget, palette brand)
+- Google Cloud Agent Platform / Vertex AI (Gemini)
 - Sentry + Vitest + Playwright
 
 ## Quick start

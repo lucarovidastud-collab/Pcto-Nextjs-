@@ -1,6 +1,6 @@
 import { buildProposalAiMessages } from "@/lib/services/proposal-ai-prompt";
 import { buildFallbackProposalHtml } from "@/lib/proposals/fallback-html";
-import { geminiChatCompletion, getGeminiConfig } from "@/lib/services/gemini-client";
+import { geminiChatCompletion, getGeminiConfig, isGeminiConfigured } from "@/lib/services/gemini-client";
 import { logger } from "@/lib/logger";
 
 export type ProposalHtmlSource = "ai" | "fallback";
@@ -38,8 +38,8 @@ export async function generateProposalHtml(input: {
       palette: input.palette
     });
 
-  if (!getGeminiConfig().apiKey) {
-    return { html: fallback(), source: "fallback", aiError: "GEMINI_API_KEY mancante" };
+  if (!isGeminiConfigured()) {
+    return { html: fallback(), source: "fallback", aiError: "GOOGLE_API_KEY mancante" };
   }
 
   const { messages } = buildProposalAiMessages(input);

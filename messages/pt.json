@@ -125,7 +125,7 @@
     "errGenerationAborted": "Geração interrompida. Tente novamente.",
     "errConnection": "Não foi possível ligar ao servidor. Verifique a configuração.",
     "successShare": "Proposta publicada com sucesso!",
-    "aiFallbackWarning": "Atenção: layout simplificado (IA indisponível ou timeout). Tente de novo ou verifique GEMINI_API_KEY na Vercel.",
+    "aiFallbackWarning": "Atenção: layout simplificado (IA indisponível ou timeout). Tente de novo ou verifique as credenciais Vertex AI na Vercel.",
     "copyLinkBtn": "Copiar link",
     "linkCopied": "Copiado!",
     "openProposal": "Abrir proposta do cliente",

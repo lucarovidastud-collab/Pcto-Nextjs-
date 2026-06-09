@@ -1,3 +1,4 @@
+import { GoogleAuth, type JWTInput } from "google-auth-library";
 import { logger } from "@/lib/logger";
 
 export type GeminiTextPart = { type: "text"; text: string };
@@ -15,13 +16,114 @@ export const GEMINI_DEFAULT_MODEL = "gemini-2.5-pro";
 export const GEMINI_FAST_MODEL = "gemini-2.5-flash";
 
 const FALLBACK_MODELS = [GEMINI_DEFAULT_MODEL, GEMINI_FAST_MODEL, "gemini-2.0-flash"] as const;
+const VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
+const DEFAULT_AGENT_PLATFORM_LOCATION = "global";
+
+type AuthMode = "api_key_express" | "api_key_project" | "service_account";
+
+type CachedToken = { token: string; expiresAt: number };
+let cachedAccessToken: CachedToken | null = null;
+let authClient: GoogleAuth | null = null;
+
+function parseJsonCredentials(raw: string): JWTInput | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  try {
+    return JSON.parse(trimmed) as JWTInput;
+  } catch {
+    return null;
+  }
+}
+
+function resolveApiKey(): string {
+  return (
+    process.env.GOOGLE_API_KEY ||
+    process.env.VERTEX_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_AI_API_KEY ||
+    ""
+  ).trim();
+}
+
+function resolveServiceAccountCredentials(): JWTInput | null {
+  const json =
+    process.env.VERTEX_SERVICE_ACCOUNT_JSON ||
+    process.env.GOOGLE_SERVICE_ACCOUNT_JSON ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
+    "";
+
+  const parsedJson = parseJsonCredentials(json);
+  if (parsedJson?.client_email && parsedJson?.private_key) {
+    return parsedJson;
+  }
+
+  const clientEmail = (process.env.VERTEX_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL || "").trim();
+  const privateKey = (process.env.VERTEX_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY || "")
+    .trim()
+    .replace(/\\n/g, "\n");
+
+  if (clientEmail && privateKey) {
+    return { client_email: clientEmail, private_key: privateKey };
+  }
+
+  return null;
+}
+
+function resolveVertexProjectId(): string {
+  return (
+    process.env.VERTEX_PROJECT_ID ||
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    process.env.GCP_PROJECT_ID ||
+    process.env.FIREBASE_PROJECT_ID ||
+    ""
+  ).trim();
+}
+
+function resolveVertexLocation(): string {
+  return (
+    process.env.VERTEX_LOCATION ||
+    process.env.GOOGLE_CLOUD_LOCATION ||
+    process.env.GCP_LOCATION ||
+    DEFAULT_AGENT_PLATFORM_LOCATION
+  ).trim();
+}
+
+function resolveAuthMode(): AuthMode | null {
+  const apiKey = resolveApiKey();
+  const projectId = resolveVertexProjectId();
+  const credentials = resolveServiceAccountCredentials();
+  const mode = (process.env.VERTEX_AUTH_MODE || process.env.GOOGLE_GENAI_AUTH_MODE || "").trim().toLowerCase();
+
+  if (mode === "express" || mode === "api_key") {
+    return apiKey ? "api_key_express" : null;
+  }
+  if (mode === "service_account" || mode === "adc") {
+    return projectId && credentials ? "service_account" : null;
+  }
+
+  // Agent Platform express: solo chiave API (console → Recupera chiave API)
+  if (apiKey && !projectId) return "api_key_express";
+  if (apiKey && projectId) return "api_key_project";
+  if (projectId && credentials) return "service_account";
+  return null;
+}
 
 export function getGeminiConfig() {
+  const authMode = resolveAuthMode();
+
   return {
-    apiKey: (process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || "").trim(),
+    configured: authMode !== null,
+    authMode,
+    apiKey: resolveApiKey(),
+    projectId: resolveVertexProjectId(),
+    location: resolveVertexLocation(),
     model: (process.env.GEMINI_MODEL || GEMINI_DEFAULT_MODEL).trim(),
     fastModel: (process.env.GEMINI_FAST_MODEL || GEMINI_FAST_MODEL).trim()
   };
+}
+
+export function isGeminiConfigured(): boolean {
+  return getGeminiConfig().configured;
 }
 
 export function modelsToTry(primary: string): string[] {
@@ -70,6 +172,63 @@ async function toGeminiParts(content: string | GeminiContentPart[]): Promise<Gem
   return parts;
 }
 
+function getGoogleAuth(): GoogleAuth | null {
+  const credentials = resolveServiceAccountCredentials();
+  if (!credentials) return null;
+  if (!authClient) {
+    authClient = new GoogleAuth({ credentials, scopes: [VERTEX_SCOPE] });
+  }
+  return authClient;
+}
+
+async function getVertexAccessToken(): Promise<string | null> {
+  if (cachedAccessToken && Date.now() < cachedAccessToken.expiresAt) {
+    return cachedAccessToken.token;
+  }
+
+  const auth = getGoogleAuth();
+  if (!auth) return null;
+
+  try {
+    const client = await auth.getClient();
+    const response = await client.getAccessToken();
+    const token = typeof response === "string" ? response : response?.token;
+    if (!token) return null;
+
+    cachedAccessToken = {
+      token,
+      expiresAt: Date.now() + 3_500_000
+    };
+    return token;
+  } catch (err) {
+    logger.warn({ err }, "vertex.access_token.failed");
+    return null;
+  }
+}
+
+function buildGenerateUrl(
+  model: string,
+  authMode: AuthMode,
+  projectId: string,
+  location: string,
+  apiKey: string
+): string {
+  if (authMode === "api_key_express") {
+    return `https://aiplatform.googleapis.com/v1/publishers/google/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  }
+
+  const base =
+    location === "global"
+      ? `https://aiplatform.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/locations/global/publishers/google/models/${encodeURIComponent(model)}`
+      : `https://${location}-aiplatform.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/locations/${encodeURIComponent(location)}/publishers/google/models/${encodeURIComponent(model)}`;
+
+  const url = `${base}:generateContent`;
+  if (authMode === "api_key_project") {
+    return `${url}?key=${encodeURIComponent(apiKey)}`;
+  }
+  return url;
+}
+
 async function requestGenerateContent(
   model: string,
   input: {
@@ -78,12 +237,27 @@ async function requestGenerateContent(
     maxTokens?: number;
     jsonMode?: boolean;
     timeoutMs?: number;
-  },
-  apiKey: string
+  }
 ): Promise<
   | { ok: true; content: string; model: string }
   | { ok: false; status?: number; error: string; model: string }
 > {
+  const { authMode, apiKey, projectId, location } = getGeminiConfig();
+
+  if (!authMode) {
+    return { ok: false, model, error: "Credenziali Agent Platform / Vertex AI mancanti" };
+  }
+
+  let accessToken: string | null = null;
+  if (authMode === "service_account") {
+    accessToken = await getVertexAccessToken();
+    if (!accessToken) {
+      return { ok: false, model, error: "Credenziali service account non valide" };
+    }
+  } else if (!apiKey) {
+    return { ok: false, model, error: "GOOGLE_API_KEY mancante" };
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), input.timeoutMs ?? 60_000);
 
@@ -105,13 +279,17 @@ async function requestGenerateContent(
     return { ok: false, model, error: "Nessun messaggio utente" };
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const url = buildGenerateUrl(model, authMode, projectId, location, apiKey);
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
 
   try {
     const response = await fetch(url, {
       method: "POST",
       signal: controller.signal,
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         ...(systemInstruction ? { systemInstruction } : {}),
         contents,
@@ -162,11 +340,11 @@ export async function geminiChatCompletion(input: {
   | { ok: true; content: string; model: string }
   | { ok: false; status?: number; error: string; model?: string }
 > {
-  const { apiKey, model: configuredModel } = getGeminiConfig();
-  if (!apiKey) {
-    return { ok: false, error: "GEMINI_API_KEY mancante" };
+  if (!isGeminiConfigured()) {
+    return { ok: false, error: "Credenziali Agent Platform / Vertex AI mancanti" };
   }
 
+  const { model: configuredModel } = getGeminiConfig();
   const primary = input.model || configuredModel;
   const candidates = modelsToTry(primary);
   let lastFailure: { ok: false; status?: number; error: string; model: string } = {
@@ -176,10 +354,10 @@ export async function geminiChatCompletion(input: {
   };
 
   for (const attemptModel of candidates) {
-    const result = await requestGenerateContent(attemptModel, input, apiKey);
+    const result = await requestGenerateContent(attemptModel, input);
     if (result.ok) {
       if (attemptModel !== primary) {
-        logger.info({ configured: primary, used: attemptModel }, "gemini.model_fallback");
+        logger.info({ configured: primary, used: attemptModel }, "agent_platform.model_fallback");
       }
       return result;
     }
@@ -191,11 +369,7 @@ export async function geminiChatCompletion(input: {
   }
 
   if (input.jsonMode) {
-    const plain = await requestGenerateContent(
-      candidates[0] ?? primary,
-      { ...input, jsonMode: false },
-      apiKey
-    );
+    const plain = await requestGenerateContent(candidates[0] ?? primary, { ...input, jsonMode: false });
     if (plain.ok) return plain;
     if (plain.status && plain.status !== 404 && plain.status !== 400) {
       return { ok: false, status: plain.status, error: plain.error, model: plain.model };
@@ -217,7 +391,13 @@ export function describeGeminiFailure(
 ): string {
   const model = result.model || configuredModel;
   if (result.status === 404 || result.status === 400) {
-    return `Stima di riserva (modello ${model} non disponibile su Google AI)`;
+    return `Stima di riserva (modello ${model} non disponibile su Agent Platform)`;
   }
   return `Stima di riserva (AI non raggiungibile${result.status ? `, HTTP ${result.status}` : ""})`;
+}
+
+/** Solo per test: reset cache token/auth tra i casi. */
+export function resetGeminiClientCacheForTests() {
+  cachedAccessToken = null;
+  authClient = null;
 }
