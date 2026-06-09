@@ -70,11 +70,12 @@ function resolveServiceAccountCredentials(): JWTInput | null {
 }
 
 function resolveVertexProjectId(): string {
+  // Solo variabili esplicite per Agent Platform/Vertex.
+  // NON usare FIREBASE_PROJECT_ID: Firebase e Gemini possono stare su progetti GCP diversi.
   return (
     process.env.VERTEX_PROJECT_ID ||
     process.env.GOOGLE_CLOUD_PROJECT ||
     process.env.GCP_PROJECT_ID ||
-    process.env.FIREBASE_PROJECT_ID ||
     ""
   ).trim();
 }

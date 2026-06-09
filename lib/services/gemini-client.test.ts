@@ -15,10 +15,10 @@ describe("gemini-client (Agent Platform)", () => {
     resetGeminiClientCacheForTests();
   });
 
-  it("express mode: basta GOOGLE_API_KEY (Agent Platform console)", () => {
+  it("express mode: basta GOOGLE_API_KEY anche se Firebase è su altro progetto", () => {
     delete process.env.VERTEX_PROJECT_ID;
     delete process.env.GOOGLE_CLOUD_PROJECT;
-    delete process.env.FIREBASE_PROJECT_ID;
+    process.env.FIREBASE_PROJECT_ID = "quotegen-engine-2";
     delete process.env.VERTEX_SERVICE_ACCOUNT_JSON;
     delete process.env.FIREBASE_CLIENT_EMAIL;
     delete process.env.FIREBASE_PRIVATE_KEY;
@@ -26,6 +26,7 @@ describe("gemini-client (Agent Platform)", () => {
 
     expect(isGeminiConfigured()).toBe(true);
     expect(getGeminiConfig().authMode).toBe("api_key_express");
+    expect(getGeminiConfig().projectId).toBe("");
   });
 
   it("service account: project + credenziali Firebase/Vertex", () => {
